@@ -1,0 +1,51 @@
+# Hyades
+
+> Plain-text typesetting engine. Renders LaTeX-like source into Unicode/ASCII text art for terminals, code comments, emails, and documentation.
+
+> Try it live: [Hyades Playground](<!-- PLAYGROUND_URL -->)
+
+## What It Does
+
+Hyades takes input like `$$\frac{a}{b}$$` and produces:
+
+```
+ 𝑎
+───
+ 𝑏
+```
+
+It supports math (fractions, integrals, matrices, Greek letters), tables with box-drawing frames, lists, flex-like layout (hbox/vbox), user-defined macros, and computation (variables, loops, functions).
+
+## Two Binaries
+
+- **hyades** — renders `.hy` source files (or stdin) to stdout
+- **cassilda** — document processor for `.cld` files with embedded rendering
+
+## Quick Start
+
+```bash
+# Direct rendering
+echo '$$\sum_{i=1}^n i^2$$' | hyades
+
+# Document processing
+cassilda render doc.cld label_name
+```
+
+## MCP Server
+
+An MCP server is available for AI assistants to render math expressions:
+
+- **Remote**: `https://hyades-mcp.apg.workers.dev/mcp` (Streamable HTTP, no install)
+- **Local**: `hyades-mcp` binary over stdio (offline, included in release)
+
+```json
+{ "mcpServers": { "hyades": { "url": "https://hyades-mcp.apg.workers.dev/mcp" } } }
+```
+or
+```json
+{ "mcpServers": { "hyades": { "command": "/path/to/hyades-mcp" } } }
+```
+
+## Full Documentation
+
+For complete syntax reference with examples, see: llms-full.txt

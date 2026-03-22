@@ -1,0 +1,43 @@
+{
+  "name": "hyades-language-server",
+  "version": "1.0.0",
+  "description": "Language Server Protocol implementation for Hyades documents",
+  "main": "dist/server.js",
+  "bin": {
+    "hyades-lsp": "./dist/server.js"
+  },
+  "scripts": {
+    "copy-wasm": "cp ../wasm/build/hyades-compat.js ../wasm/build/hyades-compat.wasm .",
+    "build": "npm run copy-wasm && tsc",
+    "bundle": "npm run build && mkdir -p bundle && esbuild dist/server.js --bundle --platform=node --target=node18 --outfile=bundle/server.js && cp hyades-compat.js hyades-compat.wasm bundle/",
+    "watch": "tsc -w",
+    "test": "jest",
+    "start": "node dist/server.js --stdio"
+  },
+  "keywords": [
+    "hyades",
+    "lsp",
+    "language-server",
+    "tex",
+    "ascii-art"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.11"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.20.2",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "bundle",
+    "hyades-compat.js",
+    "hyades-compat.wasm"
+  ]
+}

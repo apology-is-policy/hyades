@@ -1,0 +1,173 @@
+{
+    "name": "cassilda",
+    "displayName": "Cassilda - Hyades Document Embedder",
+    "description": "Syntax highlighting, output decoration, and folding for Cassilda (.cld) files",
+    "version": "0.1.0",
+    "publisher": "hyades",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/YOUR_USERNAME/hyades"
+    },
+    "bugs": {
+        "url": "https://github.com/YOUR_USERNAME/hyades/issues"
+    },
+    "homepage": "https://github.com/YOUR_USERNAME/hyades#readme",
+    "keywords": [
+        "cassilda",
+        "hyades",
+        "tex",
+        "latex",
+        "math",
+        "unicode",
+        "ascii",
+        "typesetting",
+        "mathematical notation"
+    ],
+    "engines": {
+        "vscode": "^1.74.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Formatters"
+    ],
+    "icon": "icon.png",
+    "galleryBanner": {
+        "color": "#1e1e1e",
+        "theme": "dark"
+    },
+    "activationEvents": [
+        "onLanguage:cassilda"
+    ],
+    "configurationDefaults": {
+        "[cassilda]": {
+            "editor.fontFamily": "JuliaMono, 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Source Code Pro', Menlo, Consolas, 'Courier New', monospace",
+            "editor.fontWeight": "300",
+            "editor.lineHeight": 18,
+            "editor.fontSize": 13,
+            "editor.semanticHighlighting.enabled": true
+        }
+    },
+    "main": "./out/extension.js",
+    "contributes": {
+        "languages": [
+            {
+                "id": "cassilda",
+                "aliases": [
+                    "Cassilda",
+                    "cld"
+                ],
+                "extensions": [
+                    ".cld"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "cassilda",
+                "scopeName": "source.cassilda",
+                "path": "./syntaxes/cassilda.tmLanguage.json"
+            }
+        ],
+        "configuration": {
+            "title": "Cassilda",
+            "properties": {
+                "cassilda.outputBackgroundColor": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Background color for rendered output lines (leave empty for theme-aware default)"
+                },
+                "cassilda.outputBorderColor": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Left border color for rendered output blocks (leave empty for theme-aware default)"
+                },
+                "cassilda.referenceBackgroundColor": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Background color for @cassilda: reference lines (leave empty for theme-aware default)"
+                },
+                "cassilda.executablePath": {
+                    "type": "string",
+                    "default": "cassilda",
+                    "description": "Path to the Cassilda executable"
+                },
+                "cassilda.processOnSave": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Automatically run Cassilda when saving files"
+                },
+                "cassilda.processOnSaveExclude": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [
+                        "**/wasm/**"
+                    ],
+                    "description": "Glob patterns for files to exclude from process-on-save"
+                },
+                "cassilda.processExtensions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [
+                        ".cld",
+                        ".c",
+                        ".cpp",
+                        ".h",
+                        ".hpp",
+                        ".py",
+                        ".js",
+                        ".ts"
+                    ],
+                    "description": "File extensions to process on save (e.g., '.c', '.py', '.js')"
+                },
+                "cassilda.configPath": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Path to .cassilda.json config file (leave empty to use --find-config)"
+                },
+                "cassilda.findConfig": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Search parent directories for .cassilda.json (safe: stops at .git, home, filesystem root)"
+                },
+                "cassilda.verbose": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show verbose output in Cassilda Output channel"
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "cassilda.process",
+                "title": "Cassilda: Process Current File"
+            },
+            {
+                "command": "cassilda.foldAllOutput",
+                "title": "Cassilda: Fold All Output"
+            },
+            {
+                "command": "cassilda.unfoldAllOutput",
+                "title": "Cassilda: Unfold All Output"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./"
+    },
+    "dependencies": {
+        "vscode-languageclient": "^9.0.1"
+    },
+    "devDependencies": {
+        "@types/node": "^18.0.0",
+        "@types/vscode": "^1.74.0",
+        "typescript": "^5.0.0"
+    }
+}

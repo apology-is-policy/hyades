@@ -1,0 +1,15 @@
+{
+  "name": "hyades-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "copy-wasm": "cp ../wasm/build/hyades-render.js src/ && cp ../wasm/build/hyades-render.wasm src/"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241205.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^4.69.0"
+  }
+}

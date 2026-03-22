@@ -1,0 +1,822 @@
+% @category: Math Typesetting
+% @name: Math Example Gallery (2)
+% @description: Example Complex Proofs
+@cassilda: virasoro-algebra
+│  𝐓𝐡𝐞𝐨𝐫𝐞𝐦   (Virasoro   Algebra).   𝐿𝑒𝑡 𝑇(𝑧) 𝑏𝑒   𝑡ℎ𝑒  ℎ𝑜𝑙𝑜𝑚𝑜𝑟𝑝ℎ𝑖𝑐   𝑠𝑡𝑟𝑒𝑠𝑠-𝑒𝑛𝑒𝑟𝑔𝑦  𝑡𝑒𝑛𝑠𝑜𝑟  𝑜𝑓  𝑎
+│  𝑡𝑤𝑜-𝑑𝑖𝑚𝑒𝑛𝑠𝑖𝑜𝑛𝑎𝑙  𝑐𝑜𝑛𝑓𝑜𝑟𝑚𝑎𝑙 𝑓𝑖𝑒𝑙𝑑 𝑡ℎ𝑒𝑜𝑟𝑦 𝑤𝑖𝑡ℎ 𝑐𝑒𝑛𝑡𝑟𝑎𝑙 𝑐ℎ𝑎𝑟𝑔𝑒 𝑐, 𝑠𝑎𝑡𝑖𝑠𝑓𝑦𝑖𝑛𝑔  𝑡ℎ𝑒 𝑜𝑝𝑒𝑟𝑎𝑡𝑜𝑟 𝑝𝑟𝑜𝑑𝑢𝑐𝑡
+│  𝑒𝑥𝑝𝑎𝑛𝑠𝑖𝑜𝑛
+│  
+│                                                               ∂ 𝑇(𝑤)
+│                                      𝑐 / 2        2 𝑇(𝑤)       𝑤
+│                        𝑇(𝑧) 𝑇(𝑤) ∼ ────────── + ────────── + ──────── + ⋯                  (𝑂𝑃𝐸)
+│                                            4            2     𝑧 − 𝑤
+│                                     (𝑧 − 𝑤)      (𝑧 − 𝑤)
+│  
+│  𝐷𝑒𝑓𝑖𝑛𝑒 𝑡ℎ𝑒 𝑉𝑖𝑟𝑎𝑠𝑜𝑟𝑜 𝑚𝑜𝑑𝑒𝑠 𝑏𝑦 𝑡ℎ𝑒 𝐿𝑎𝑢𝑟𝑒𝑛𝑡 𝑒𝑥𝑝𝑎𝑛𝑠𝑖𝑜𝑛
+│  
+│                                             ───       -𝑛 − 2
+│                                     𝑇(𝑧) =  ╲     𝐿  𝑧                                       (1)
+│                                             ╱⎽⎽    𝑛
+│                                            𝑛 ∈ ℤ
+│  
+│  𝑜𝑟 𝑒𝑞𝑢𝑖𝑣𝑎𝑙𝑒𝑛𝑡𝑙𝑦 𝑎𝑠 𝑐𝑜𝑛𝑡𝑜𝑢𝑟 𝑖𝑛𝑡𝑒𝑔𝑟𝑎𝑙𝑠 𝑎𝑟𝑜𝑢𝑛𝑑 𝑡ℎ𝑒 𝑜𝑟𝑖𝑔𝑖𝑛:
+│  
+│                                          ⌠   𝑑𝑧     𝑛 + 1
+│                                    𝐿  ≔  ⌽  ─────  𝑧      𝑇(𝑧)                               (2)
+│                                     𝑛    ⌡   2π𝑖
+│  
+│  𝑇ℎ𝑒𝑛 𝑡ℎ𝑒 𝑚𝑜𝑑𝑒𝑠 {𝐿 } 𝑐𝑙𝑜𝑠𝑒 𝑢𝑛𝑑𝑒𝑟 𝑐𝑜𝑚𝑚𝑢𝑡𝑎𝑡𝑖𝑜𝑛 𝑡𝑜 𝑓𝑜𝑟𝑚 𝑡ℎ𝑒 𝑉𝑖𝑟𝑎𝑠𝑜𝑟𝑜 𝑎𝑙𝑔𝑒𝑏𝑟𝑎:
+│                   𝑛
+│  
+│                     ┌───────────────────────────────────────────────────────┐
+│                     │                              𝑐       2                │
+│                     │[𝐿 ,  𝐿 ] = (𝑚 − 𝑛) 𝐿      + ────  𝑚(𝑚  − 1) δ         │              (𝑉𝑖𝑟)
+│                     │  𝑚    𝑛             𝑚 + 𝑛    12              𝑚 + 𝑛,  0│
+│                     └───────────────────────────────────────────────────────┘
+│  
+│  𝐏𝐫𝐨𝐨𝐟.
+│  
+│  𝐒𝐭𝐞𝐩 𝟏: 𝐂𝐨𝐦𝐦𝐮𝐭𝐚𝐭𝐨𝐫 𝐚𝐬 𝐚 𝐝𝐨𝐮𝐛𝐥𝐞 𝐜𝐨𝐧𝐭𝐨𝐮𝐫 𝐢𝐧𝐭𝐞𝐠𝐫𝐚𝐥. Using definition (2) for each mode:
+│  
+│                      ⌠   𝑑𝑤     𝑛 + 1  ⌠   𝑑𝑧     𝑚 + 1
+│          [𝐿 , 𝐿 ] =  ⌽  ─────  𝑤       ⌽  ─────  𝑧      𝑇(𝑧) 𝑇(𝑤)   −   (𝑚 ↔ 𝑛,   𝑧 ↔ 𝑤)     (3)
+│            𝑚   𝑛     ⌡   2π𝑖           ⌡   2π𝑖
+│                      0                 𝑤
+│  
+│         ⌠
+│  where  ⌽   denotes a contour  encircling 𝑧 = 𝑤. In a radially ordered theory the  difference of
+│         ⌡
+│         𝑤
+│  the two orderings picks out exactly the singular part of the OPE, so:
+│  
+│                                                     ⎡                            ∂ 𝑇(𝑤)  ⎤
+│                  ⌠   𝑑𝑤     𝑛 + 1  ⌠   𝑑𝑧     𝑚 + 1 ⎢   𝑐 / 2        2 𝑇(𝑤)       𝑤      ⎥
+│      [𝐿 , 𝐿 ] =  ⌽  ─────  𝑤       ⌽  ─────  𝑧      ⎢ ────────── + ────────── + ──────── ⎥   (4)
+│        𝑚   𝑛     ⌡   2π𝑖           ⌡   2π𝑖          ⎢         4            2     𝑧 − 𝑤   ⎥
+│                  0                 𝑤                ⎣  (𝑧 − 𝑤)      (𝑧 − 𝑤)              ⎦
+│  
+│  𝐒𝐭𝐞𝐩 𝟐: 𝐈𝐧𝐧𝐞𝐫 𝐫𝐞𝐬𝐢𝐝𝐮𝐞  𝐢𝐧𝐭𝐞𝐠𝐫𝐚𝐥𝐬. The inner 𝑧-integral in (4)  selects the residue at 𝑧 = 𝑤 for
+│  each of the three singular terms. The general formula for a holomorphic function 𝑓(𝑧) is:
+│  
+│                          ⌠   𝑑𝑧        𝑓(𝑧)          1        (𝑘 − 1)
+│                          ⌽  ─────   ────────── = ──────────  𝑓       (𝑤)                     (5)
+│                          ⌡   2π𝑖            𝑘     (𝑘 − 1)!
+│                          𝑤           (𝑧 − 𝑤)
+│  
+│                            𝑚 + 1
+│  Applying (5) with 𝑓(𝑧) = 𝑧      to each term in turn:
+│  
+│  𝐓𝐞𝐫𝐦 𝐀 (fourth-order pole, 𝑘 = 4):
+│  
+│                                                        │
+│                        𝑚 + 1              3            │
+│          ⌠   𝑑𝑧       𝑧           1      𝑑      𝑚 + 1  │         (𝑚 + 1)𝑚(𝑚 − 1)    𝑚 − 2
+│          ⌽  ─────   ────────── = ────   ─────  𝑧       │      = ─────────────────  𝑤         (6)
+│          ⌡   2π𝑖            4     3!       3           │                6
+│          𝑤           (𝑧 − 𝑤)             𝑑𝑧            │
+│                                                        │
+│                                                         𝑧 = 𝑤
+│  
+│  𝐓𝐞𝐫𝐦 𝐁 (double pole, 𝑘 = 2):
+│  
+│                                                           │
+│                                   𝑚 + 1                   │
+│                     ⌠   𝑑𝑧       𝑧           𝑑     𝑚 + 1  │                 𝑚
+│                     ⌽  ─────   ────────── = ────  𝑧       │      = (𝑚 + 1) 𝑤                 (7)
+│                     ⌡   2π𝑖            2     𝑑𝑧           │
+│                     𝑤           (𝑧 − 𝑤)                   │
+│                                                           │
+│                                                            𝑧 = 𝑤
+│  
+│  𝐓𝐞𝐫𝐦 𝐂 (simple pole, 𝑘 = 1):
+│  
+│                                        𝑚 + 1
+│                           ⌠   𝑑𝑧      𝑧          𝑚 + 1  │         𝑚 + 1
+│                           ⌽  ─────   ──────── = 𝑧       │      = 𝑤                           (8)
+│                           ⌡   2π𝑖     𝑧 − 𝑤             │
+│                           𝑤                              𝑧 = 𝑤
+│  
+│  𝐒𝐭𝐞𝐩 𝟑: 𝐀𝐬𝐬𝐞𝐦𝐛𝐥𝐢𝐧𝐠 𝐭𝐡𝐞 𝐨𝐮𝐭𝐞𝐫 𝐢𝐧𝐭𝐞𝐠𝐫𝐚𝐥. Substituting (6), (7), (8) into (4) and collecting:
+│  
+│                                   𝑐                    ⌠   𝑑𝑤     𝑚 + 𝑛 − 1
+│                      [𝐿 , 𝐿 ] =  ──── (𝑚 + 1)𝑚(𝑚 − 1)  ⌽  ─────  𝑤
+│                        𝑚   𝑛      12                   ⌡   2π𝑖
+│                                                        0
+│  
+│                                                ⌠   𝑑𝑤     𝑚 + 𝑛 + 1
+│                                    + 2(𝑚 + 1)  ⌽  ─────  𝑤          𝑇(𝑤)
+│                                                ⌡   2π𝑖                                       (9)
+│                                                0
+│  
+│                                       ⌠   𝑑𝑤     𝑚 + 𝑛 + 2
+│                                    +  ⌽  ─────  𝑤          ∂ 𝑇(𝑤)
+│                                       ⌡   2π𝑖               𝑤
+│                                       0
+│  
+│  𝐒𝐭𝐞𝐩 𝟒: 𝐄𝐯𝐚𝐥𝐮𝐚𝐭𝐢𝐧𝐠 𝐭𝐡𝐞 𝐨𝐮𝐭𝐞𝐫 𝐢𝐧𝐭𝐞𝐠𝐫𝐚𝐥𝐬. The three integrals in (9) are evaluated as follows.
+│  
+│                  ⌠   𝑑𝑤     𝑘
+│  The first uses  ⌽  ─────  𝑤  = δ        :
+│                  ⌡   2π𝑖         𝑘,   − 1
+│                  0
+│  
+│                                 ⌠   𝑑𝑤     𝑚 + 𝑛 − 1
+│                                 ⌽  ─────  𝑤          = δ                                    (10)
+│                                 ⌡   2π𝑖                 𝑚 + 𝑛,  0
+│                                 0
+│  
+│  The second is directly a Virasoro mode by definition (2):
+│  
+│                                 ⌠   𝑑𝑤     𝑚 + 𝑛 + 1
+│                                 ⌽  ─────  𝑤          𝑇(𝑤) = 𝐿                               (11)
+│                                 ⌡   2π𝑖                      𝑚 + 𝑛
+│                                 0
+│  
+│  The third is handled by integration by parts on the contour. Since the  integrand is single-va-
+│         ⌠
+│  lued,  ⌽  ∂ (⋯) 𝑑𝑤 = 0, so:
+│         ⌡   𝑤
+│         0
+│  
+│                   ⌠   𝑑𝑤        𝑚 + 𝑛 + 2
+│             0 =   ⌽  ─────  ∂ [𝑤          𝑇(𝑤)]
+│                   ⌡   2π𝑖    𝑤
+│                   0
+│                                                                                             (12)
+│                              ⌠   𝑑𝑤     𝑚 + 𝑛 + 1         ⌠   𝑑𝑤     𝑚 + 𝑛 + 2
+│               = (𝑚 + 𝑛 + 2)  ⌽  ─────  𝑤          𝑇(𝑤) +  ⌽  ─────  𝑤          ∂ 𝑇(𝑤)
+│                              ⌡   2π𝑖                      ⌡   2π𝑖               𝑤
+│                              0                            0
+│  
+│  Therefore:
+│  
+│                         ⌠   𝑑𝑤     𝑚 + 𝑛 + 2
+│                         ⌽  ─────  𝑤          ∂ 𝑇(𝑤) = -(𝑚 + 𝑛 + 2) 𝐿                        (13)
+│                         ⌡   2π𝑖               𝑤                     𝑚 + 𝑛
+│                         0
+│  
+│  𝐒𝐭𝐞𝐩 𝟓: 𝐂𝐨𝐦𝐛𝐢𝐧𝐢𝐧𝐠. Substituting (10), (11), (13) into (9):
+│  
+│                     𝑐
+│        [𝐿 , 𝐿 ] =  ──── (𝑚 + 1)𝑚(𝑚 − 1) δ          + 2(𝑚 + 1) 𝐿      − (𝑚 + 𝑛 + 2) 𝐿
+│          𝑚   𝑛      12                   𝑚 + 𝑛,  0             𝑚 + 𝑛                𝑚 + 𝑛
+│  
+│  Simplifying the coefficient of 𝐿     :
+│                                         𝑚 + 𝑛
+│  
+│                     𝑐                                ⎛                      ⎞
+│                 =  ──── (𝑚 + 1)𝑚(𝑚 − 1) δ          + ⎜  2𝑚 + 2 − 𝑚 − 𝑛 − 2  ⎟  𝐿
+│                     12                   𝑚 + 𝑛,  0   ⎝                      ⎠   𝑚 + 𝑛
+│  
+│                                     𝑐       2
+│                 = (𝑚 − 𝑛) 𝐿      + ────  𝑚(𝑚  − 1) δ
+│                            𝑚 + 𝑛    12              𝑚 + 𝑛,  0                               (14)
+│  
+│  This is precisely (Vir). □
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟏 (Classical  limit). Setting 𝑐 = 0 recovers [𝐿 , 𝐿 ] = (𝑚 − 𝑛)𝐿     , the 𝐖𝐢𝐭𝐭  𝐚𝐥𝐠𝐞𝐛𝐫𝐚
+│                                                        𝑚   𝑛            𝑚 + 𝑛
+│                                  𝑛 + 1       1
+│  of meromorphic  vector fields -𝑧     ∂  on 𝑆 . The  central charge 𝑐 is therefore a purely qua-
+│                                        𝑧
+│  ntum correction — the 𝑐𝑒𝑛𝑡𝑟𝑎𝑙 𝑒𝑥𝑡𝑒𝑛𝑠𝑖𝑜𝑛 of the Witt algebra — arising from the  normal-ordering
+│  ambiguity in the composite operator 𝑇(𝑧)𝑇(𝑤).
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟐 (Unitarity  and  the Kac  table). 𝑇ℎ𝑒  𝑣𝑎𝑐𝑢𝑢𝑚 |0⟩ 𝑠𝑎𝑡𝑖𝑠𝑓𝑖𝑒𝑠 𝐿 |0⟩ = 0 𝑓𝑜𝑟  𝑎𝑙𝑙 𝑛 ≥ -1.
+│                                                                        𝑛
+│  𝑃ℎ𝑦𝑠𝑖𝑐𝑎𝑙 𝑠𝑡𝑎𝑡𝑒𝑠 𝑎𝑟𝑒 𝑒𝑖𝑔𝑒𝑛𝑠𝑡𝑎𝑡𝑒𝑠 𝑜𝑓 𝐿 :
+│                                      0
+│  
+│                                          𝐿  |ℎ⟩ = ℎ |ℎ⟩                                     (15)
+│                                           0
+│  
+│  𝑤𝑖𝑡ℎ ℎ ≥ 0 𝑡ℎ𝑒 𝑐𝑜𝑛𝑓𝑜𝑟𝑚𝑎𝑙 𝑤𝑒𝑖𝑔ℎ𝑡. 𝑇ℎ𝑒 𝑛𝑜𝑟𝑚 𝑜𝑓 𝑡ℎ𝑒 𝑙𝑒𝑣𝑒𝑙-𝑛 𝑑𝑒𝑠𝑐𝑒𝑛𝑑𝑎𝑛𝑡 𝐿  |ℎ⟩ 𝑓𝑜𝑙𝑙𝑜𝑤𝑠 𝑓𝑟𝑜𝑚 (𝑉𝑖𝑟):
+│                                                                       -𝑛
+│  
+│                                 2                          𝑐       2
+│                         ║𝐿  |ℎ⟩║  = ⟨ℎ| 𝐿 𝐿   |ℎ⟩ = 2𝑛ℎ + ────  𝑛(𝑛  − 1)                   (16)
+│                           -𝑛             𝑛 -𝑛              12
+│  
+│  𝑈𝑛𝑖𝑡𝑎𝑟𝑖𝑡𝑦  𝑑𝑒𝑚𝑎𝑛𝑑𝑠 𝑡ℎ𝑖𝑠 𝑏𝑒 𝑛𝑜𝑛-𝑛𝑒𝑔𝑎𝑡𝑖𝑣𝑒  𝑓𝑜𝑟 𝑎𝑙𝑙 𝑛 ≥ 1, 𝑦𝑖𝑒𝑙𝑑𝑖𝑛𝑔 𝑛𝑜𝑛𝑡𝑟𝑖𝑣𝑖𝑎𝑙  𝑐𝑜𝑛𝑠𝑡𝑟𝑎𝑖𝑛𝑡𝑠 𝑜𝑛 𝑡ℎ𝑒
+│  𝑎𝑙𝑙𝑜𝑤𝑒𝑑 𝑝𝑎𝑖𝑟𝑠 (𝑐, ℎ). 𝐹𝑜𝑟 0 < 𝑐 < 1 𝑡ℎ𝑒𝑠𝑒 𝑐𝑜𝑛𝑠𝑡𝑟𝑎𝑖𝑛𝑡𝑠 𝑎𝑟𝑒 ℎ𝑖𝑔ℎ𝑙𝑦 𝑟𝑒𝑠𝑡𝑟𝑖𝑐𝑡𝑖𝑣𝑒, 𝑎𝑛𝑑 𝑡ℎ𝑒 𝑠𝑜𝑙𝑢𝑡𝑖𝑜𝑛𝑠
+│  𝑓𝑜𝑟𝑚 𝑡ℎ𝑒 𝑑𝑖𝑠𝑐𝑟𝑒𝑡𝑒 𝐊𝐚𝐜 𝐭𝐚𝐛𝐥𝐞 𝑜𝑓 𝑚𝑖𝑛𝑖𝑚𝑎𝑙 𝑚𝑜𝑑𝑒𝑙𝑠 ℳ(𝑝, 𝑞).
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟑 (Critical dimension of the bosonic string). In bosonic string theory the stress tensor
+│                               μ
+│  is built from 𝐷 free bosons 𝑋 (𝑧), each  contributing 𝑐 = 1, plus a Faddeev-Popov  ghost system
+│  with 𝑐 = -26. The condition that the total Weyl anomaly vanishes is:
+│  
+│                                𝑐      = 𝐷 ⋅ 1 + (-26) = 0 ⇒ 𝐷 = 26                          (17)
+│                                 total
+│  
+│  This is the origin of the 𝐜𝐫𝐢𝐭𝐢𝐜𝐚𝐥 𝐝𝐢𝐦𝐞𝐧𝐬𝐢𝐨𝐧. For the  superstring, each boson is paired with a
+│                                            1
+│  Majorana-Weyl  fermion  contributing 𝑐 = ───, and the  superghosts contribute 𝑐 = +11,  giving
+│                                            2
+│  𝑐      = 0 when 𝐷 = 10.
+│   total
+@label virasoro-algebra
+    \textbf{Theorem} (Virasoro Algebra).
+    \textit{Let $T(z)$ be the holomorphic stress-energy tensor of a
+    two-dimensional conformal field theory with central charge $c$, satisfying
+    the operator product expansion}
+
+    $$T(z)\,T(w) \sim \frac{c/2}{(z-w)^4} + \frac{2\,T(w)}{(z-w)^2}
+    + \frac{\partial_w T(w)}{z - w} + \cdots \tag{OPE}$$
+
+    \textit{Define the Virasoro modes by the Laurent expansion}
+
+    $$T(z) = \sum_{n \in \mathbb{Z}} L_n\, z^{-n-2} \tag{1}$$
+
+    \textit{or equivalently as contour integrals around the origin:}
+
+    $$L_n \coloneqq \oint \frac{dz}{2\pi i}\, z^{n+1}\, T(z) \tag{2}$$
+
+    \textit{Then the modes $\{L_n\}$ close under commutation to form the
+    Virasoro algebra:}
+
+    $$\boxed{[L_m,\, L_n] = (m - n)\,L_{m+n}
+    + \frac{c}{12}\,m(m^2 - 1)\,\delta_{m+n,\,0}} \tag{Vir}$$
+
+    \textbf{Proof.}
+
+    \textbf{Step 1: Commutator as a double contour integral.}
+    Using definition (2) for each mode:
+
+    $$[L_m, L_n] = \oint_0 \frac{dw}{2\pi i}\, w^{n+1}
+    \oint_w \frac{dz}{2\pi i}\, z^{m+1}\, T(z)\,T(w)
+    \;-\; (m \leftrightarrow n,\; z \leftrightarrow w) \tag{3}$$
+
+    where $\oint_w$ denotes a contour encircling $z = w$. In a radially ordered
+    theory the difference of the two orderings picks out exactly the singular
+    part of the OPE, so:
+
+    $$[L_m, L_n] = \oint_0 \frac{dw}{2\pi i}\, w^{n+1}
+    \oint_w \frac{dz}{2\pi i}\, z^{m+1}
+    \left[\frac{c/2}{(z-w)^4} + \frac{2\,T(w)}{(z-w)^2}
+    + \frac{\partial_w T(w)}{z - w}\right] \tag{4}$$
+
+    \textbf{Step 2: Inner residue integrals.} The inner $z$-integral
+    in (4) selects the residue at $z = w$ for each of the three singular
+    terms. The general formula for a holomorphic function $f(z)$ is:
+
+    $$\oint_w \frac{dz}{2\pi i}\, \frac{f(z)}{(z-w)^k}
+    = \frac{1}{(k-1)!}\, f^{(k-1)}(w) \tag{5}$$
+
+    Applying (5) with $f(z) = z^{m+1}$ to each term in turn:
+
+    \textbf{Term A} (fourth-order pole, $k = 4$):
+
+    $$\oint_w \frac{dz}{2\pi i}\, \frac{z^{m+1}}{(z-w)^4}
+    = \frac{1}{3!}\, \frac{d^3}{dz^3}\, z^{m+1}\biggr|_{z=w}
+    = \frac{(m+1)m(m-1)}{6}\, w^{m-2} \tag{6}$$
+
+    \textbf{Term B} (double pole, $k = 2$):
+
+    $$\oint_w \frac{dz}{2\pi i}\, \frac{z^{m+1}}{(z-w)^2}
+    = \frac{d}{dz}\, z^{m+1}\biggr|_{z=w}
+    = (m+1)\,w^m \tag{7}$$
+
+    \textbf{Term C} (simple pole, $k = 1$):
+
+    $$\oint_w \frac{dz}{2\pi i}\, \frac{z^{m+1}}{z - w}
+    = z^{m+1}\bigr|_{z=w} = w^{m+1} \tag{8}$$
+
+    \textbf{Step 3: Assembling the outer integral.} Substituting
+    (6), (7), (8) into (4) and collecting:
+
+    $$\aligned{
+    [L_m, L_n]
+    &= \frac{c}{12}(m+1)m(m-1)
+       \oint_0 \frac{dw}{2\pi i}\, w^{m+n-1} \\
+    &\quad + 2(m+1)
+       \oint_0 \frac{dw}{2\pi i}\, w^{m+n+1}\, T(w) \\
+    &\quad +
+       \oint_0 \frac{dw}{2\pi i}\, w^{m+n+2}\, \partial_w T(w)
+    } \tag{9}$$
+
+    \textbf{Step 4: Evaluating the outer integrals.}
+    The three integrals in (9) are evaluated as follows.
+
+    The first uses $\oint_0 \frac{dw}{2\pi i}\, w^k = \delta_{k,\,-1}$:
+
+    $$\oint_0 \frac{dw}{2\pi i}\, w^{m+n-1} = \delta_{m+n,\,0} \tag{10}$$
+
+    The second is directly a Virasoro mode by definition (2):
+
+    $$\oint_0 \frac{dw}{2\pi i}\, w^{m+n+1}\, T(w) = L_{m+n} \tag{11}$$
+
+    The third is handled by integration by parts on the contour. Since the
+    integrand is single-valued, $\oint_0 \partial_w(\cdots)\,dw = 0$, so:
+
+    $$\aligned{
+    0 &= \oint_0 \frac{dw}{2\pi i}\,
+       \partial_w\!\left[w^{m+n+2}\, T(w)\right] \\
+      &= (m+n+2) \oint_0 \frac{dw}{2\pi i}\, w^{m+n+1}\, T(w)
+       + \oint_0 \frac{dw}{2\pi i}\, w^{m+n+2}\, \partial_w T(w)
+    } \tag{12}$$
+
+    Therefore:
+
+    $$\oint_0 \frac{dw}{2\pi i}\, w^{m+n+2}\, \partial_w T(w)
+    = -(m+n+2)\, L_{m+n} \tag{13}$$
+
+    \textbf{Step 5: Combining.}
+    Substituting (10), (11), (13) into (9):
+
+    $$\aligned{
+    [L_m, L_n]
+    &= \frac{c}{12}(m+1)m(m-1)\,\delta_{m+n,\,0}
+       + 2(m+1)\, L_{m+n} - (m+n+2)\, L_{m+n} \\
+    \intertext{Simplifying the coefficient of $L_{m+n}$:}
+    &= \frac{c}{12}(m+1)m(m-1)\,\delta_{m+n,\,0}
+       + \bigl(2m + 2 - m - n - 2\bigr)\, L_{m+n} \\
+    &= (m - n)\, L_{m+n}
+       + \frac{c}{12}\,m(m^2 - 1)\,\delta_{m+n,\,0}
+    } \tag{14}$$
+
+    This is precisely (Vir). $\square$
+
+    \vskip{1}
+
+    \textbf{Remark 1} (Classical limit). Setting $c = 0$ recovers
+    $[L_m, L_n] = (m-n)L_{m+n}$, the \textbf{Witt algebra} of meromorphic
+    vector fields $-z^{n+1}\partial_z$ on $S^1$. The central charge $c$ is
+    therefore a purely quantum correction — the \textit{central extension}
+    of the Witt algebra — arising from the normal-ordering ambiguity in the
+    composite operator $T(z)T(w)$.
+
+    \textbf{Remark 2} (Unitarity and the Kac table).
+    \textit{The vacuum $|0\rangle$ satisfies $L_n|0\rangle = 0$ for all
+    $n \geq -1$. Physical states are eigenstates of $L_0$:}
+
+    $$L_0\,|h\rangle = h\,|h\rangle \tag{15}$$
+
+    \textit{with $h \geq 0$ the conformal weight. The norm of the
+    level-$n$ descendant $L_{-n}|h\rangle$ follows from (Vir):}
+
+    $$\lVert L_{-n}|h\rangle \rVert^2
+    = \langle h|\,L_n L_{-n}\,|h\rangle
+    = 2n h + \frac{c}{12}\,n(n^2 - 1) \tag{16}$$
+
+    \textit{Unitarity demands this be non-negative for all $n \geq 1$,
+    yielding nontrivial constraints on the allowed pairs $(c, h)$. For
+    $0 < c < 1$ these constraints are highly restrictive, and the solutions
+    form the discrete} \textbf{Kac table} \textit{of minimal models
+    $\mathcal{M}(p, q)$.}
+
+    \textbf{Remark 3} (Critical dimension of the bosonic string).
+    In bosonic string theory the stress tensor is built from $D$ free bosons
+    $X^\mu(z)$, each contributing $c = 1$, plus a Faddeev-Popov ghost system
+    with $c = -26$. The condition that the total Weyl anomaly vanishes is:
+
+    $$c_{\text{total}} = D \cdot 1 + (-26) = 0 \implies D = 26 \tag{17}$$
+
+    This is the origin of the \textbf{critical dimension}. For the superstring,
+    each boson is paired with a Majorana-Weyl fermion contributing
+    $c = \tfrac{1}{2}$, and the superghosts contribute $c = +11$, giving
+    $c_{\text{total}} = 0$ when $D = 10$.
+@end
+
+@cassilda: noether
+│                                                    𝑎     𝑎   μ
+│  𝐓𝐡𝐞𝐨𝐫𝐞𝐦 (Noether,  field-theory version).  𝐿𝑒𝑡 ℒ(φ , ∂ φ , 𝑥 ) 𝑏𝑒 𝑎 𝐿𝑎𝑔𝑟𝑎𝑛𝑔𝑖𝑎𝑛
+│                                                        μ
+│                                  𝑎
+│  𝑑𝑒𝑛𝑠𝑖𝑡𝑦  𝑑𝑒𝑝𝑒𝑛𝑑𝑖𝑛𝑔 𝑜𝑛 𝑁 𝑓𝑖𝑒𝑙𝑑𝑠 φ  (𝑎 = 1, …, 𝑁) 𝑎𝑛𝑑  𝑡ℎ𝑒𝑖𝑟 𝑓𝑖𝑟𝑠𝑡  𝑑𝑒𝑟𝑖𝑣𝑎𝑡𝑖𝑣𝑒𝑠,
+│  𝑎𝑛𝑑 𝑙𝑒𝑡 𝑡ℎ𝑒 𝑎𝑐𝑡𝑖𝑜𝑛 𝑏𝑒
+│  
+│                                 ⌠   4      𝑎     𝑎   μ
+│                         𝑆[φ] =  ⎮  𝑑 𝑥  ℒ(φ , ∂ φ , 𝑥 )                     (1)
+│                                 ⌡              μ
+│  
+│  𝑆𝑢𝑝𝑝𝑜𝑠𝑒 𝑆 𝑖𝑠  𝑖𝑛𝑣𝑎𝑟𝑖𝑎𝑛𝑡  —  𝑢𝑝  𝑡𝑜  𝑎 𝑡𝑜𝑡𝑎𝑙  𝑑𝑖𝑣𝑒𝑟𝑔𝑒𝑛𝑐𝑒 — 𝑢𝑛𝑑𝑒𝑟  𝑎  𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑜𝑢𝑠
+│  𝑜𝑛𝑒-𝑝𝑎𝑟𝑎𝑚𝑒𝑡𝑒𝑟 𝑓𝑎𝑚𝑖𝑙𝑦 𝑜𝑓 𝑓𝑖𝑒𝑙𝑑 𝑡𝑟𝑎𝑛𝑠𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛𝑠 𝑝𝑎𝑟𝑎𝑚𝑒𝑡𝑟𝑖𝑠𝑒𝑑 𝑏𝑦 ε:
+│  
+│              𝑎         𝑎          𝑎              μ      μ      μ
+│             φ (𝑥)  ⟼  φ (𝑥) + ε Δφ (𝑥),         𝑥   ⟼  𝑥  + ε ξ (𝑥)         (2)
+│  
+│                                         μ
+│  𝑇ℎ𝑒𝑛 𝑡ℎ𝑒𝑟𝑒 𝑒𝑥𝑖𝑠𝑡𝑠 𝑎 𝑐𝑜𝑛𝑠𝑒𝑟𝑣𝑒𝑑 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑗 (𝑥) 𝑠𝑎𝑡𝑖𝑠𝑓𝑦𝑖𝑛𝑔
+│  
+│                                    ┌────────┐
+│                                    │   μ    │
+│                                    │∂ 𝑗  = 0│                               (𝑁)
+│                                    │ μ      │
+│                                    └────────┘
+│  
+│  𝑎𝑛𝑑 𝑎 𝑐𝑜𝑟𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑖𝑛𝑔 𝑐𝑜𝑛𝑠𝑒𝑟𝑣𝑒𝑑 𝑐ℎ𝑎𝑟𝑔𝑒
+│  
+│                           ⌠   3    0               𝑑𝑄
+│                      𝑄 ≔  ⎮  𝑑 𝑥  𝑗 (𝑥),          ──── = 0                  (3)
+│                           ⌡                        𝑑𝑡
+│                           Σ
+│  
+│  𝑤ℎ𝑒𝑟𝑒 Σ 𝑖𝑠 𝑎𝑛𝑦 𝑠𝑝𝑎𝑐𝑒𝑙𝑖𝑘𝑒 ℎ𝑦𝑝𝑒𝑟𝑠𝑢𝑟𝑓𝑎𝑐𝑒.
+│  
+│  𝐏𝐫𝐨𝐨𝐟.
+│  
+│  𝐒𝐭𝐞𝐩 𝟏: 𝐕𝐚𝐫𝐢𝐚𝐭𝐢𝐨𝐧 𝐨𝐟 𝐭𝐡𝐞  𝐚𝐜𝐭𝐢𝐨𝐧. Under the  transformation (2), the field va-
+│  riation at fixed spacetime point 𝑥 is
+│  
+│                           𝑎     ⎛   𝑎    μ   𝑎 ⎞       𝑎
+│                        δ φ  ≔ ε ⎜ Δφ  − ξ ∂ φ  ⎟ ≕ ε Δ̄φ                     (4)
+│                         ε       ⎝          μ   ⎠
+│  
+│          𝑎
+│  where Δ̄φ  is the 𝑖𝑛𝑡𝑒𝑟𝑛𝑎𝑙 variation — the change in the field value at a fixed
+│  label point. The corresponding variation of the Lagrangian density is:
+│  
+│                         ∂ℒ      𝑎      ∂ℒ           𝑎     μ
+│                  δ ℒ = ─────  Δ̄φ  + ─────────  ∂ (Δ̄φ ) + ξ ∂ ℒ              (5)
+│                   ε       𝑎               𝑎     μ           μ
+│                         ∂φ           ∂(∂ φ )
+│                                         μ
+│  
+│  𝐒𝐭𝐞𝐩 𝟐: 𝐔𝐬𝐢𝐧𝐠 𝐭𝐡𝐞  𝐄𝐮𝐥𝐞𝐫-𝐋𝐚𝐠𝐫𝐚𝐧𝐠𝐞 𝐞𝐪𝐮𝐚𝐭𝐢𝐨𝐧𝐬. On-shell — i.e. for  fields sati-
+│  sfying the field equations — the Euler-Lagrange equations hold for each field
+│   𝑎
+│  φ :
+│  
+│                              ∂ℒ           ∂ℒ
+│                             ───── − ∂  ───────── = 0                       (𝐸𝐿)
+│                                𝑎     μ       𝑎
+│                              ∂φ         ∂(∂ φ )
+│                                            μ
+│  
+│  We  use  (EL)  to  rewrite  the  first  term in (5).  Adding and  subtracting
+│     ⎛           ⎞
+│     ⎜    ∂ℒ     ⎟   𝑎
+│  ∂  ⎜ ───────── ⎟ Δ̄φ :
+│   μ ⎜       𝑎   ⎟
+│     ⎝  ∂(∂ φ )  ⎠
+│           μ
+│  
+│                                             ⎡                ⎤
+│         ∂ℒ      𝑎      ∂ℒ           𝑎       ⎢    ∂ℒ        𝑎 ⎥
+│        ─────  Δ̄φ  + ─────────  ∂ (Δ̄φ ) = ∂  ⎢ ─────────  Δ̄φ  ⎥
+│           𝑎               𝑎     μ         μ ⎢       𝑎        ⎥
+│         ∂φ           ∂(∂ φ )                ⎣  ∂(∂ φ )       ⎦
+│                         μ                         μ
+│  
+│                                               ⎡                      ⎤      (6)
+│                                               ⎢  ∂ℒ           ∂ℒ     ⎥  𝑎
+│                                             + ⎢ ───── − ∂  ───────── ⎥Δ̄φ
+│                                               ⎢    𝑎     μ       𝑎   ⎥
+│                                               ⎣  ∂φ         ∂(∂ φ )  ⎦
+│                                                                μ
+│                                               ╰───────────┬──────────╯
+│                                                      =  0  (EL)
+│  
+│  The underbraced term vanishes on-shell. Substituting back into (5):
+│  
+│                                ⎡                ⎤
+│                                ⎢    ∂ℒ        𝑎 ⎥    μ
+│                       δ ℒ = ∂  ⎢ ─────────  Δ̄φ  ⎥ + ξ ∂ ℒ                   (7)
+│                        ε     μ ⎢       𝑎        ⎥      μ
+│                                ⎣  ∂(∂ φ )       ⎦
+│                                      μ
+│  
+│  𝐒𝐭𝐞𝐩 𝟑: 𝐓𝐡𝐞 𝐬𝐲𝐦𝐦𝐞𝐭𝐫𝐲 𝐜𝐨𝐧𝐝𝐢𝐭𝐢𝐨𝐧. By assumption, the transformation (2) is a sy-
+│  mmetry: 𝑆 is invariant up to a total divergence, meaning
+│  
+│                                            μ
+│                                 δ ℒ = ε ∂ 𝐾 (𝑥)                             (8)
+│                                  ε       μ
+│  
+│                    μ
+│  for some current 𝐾  (which vanishes for strict  symmetries). Dividing by ε and
+│  combining (7) and (8):
+│  
+│                          ⎡                           ⎤
+│                          ⎢    ∂ℒ        𝑎    μ     μ ⎥
+│                       ∂  ⎢ ─────────  Δ̄φ  + ξ ℒ − 𝐾  ⎥ = 0                  (9)
+│                        μ ⎢       𝑎                   ⎥
+│                          ⎣  ∂(∂ φ )                  ⎦
+│                                μ
+│  
+│                                                                     μ
+│  𝐒𝐭𝐞𝐩 𝟒: 𝐓𝐡𝐞 𝐍𝐨𝐞𝐭𝐡𝐞𝐫 𝐜𝐮𝐫𝐫𝐞𝐧𝐭. Equation (9) is a conservation law ∂ 𝑗  = 0 with
+│                                                                   μ
+│  
+│                           μ      ∂ℒ        𝑎    μ     μ
+│                          𝑗  ≔ ─────────  Δ̄φ  + ξ ℒ − 𝐾                     (10)
+│                                     𝑎
+│                                ∂(∂ φ )
+│                                   μ
+│  
+│                                     𝑎     𝑎    ν   𝑎
+│  Substituting back the definition Δ̄φ  = Δφ  − ξ ∂ φ  from (4):
+│                                                  ν
+│  
+│                  ┌───────────────────────────────────────────┐
+│                  │ μ      ∂ℒ      ⎛   𝑎    ν   𝑎 ⎞    μ     μ│
+│                  │𝑗  = ─────────  ⎜ Δφ  − ξ ∂ φ  ⎟ + ξ ℒ − 𝐾 │             (11)
+│                  │           𝑎    ⎝          ν   ⎠           │
+│                  │      ∂(∂ φ )                              │
+│                  │         μ                                 │
+│                  └───────────────────────────────────────────┘
+│  
+│  This is the 𝐍𝐨𝐞𝐭𝐡𝐞𝐫 𝐜𝐮𝐫𝐫𝐞𝐧𝐭.
+│  
+│                                                μ
+│  𝐒𝐭𝐞𝐩 𝟓: 𝐓𝐡𝐞 𝐜𝐨𝐧𝐬𝐞𝐫𝐯𝐞𝐝 𝐜𝐡𝐚𝐫𝐠𝐞.  Integrating ∂ 𝑗  = 0 over a spacetime volume 𝑉
+│                                              μ
+│  bounded by two spacelike slices Σ   and Σ  , and applying the divergence theo-
+│                                   𝑡       𝑡
+│                                    1       2
+│  rem:
+│  
+│                     ⌠   4      μ
+│               0 =   ⎮  𝑑 𝑥  ∂ 𝑗
+│                     ⌡        μ
+│                     𝑉
+│  
+│                     ⌠    3    0    ⌠    3    0       ⌠       𝑖             (12)
+│                 =   ⎮   𝑑 𝑥  𝑗  −  ⎮   𝑑 𝑥  𝑗  +     ⌽      𝑗  𝑑𝑆
+│                     ⌡              ⌡                 ⌡           𝑖
+│                    Σ              Σ              ∂𝑉
+│                     𝑡              𝑡               spatial
+│                      2              1
+│  
+│  Assuming the fields fall off sufficiently fast at spatial infinity so that the
+│  boundary term vanishes, we obtain
+│  
+│                              𝑑    ⌠   3    0
+│                             ────  ⎮  𝑑 𝑥  𝑗 (𝑥) = 0                        (13)
+│                              𝑑𝑡   ⌡
+│                                   Σ
+│  
+│                     ⌠   3    0
+│  so the charge 𝑄 ≔  ⎮  𝑑 𝑥  𝑗  is conserved. □
+│                     ⌡
+│                     Σ
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟏 (Internal symmetry: 𝑈(1) example). 𝐶𝑜𝑛𝑠𝑖𝑑𝑒𝑟 𝑎 𝑐𝑜𝑚𝑝𝑙𝑒𝑥 𝑠𝑐𝑎𝑙𝑎𝑟 𝑓𝑖𝑒𝑙𝑑 ψ
+│                           2    2   2                          𝑖ε
+│  𝑤𝑖𝑡ℎ 𝐿𝑎𝑔𝑟𝑎𝑛𝑔𝑖𝑎𝑛 ℒ = |∂ ψ|  − 𝑚 |ψ| . 𝑇ℎ𝑒 𝑡𝑟𝑎𝑛𝑠𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 ψ ↦ 𝑒  ψ 𝑖𝑠 𝑎 𝑈(1) 𝑠𝑦-
+│                        μ
+│               μ
+│  𝑚𝑚𝑒𝑡𝑟𝑦 𝑤𝑖𝑡ℎ ξ  = 0 𝑎𝑛𝑑 Δψ = 𝑖ψ. 𝑇ℎ𝑒 𝑁𝑜𝑒𝑡ℎ𝑒𝑟 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑖𝑠
+│  
+│                              μ      * μ      μ *
+│                             𝑗  = 𝑖[ψ ∂ ψ − (∂ ψ )ψ]                        (14)
+│  
+│                                                             ⌠   3    0
+│  𝑎𝑛𝑑 𝑡ℎ𝑒 𝑐𝑜𝑛𝑠𝑒𝑟𝑣𝑒𝑑 𝑐ℎ𝑎𝑟𝑔𝑒 𝑖𝑠 𝑡ℎ𝑒 𝑡𝑜𝑡𝑎𝑙 𝑒𝑙𝑒𝑐𝑡𝑟𝑖𝑐 𝑐ℎ𝑎𝑟𝑔𝑒 𝑄 =  ⎮  𝑑 𝑥  𝑗 . 𝑇ℎ𝑖𝑠 𝑖𝑠
+│                                                             ⌡
+│  𝑡ℎ𝑒 𝑝𝑟𝑜𝑡𝑜𝑡𝑦𝑝𝑒 𝑓𝑜𝑟 𝑎𝑙𝑙 𝑔𝑎𝑢𝑔𝑒 𝑡ℎ𝑒𝑜𝑟𝑖𝑒𝑠.
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟐 (Spacetime translation:  energy-momentum tensor).  For the  spacetime
+│               μ    μ    μ          μ    μ
+│  translation 𝑥  → 𝑥  + ε  we have ξ  = δ  (for translation in direction ν) and
+│                                         ν
+│    𝑎       μ
+│  Δφ  = 0, 𝐾  = 0. The four  conserved currents (one per  direction ν) are asse-
+│  mbled into the 𝐞𝐧𝐞𝐫𝐠𝐲-𝐦𝐨𝐦𝐞𝐧𝐭𝐮𝐦 𝐭𝐞𝐧𝐬𝐨𝐫:
+│  
+│                            μ       ∂ℒ         𝑎    μ
+│                           𝑇   ≔ ─────────  ∂ φ  − δ  ℒ                     (15)
+│                             ν         𝑎     ν      ν
+│                                  ∂(∂ φ )
+│                                     μ
+│  
+│                μ
+│  satisfying ∂ 𝑇   = 0. The four conserved charges are
+│              μ  ν
+│  
+│                                 ν    ⌠   3    0ν
+│                                𝑃  =  ⎮  𝑑 𝑥  𝑇                             (16)
+│                                      ⌡
+│                                      Σ
+│  
+│  — the total energy (ν = 0) and spatial momentum (ν = 1, 2, 3) of the field co-
+│  nfiguration.
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟑 (Angular momentum and Lorentz invariance). For Lorentz boosts and ro-
+│           μ    μ    μ  ν
+│  tations 𝑥  → 𝑥  + ω  𝑥  (with ω   antisymmetric), the Noether procedure yields
+│                      ν          μν
+│  the 𝐚𝐧𝐠𝐮𝐥𝐚𝐫 𝐦𝐨𝐦𝐞𝐧𝐭𝐮𝐦 𝐭𝐞𝐧𝐬𝐨𝐫
+│  
+│                                                          𝑎
+│                    μνρ    ν μρ    ρ μν      ∂ℒ        νρ     𝑏
+│                   𝑀    ≔ 𝑥 𝑇   − 𝑥 𝑇   + ─────────  (𝑆  )   φ              (17)
+│                                                𝑎          𝑏
+│                                           ∂(∂ φ )
+│                                              μ
+│  
+│             𝑎
+│          νρ
+│  where (𝑆  )   are the spin matrices of the field in representation 𝑎. The last
+│              𝑏
+│  term is the intrinsic spin contribution, absent for scalar fields.
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟒 (Quantum version). 𝐼𝑛 𝑐𝑎𝑛𝑜𝑛𝑖𝑐𝑎𝑙  𝑞𝑢𝑎𝑛𝑡𝑖𝑠𝑎𝑡𝑖𝑜𝑛, 𝑄 𝑏𝑒𝑐𝑜𝑚𝑒𝑠 𝑎𝑛 𝑜𝑝𝑒𝑟𝑎𝑡𝑜𝑟.
+│  𝐼𝑓 𝑡ℎ𝑒  𝑣𝑎𝑐𝑢𝑢𝑚 𝑖𝑠 𝑖𝑛𝑣𝑎𝑟𝑖𝑎𝑛𝑡, 𝑄|0⟩ = 0, 𝑡ℎ𝑒𝑛 𝑡ℎ𝑒  𝑠𝑦𝑚𝑚𝑒𝑡𝑟𝑦 𝑖𝑠 𝑟𝑒𝑎𝑙𝑖𝑠𝑒𝑑  𝑖𝑛  𝑡ℎ𝑒
+│  𝑊𝑖𝑔𝑛𝑒𝑟-𝑊𝑒𝑦𝑙  𝑚𝑜𝑑𝑒 𝑎𝑛𝑑 𝑡ℎ𝑒  𝑠𝑝𝑒𝑐𝑡𝑟𝑢𝑚 𝑜𝑟𝑔𝑎𝑛𝑖𝑠𝑒𝑠 𝑖𝑛𝑡𝑜  𝑚𝑢𝑙𝑡𝑖𝑝𝑙𝑒𝑡𝑠 𝑜𝑓 𝑡ℎ𝑒 𝑠𝑦𝑚𝑚𝑒𝑡𝑟𝑦
+│  𝑔𝑟𝑜𝑢𝑝. 𝐼𝑓 𝑄|0⟩ ≠ 0, 𝑡ℎ𝑒 𝑠𝑦𝑚𝑚𝑒𝑡𝑟𝑦 𝑖𝑠 𝑠𝑝𝑜𝑛𝑡𝑎𝑛𝑒𝑜𝑢𝑠𝑙𝑦 𝑏𝑟𝑜𝑘𝑒𝑛 — 𝑡ℎ𝑒 𝐺𝑜𝑙𝑑𝑠𝑡𝑜𝑛𝑒 𝑡ℎ𝑒𝑜-
+│  𝑟𝑒𝑚 𝑡ℎ𝑒𝑛 𝑔𝑢𝑎𝑟𝑎𝑛𝑡𝑒𝑒𝑠 𝑎 𝑚𝑎𝑠𝑠𝑙𝑒𝑠𝑠 𝑠𝑐𝑎𝑙𝑎𝑟 𝑝𝑎𝑟𝑡𝑖𝑐𝑙𝑒 𝑓𝑜𝑟 𝑒𝑎𝑐ℎ 𝑏𝑟𝑜𝑘𝑒𝑛 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑜𝑟, 𝑤𝑖𝑡ℎ
+│      μ
+│   ∂ 𝑗  = 0 ℎ𝑜𝑙𝑑𝑖𝑛𝑔 𝑎𝑠 𝑎𝑛 𝑜𝑝𝑒𝑟𝑎𝑡𝑜𝑟 𝑒𝑞𝑢𝑎𝑡𝑖𝑜𝑛.
+│    μ
+@label noether
+   \setwidth{78}
+
+   \textbf{Theorem} (Noether, field-theory version).
+   \textit{Let $\mathcal{L}(\phi^a, \partial_\mu \phi^a, x^\mu)$ be a
+   Lagrangian density depending on $N$ fields $\phi^a$ ($a = 1, \ldots, N$)
+   and their first derivatives, and let the action be}
+
+   $$S[\phi] = \int d^4x\; \mathcal{L}(\phi^a, \partial_\mu \phi^a, x^\mu) \tag{1}$$
+
+   \textit{Suppose $S$ is invariant — up to a total divergence — under a
+   continuous one-parameter family of field transformations parametrised by
+   $\epsilon$:}
+
+   $$\phi^a(x) \;\longmapsto\; \phi^a(x) + \epsilon\,\Delta\phi^a(x),
+   \qquad x^\mu \;\longmapsto\; x^\mu + \epsilon\,\xi^\mu(x) \tag{2}$$
+
+   \textit{Then there exists a conserved current $j^\mu(x)$ satisfying}
+
+   $$\boxed{\partial_\mu j^\mu = 0} \tag{N}$$
+
+   \textit{and a corresponding conserved charge}
+
+   $$Q \coloneqq \int_{\Sigma} d^3x\; j^0(x), \qquad \frac{dQ}{dt} = 0 \tag{3}$$
+
+   \textit{where $\Sigma$ is any spacelike hypersurface.}
+
+   \textbf{Proof.}
+
+   \textbf{Step 1: Variation of the action.}
+   Under the transformation (2), the field variation at fixed spacetime
+   point $x$ is
+
+   $$\delta_\epsilon \phi^a \coloneqq \epsilon\!\left(
+   \Delta\phi^a - \xi^\mu \partial_\mu \phi^a\right)
+   \eqqcolon \epsilon\,\bar{\Delta}\phi^a \tag{4}$$
+
+   where $\bar{\Delta}\phi^a$ is the \textit{internal} variation — the
+   change in the field value at a fixed label point. The corresponding
+   variation of the Lagrangian density is:
+
+   $$\delta_\epsilon \mathcal{L} = \frac{\partial \mathcal{L}}{\partial \phi^a}
+   \,\bar{\Delta}\phi^a
+   + \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+   \,\partial_\mu(\bar{\Delta}\phi^a)
+   + \xi^\mu \partial_\mu \mathcal{L} \tag{5}$$
+
+   \textbf{Step 2: Using the Euler-Lagrange equations.}
+   On-shell — i.e.\ for fields satisfying the field equations — the
+   Euler-Lagrange equations hold for each field $\phi^a$:
+
+   $$\frac{\partial \mathcal{L}}{\partial \phi^a}
+   - \partial_\mu \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+   = 0 \tag{EL}$$
+
+   We use (EL) to rewrite the first term in (5). Adding and subtracting
+   $\partial_\mu\!\left(\frac{\partial \mathcal{L}}{\partial(\partial_\mu
+   \phi^a)}\right)\bar{\Delta}\phi^a$:
+
+   $$\aligned{
+   \frac{\partial \mathcal{L}}{\partial \phi^a}\,\bar{\Delta}\phi^a
+   + \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+     \,\partial_\mu(\bar{\Delta}\phi^a)
+   &= \partial_\mu\!\left[
+      \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+      \,\bar{\Delta}\phi^a\right] \\
+   &\quad + \underbrace{\left[
+      \frac{\partial \mathcal{L}}{\partial \phi^a}
+      - \partial_\mu\frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+      \right]}_{\displaystyle =\;0\;\text{(EL)}}\!\bar{\Delta}\phi^a
+   } \tag{6}$$
+
+   The underbraced term vanishes on-shell. Substituting back into (5):
+
+   $$\delta_\epsilon \mathcal{L}
+   = \partial_\mu\!\left[
+     \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+     \,\bar{\Delta}\phi^a\right]
+   + \xi^\mu \partial_\mu \mathcal{L} \tag{7}$$
+
+   \textbf{Step 3: The symmetry condition.}
+   By assumption, the transformation (2) is a symmetry: $S$ is invariant
+   up to a total divergence, meaning
+
+   $$\delta_\epsilon \mathcal{L} = \epsilon\,\partial_\mu K^\mu(x) \tag{8}$$
+
+   for some current $K^\mu$ (which vanishes for strict symmetries).
+   Dividing by $\epsilon$ and combining (7) and (8):
+
+   $$\partial_\mu\!\left[
+     \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+     \,\bar{\Delta}\phi^a
+     + \xi^\mu \mathcal{L} - K^\mu
+   \right] = 0 \tag{9}$$
+
+   \textbf{Step 4: The Noether current.}
+   Equation (9) is a conservation law $\partial_\mu j^\mu = 0$ with
+
+   $$j^\mu \coloneqq \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+   \,\bar{\Delta}\phi^a
+   + \xi^\mu \mathcal{L} - K^\mu \tag{10}$$
+
+   Substituting back the definition $\bar{\Delta}\phi^a = \Delta\phi^a -
+   \xi^\nu \partial_\nu \phi^a$ from (4):
+
+   $$\boxed{j^\mu = \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+   \!\left(\Delta\phi^a - \xi^\nu \partial_\nu \phi^a\right)
+   + \xi^\mu \mathcal{L} - K^\mu} \tag{11}$$
+
+   This is the \textbf{Noether current}.
+
+   \textbf{Step 5: The conserved charge.}
+   Integrating $\partial_\mu j^\mu = 0$ over a spacetime volume $V$
+   bounded by two spacelike slices $\Sigma_{t_1}$ and $\Sigma_{t_2}$,
+   and applying the divergence theorem:
+
+   $$\aligned{
+   0 &= \int_V d^4x\; \partial_\mu j^\mu \\
+     &= \int_{\Sigma_{t_2}} d^3x\; j^0
+      - \int_{\Sigma_{t_1}} d^3x\; j^0
+      + \oint_{\partial V_\text{spatial}} j^i \, dS_i
+   } \tag{12}$$
+
+   Assuming the fields fall off sufficiently fast at spatial infinity so
+   that the boundary term vanishes, we obtain
+
+   $$\frac{d}{dt} \int_\Sigma d^3x\; j^0(x) = 0 \tag{13}$$
+
+   so the charge $Q \coloneqq \int_\Sigma d^3x\; j^0$ is conserved. $\square$
+
+   \vskip{1}
+
+   \textbf{Remark 1} (Internal symmetry: $U(1)$ example).
+   \textit{Consider a complex scalar field $\psi$ with Lagrangian
+   $\mathcal{L} = |\partial_\mu \psi|^2 - m^2|\psi|^2$. The transformation
+   $\psi \mapsto e^{i\epsilon}\psi$ is a $U(1)$ symmetry with $\xi^\mu = 0$
+   and $\Delta\psi = i\psi$. The Noether current is}
+
+   $$j^\mu = i\!\left[\psi^* \partial^\mu\psi - (\partial^\mu\psi^*)\psi\right]
+   \tag{14}$$
+
+   \textit{and the conserved charge is the total electric charge
+   $Q = \int d^3x\; j^0$. This is the prototype for all gauge theories.}
+
+   \textbf{Remark 2} (Spacetime translation: energy-momentum tensor).
+   For the spacetime translation $x^\mu \to x^\mu + \epsilon^\mu$ we have
+   $\xi^\mu = \delta^\mu_\nu$ (for translation in direction $\nu$) and
+   $\Delta\phi^a = 0$, $K^\mu = 0$. The four conserved currents (one per
+   direction $\nu$) are assembled into the \textbf{energy-momentum tensor}:
+
+   $$T^\mu{}_\nu \coloneqq
+   \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}\,\partial_\nu \phi^a
+   - \delta^\mu_\nu\,\mathcal{L} \tag{15}$$
+
+   satisfying $\partial_\mu T^\mu{}_\nu = 0$. The four conserved charges are
+
+   $$P^\nu = \int_\Sigma d^3x\; T^{0\nu} \tag{16}$$
+
+   — the total energy ($\nu = 0$) and spatial momentum ($\nu = 1, 2, 3$)
+   of the field configuration.
+
+   \textbf{Remark 3} (Angular momentum and Lorentz invariance).
+   For Lorentz boosts and rotations $x^\mu \to x^\mu +
+   \omega^\mu{}_\nu x^\nu$ (with $\omega_{\mu\nu}$ antisymmetric), the
+   Noether procedure yields the \textbf{angular momentum tensor}
+
+   $$M^{\mu\nu\rho} \coloneqq x^\nu T^{\mu\rho} - x^\rho T^{\mu\nu}
+   + \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+   \,(S^{\nu\rho})^a{}_b\,\phi^b \tag{17}$$
+
+   where $(S^{\nu\rho})^a{}_b$ are the spin matrices of the field in
+   representation $a$. The last term is the intrinsic spin contribution,
+   absent for scalar fields.
+
+   \textbf{Remark 4} (Quantum version).
+   \textit{In canonical quantisation, $Q$ becomes an operator. If the
+   vacuum is invariant, $Q|0\rangle = 0$, then the symmetry is realised in
+   the Wigner-Weyl mode and the spectrum organises into multiplets of the
+   symmetry group. If $Q|0\rangle \neq 0$, the symmetry is spontaneously
+   broken — the Goldstone theorem then guarantees a massless scalar
+   particle for each broken generator, with $\partial_\mu j^\mu = 0$
+   holding as an operator equation.}
+@end
+
+% ─── SYSTEM SETUP
+
+#target_prefix "│ " % <- what gets prepended to each line of output
+
+#before_each
+    \setunicode{true}
+    \setmathitalic{true}
+    \setwidth{95}
+    \setparskip{1} % implicit spacing around paragraphs
+    \setmathabove{1} % implicit spacing around display math
+    \setmathbelow{1}
+    \linebreaker{greedy} % greedy for smart column alignment, raggedright for left aligned
+
+    \macro<\indented{content}>{\indent[2]{${content}}}
+    \macro<\cmd{x}>{\textbackslash{}\textit{${x}}}
+#end

@@ -1,0 +1,516 @@
+% @category: Math Typesetting
+% @name: Math Example Gallery (1)
+% @description: Example Definitions and Proofs
+
+@cassilda: ADSCFT
+@label ADSCFT
+    \textbf{The Central Dictionary}
+
+    The fundamental statement of AdS/CFT is an equality between two partition
+    functions:
+
+    $$Z_\text{string}[\phi_0] = Z_\text{CFT}[\phi_0] \tag{0}$$
+
+    where $\phi_0$ is a field configuration defined on the boundary. Everything
+    else flows from unpacking what each side means.
+
+    \textbf{The Gravity Side}
+
+    The bulk spacetime is $(d+1)$-dimensional Anti-de Sitter space,
+    $\text{AdS}_{d+1}$. Its metric in Poincaré coordinates is:
+
+    $$ds^2 = \frac{L^2}{z^2}\left(-dt^2 + d\vec{x}^2 + dz^2\right) \tag{1}$$
+
+    where $L$ is the AdS radius and $z > 0$ is the radial coordinate. The
+    boundary sits at $z \to 0$; the deep interior at $z \to \infty$.
+
+    The bulk action is Einstein gravity with a negative cosmological constant:
+
+    $$S_\text{bulk} = \frac{1}{16\pi G_N} \int d^{d+1}x\,\sqrt{-g}
+    \left(R + \frac{d(d-1)}{L^2}\right) + S_\text{matter} \tag{2}$$
+
+    A bulk field $\phi(x, z)$ of mass $m$ satisfies the Klein-Gordon equation:
+
+    $$\left(\Box_\text{AdS} - m^2\right)\phi = 0 \tag{3}$$
+
+    Near $z \to 0$ this has two independent solutions:
+
+    $$\phi(x, z) \;\sim\; z^{d-\Delta}\,\phi_0(x) \;+\; z^{\Delta}\,
+    \langle O(x)\rangle \;+\; \cdots \tag{4}$$
+
+    where $\Delta$ is the conformal dimension, related to the bulk mass by:
+
+    $$\Delta = \frac{d}{2} + \sqrt{\frac{d^2}{4} + m^2 L^2} \tag{5}$$
+
+    The leading term $\phi_0(x)$ is the boundary value freely specified as a
+    source; the subleading term $\langle O(x)\rangle$ is the response, determined
+    dynamically. The bulk partition function in the saddle-point approximation is:
+
+    $$Z_\text{grav}[\phi_0] = e^{-S_\text{on-shell}[\phi_0]} \tag{6}$$
+
+    \textbf{The CFT Side}
+
+    On the boundary lives a Conformal Field Theory invariant under $SO(d,2)$ —
+    the same as the isometry group of $\text{AdS}_{d+1}$: the first deep
+    structural match.
+
+    The CFT partition function with source $\phi_0$ coupled to operator $O$ is:
+
+    $$Z_\text{CFT}[\phi_0] = \left\langle \exp\!\left(
+    \int d^d x\,\phi_0(x)\,O(x)\right)\right\rangle_{\!\text{CFT}} \tag{7}$$
+
+    Differentiating with respect to $\phi_0$ extracts $n$-point functions:
+
+    $$\langle O(x_1)\cdots O(x_n)\rangle =
+    \frac{\delta^n \log Z_\text{CFT}}{\delta\phi_0(x_1)\cdots\delta\phi_0(x_n)}
+    \Biggr|_{\phi_0\,=\,0} \tag{8}$$
+
+    \textbf{The GKPW Dictionary}
+
+    The precise identification — written down by Gubser, Klebanov, Polyakov and
+    independently by Witten in 1998 — equates the two partition functions when
+    the bulk field is held to the boundary value $\phi_0$:
+
+    $$Z_\text{CFT}[\phi_0] =
+    Z_\text{string}\!\left[\left.\phi\right|_{z\to 0} = \phi_0\right] \tag{9}$$
+
+    In the classical gravity limit (large $N$, large $\lambda$):
+
+    $$\left\langle\exp\!\left(\int\phi_0\,O\right)\right\rangle_{\!\text{CFT}}
+    = e^{-S_\text{on-shell}[\phi_0]} \tag{10}$$
+
+    The two-point function follows from the bulk-to-boundary propagator:
+
+    $$\langle O(x)\,O(x')\rangle = \frac{C_\Delta}{|x - x'|^{2\Delta}} \tag{11}$$
+
+    This is exactly the form required by conformal invariance.
+
+    \textbf{The Parameter Dictionary}
+
+    The mapping in the canonical example — Type IIB string theory on
+    $\text{AdS}_5 \times S^5$ dual to $\mathcal{N} = 4$ Super Yang-Mills with
+    gauge group $SU(N)$:
+
+    \center{\table[width:70, frame:single, pad:{l:1,r:1}]{
+        \row[frame:{b:double}]{
+            \col[width:37, align:c]{Gravity side}
+            \col[align:c]{CFT side}
+        }
+        \row[frame:{b:single}]{
+            \col{AdS radius $L$ / string length $\ell_s$}
+            \col{'t Hooft coupling $\lambda = g_{YM}^2 N$}
+        }
+        \row{
+            \col{Newton's constant $G_N$}
+            \col{Rank of gauge group $N$}
+        }
+        \row{
+            \col{String coupling $g_s$}
+            \col{$g_{YM}^2$}
+        }
+        \row{
+            \col{Bulk mass $m^2 L^2$}
+            \col{Conformal dimension $\Delta(\Delta - d)$}
+        }
+        \row{
+            \col{Bulk field $\phi$}
+            \col{CFT operator $O$}
+        }
+        \row{
+            \col{Black hole in bulk}
+            \col{Thermal state in CFT}
+        }
+    }}
+
+    $$\frac{L^4}{\ell_s^4} = \lambda = g_{YM}^2 N \qquad
+    \frac{L^8}{G_N} \sim N^2 \tag{12}$$
+
+    This reveals why direct verification is hard: the gravity approximation is
+    valid when $\lambda \gg 1$, but perturbative field theory requires $\lambda
+    \ll 1$. The two tractable regimes do not overlap.
+
+    \textbf{Ryu-Takayanagi: Geometry from Entanglement}
+
+    For a region $A$ on the boundary, the entanglement entropy of the CFT vacuum
+    state is:
+
+    $$S_A = \frac{\text{Area}(\gamma_A)}{4G_N} \tag{RT}$$
+
+    where $\gamma_A$ is the \textbf{minimal area surface} in the bulk homologous
+    to $A$ and anchored to $\partial A$ on the boundary. This directly
+    generalises the Bekenstein-Hawking formula to arbitrary regions — not just
+    black holes — suggesting that the entanglement structure of the CFT literally
+    \textit{encodes} the geometry of the bulk spacetime.
+
+    \textbf{What Makes It Deep}
+
+    The bulk radial coordinate $z$ maps to the renormalization group scale on the
+    boundary. Physics deep in the bulk ($z \to \infty$) encodes infrared physics
+    in the CFT; physics near the boundary ($z \to 0$) encodes ultraviolet
+    behaviour. Geometry of spacetime is, in this sense, a picture of the RG flow
+    of a quantum field theory. An extra dimension of space emerges from the
+    structure of quantum entanglement and renormalization.
+@end
+
+@cassilda: euler-lagrange
+@label euler-lagrange
+    \textbf{Theorem} (Euler-Lagrange).
+    \textit{Let $L(q, \dot{q}, t)$ be a smooth Lagrangian, and let the action
+    functional be}
+
+    $$S[q] = \int_{t_1}^{t_2} L\!\left(q(t),\, \dot{q}(t),\, t\right) dt \tag{1}$$
+
+    \textit{defined on smooth paths $q : [t_1, t_2] \to \mathbb{R}^n$ with fixed
+    endpoints. If $q$ is a stationary point of $S$, then $q$ satisfies the}
+    \textbf{Euler-Lagrange equations:}
+
+    $$\frac{\partial L}{\partial q^i} -
+    \frac{d}{dt}\frac{\partial L}{\partial \dot{q}^i} = 0
+    \qquad (i = 1, \ldots, n) \tag{EL}$$
+
+    \textbf{Proof.}
+
+    \textbf{Step 1: Parametrising the variation.} Fix an arbitrary smooth function
+    $\eta : [t_1, t_2] \to \mathbb{R}^n$ with $\eta(t_1) = \eta(t_2) = 0$ and
+    define the one-parameter family
+
+    $$q_\epsilon(t) = q(t) + \epsilon\,\eta(t), \qquad \epsilon \in \mathbb{R} \tag{2}$$
+
+    Each $q_\epsilon$ has the same endpoints as $q$. Define
+
+    $$\Phi(\epsilon) \coloneqq S[q_\epsilon] =
+    \int_{t_1}^{t_2} L\!\left(q + \epsilon\eta,\; \dot{q} +
+    \epsilon\dot{\eta},\; t\right) dt \tag{3}$$
+
+    \textbf{Step 2: Stationarity condition.} The path $q$ is a stationary point
+    of $S$ if and only if
+
+    $$\left.\frac{d\Phi}{d\epsilon}\right|_{\epsilon=0} = 0 \qquad
+    \forall\, \eta \text{ with } \eta(t_1) = \eta(t_2) = 0 \tag{4}$$
+
+    \textbf{Step 3: Differentiating under the integral.} Since $L$ is smooth we
+    may pass the derivative through the integral. By the chain rule:
+
+    $$\frac{d\Phi}{d\epsilon} = \int_{t_1}^{t_2} \left(
+    \frac{\partial L}{\partial q}\,\eta +
+    \frac{\partial L}{\partial \dot{q}}\,\dot{\eta}
+    \right) dt \tag{5}$$
+
+    \textbf{Step 4: Integration by parts.} The second term involves $\dot{\eta}$.
+    Setting $u = \frac{\partial L}{\partial \dot{q}}$ and $dv = \dot{\eta}\,dt$:
+
+    $$\int_{t_1}^{t_2} \frac{\partial L}{\partial \dot{q}}\,\dot{\eta}\, dt
+    = \underbrace{\left[\frac{\partial L}{\partial \dot{q}}\,\eta
+    \right]_{t_1}^{t_2}}_{\displaystyle =\;0}
+    \;-\; \int_{t_1}^{t_2}
+    \frac{d}{dt}\!\left(\frac{\partial L}{\partial \dot{q}}\right)\eta\, dt
+    \tag{6}$$
+
+    The boundary term vanishes since $\eta(t_1) = \eta(t_2) = 0$ by construction.
+
+    \textbf{Step 5: Collecting terms.} Substituting (6) into (5) and evaluating
+    at $\epsilon = 0$ yields the key identity:
+
+    $$\aligned{
+    \left.\frac{d\Phi}{d\epsilon}\right|_{\epsilon=0}
+    &= \int_{t_1}^{t_2} \frac{\partial L}{\partial q}\,\eta\, dt
+    +  \int_{t_1}^{t_2} \frac{\partial L}{\partial \dot{q}}\,\dot{\eta}\, dt \\
+    \intertext{Applying the integration by parts result from (6):}
+    &= \int_{t_1}^{t_2} \frac{\partial L}{\partial q}\,\eta\, dt
+    -  \int_{t_1}^{t_2}
+    \frac{d}{dt}\!\left(\frac{\partial L}{\partial \dot{q}}\right)\eta\, dt \\
+    &= \int_{t_1}^{t_2}
+    \underbrace{\left(
+        \frac{\partial L}{\partial q}
+        - \frac{d}{dt}\frac{\partial L}{\partial \dot{q}}
+    \right)}_{\displaystyle \eqqcolon\;\mathcal{E}[q]}
+    \!\eta\; dt = 0
+    } \tag{7}$$
+
+    where $\mathcal{E}[q]$ denotes the \textbf{Euler-Lagrange operator} applied to $q$.
+
+    \textbf{Step 6: Fundamental lemma.} Since (7) holds for every admissible
+    $\eta$, the fundamental lemma of the calculus of variations applies: a
+    continuous function $f : [t_1, t_2] \to \mathbb{R}$ satisfying
+
+    $$\int_{t_1}^{t_2} f(t)\,\eta(t)\,dt = 0
+    \qquad \forall\, \eta \in C^\infty_0(t_1, t_2) \tag{8}$$
+
+    must satisfy $f \equiv 0$ on $[t_1, t_2]$. With $f \coloneqq \mathcal{E}[q]$,
+    this gives $\mathcal{E}[q] = 0$, which is precisely (EL). $\square$
+
+    \vskip{1}
+
+    \textbf{Remark 1} (First integral). \textit{If $L$ does not depend explicitly
+    on $q^i$ — that is, $\frac{\partial L}{\partial q^i} = 0$ — then (EL) reduces
+    to $\frac{d}{dt}\frac{\partial L}{\partial \dot{q}^i} = 0$, so the generalised
+    momentum}
+
+    $$p_i \coloneqq \frac{\partial L}{\partial \dot{q}^i} \tag{9}$$
+
+    \textit{is conserved along solutions. This is Noether's theorem in its
+    simplest form.}
+
+    \textbf{Remark 2} (Energy conservation). Define the \textbf{Hamiltonian}
+
+    $$H \coloneqq \dot{q}^i \frac{\partial L}{\partial \dot{q}^i} - L \tag{10}$$
+
+    (summing over $i$). Along any solution of (EL), one computes
+
+    $$\aligned{
+    \frac{dH}{dt}
+    &= \ddot{q}^i \frac{\partial L}{\partial \dot{q}^i}
+    + \dot{q}^i \frac{d}{dt}\frac{\partial L}{\partial \dot{q}^i}
+    - \frac{dL}{dt} \\
+    \intertext{Expanding $\frac{dL}{dt}$ by the chain rule and using (EL) to
+    substitute $\frac{d}{dt}\frac{\partial L}{\partial \dot{q}^i} =
+    \frac{\partial L}{\partial q^i}$:}
+    &= \ddot{q}^i \frac{\partial L}{\partial \dot{q}^i}
+    + \dot{q}^i \frac{\partial L}{\partial q^i}
+    - \frac{\partial L}{\partial q^i}\dot{q}^i
+    - \frac{\partial L}{\partial \dot{q}^i}\ddot{q}^i
+    - \frac{\partial L}{\partial t} \\
+    &= -\frac{\partial L}{\partial t}
+    } \tag{11}$$
+
+    Hence $H$ is conserved whenever $L$ has no explicit time dependence,
+    $\frac{\partial L}{\partial t} = 0$.
+@end
+
+@cassilda: cayley-hamilton
+@label cayley-hamilton
+    \textbf{Theorem} (Cayley-Hamilton).
+    \textit{Let $\mathbf{A}$ be an $n \times n$ matrix over a commutative ring
+    $\mathbb{F}$, and let}
+
+    $$p(\lambda) \coloneqq \det(\lambda \mathbf{I} - \mathbf{A}) \tag{1}$$
+
+    \textit{be its characteristic polynomial. Then $\mathbf{A}$ satisfies its own
+    characteristic polynomial:}
+
+    $$p(\mathbf{A}) = \mathbf{0} \tag{CH}$$
+
+    \textit{where $p(\mathbf{A})$ is obtained by substituting $\mathbf{A}$ for
+    $\lambda$ and interpreting scalar summands $c_k$ as $c_k \mathbf{I}$.}
+
+    \textbf{Proof.} (Via the adjugate matrix.)
+
+    \textbf{Step 1: Expanding the characteristic polynomial.} Expanding the
+    determinant, $p(\lambda)$ is a monic polynomial of degree $n$:
+
+    $$p(\lambda) = \lambda^n + c_{n-1}\lambda^{n-1} + \cdots + c_1\lambda + c_0
+    \tag{2}$$
+
+    where $c_{n-1} = -\operatorname{tr}\mathbf{A}$ and
+    $c_0 = (-1)^n \det \mathbf{A}$. Explicitly, $p(\lambda)$ is the determinant:
+
+    $$p(\lambda) = \vmatrix{
+    \lambda - a_{11} & -a_{12}         & \cdots & -a_{1n} \\
+    -a_{21}         & \lambda - a_{22} & \cdots & -a_{2n} \\
+    \vdots          & \vdots           & \ddots & \vdots  \\
+    -a_{n1}         & -a_{n2}          & \cdots & \lambda - a_{nn}
+    } \tag{3}$$
+
+    \textbf{Step 2: The adjugate identity.} Recall that for any invertible matrix
+    $\mathbf{M}$, the adjugate (classical adjoint) satisfies
+    $\mathbf{M} \operatorname{adj}(\mathbf{M}) = \det(\mathbf{M})\mathbf{I}$.
+    This identity in fact holds over any commutative ring, for any matrix, whether
+    invertible or not. Applying it to $\mathbf{M} = \lambda\mathbf{I} - \mathbf{A}$:
+
+    $$(\lambda\mathbf{I} - \mathbf{A})\,\mathbf{B}(\lambda) = p(\lambda)\mathbf{I}
+    \tag{4}$$
+
+    where we define $\mathbf{B}(\lambda) \coloneqq
+    \operatorname{adj}(\lambda\mathbf{I} - \mathbf{A})$.
+
+    \textbf{Step 3: Polynomial form of the adjugate.} The entries of
+    $\lambda\mathbf{I} - \mathbf{A}$ are linear in $\lambda$, so each
+    $(n-1) \times (n-1)$ minor — and hence each entry of $\mathbf{B}(\lambda)$ —
+    is a polynomial of degree at most $n-1$ in $\lambda$. We may therefore write
+
+    $$\mathbf{B}(\lambda) = \mathbf{B}_{n-1}\lambda^{n-1} + \mathbf{B}_{n-2}\lambda^{n-2}
+    + \cdots + \mathbf{B}_1\lambda + \mathbf{B}_0 \tag{5}$$
+
+    where each $\mathbf{B}_k$ is an $n \times n$ matrix with entries in
+    $\mathbb{F}$.
+
+    \textbf{Step 4: Matching coefficients.} Substituting (5) and (2) into (4)
+    and expanding the left side:
+
+    $$\aligned{
+    (\lambda\mathbf{I} - \mathbf{A})(\mathbf{B}_{n-1}\lambda^{n-1} + \cdots + \mathbf{B}_0)
+    &= \mathbf{B}_{n-1}\lambda^n \\
+    &\quad + (\mathbf{B}_{n-2} - \mathbf{A}\mathbf{B}_{n-1})\lambda^{n-1} \\
+    &\quad + \cdots \\
+    &\quad + (\mathbf{B}_0 - \mathbf{A}\mathbf{B}_1)\lambda \\
+    &\quad + (-\mathbf{A}\mathbf{B}_0)
+    } \tag{6}$$
+
+    Comparing coefficients of $\lambda^k$ on both sides of (4) gives the system:
+
+    $$\aligned{
+    \mathbf{B}_{n-1}                          &= \mathbf{I}           \\
+    \mathbf{B}_{k-1} - \mathbf{A}\mathbf{B}_k &= c_k\,\mathbf{I}
+    \qquad (k = n-1, \ldots, 1)               \\
+    -\mathbf{A}\mathbf{B}_0                   &= c_0\,\mathbf{I}
+    } \tag{7}$$
+
+    \textbf{Step 5: The telescoping argument.} Multiply the equation for
+    coefficient $\lambda^k$ on the left by $\mathbf{A}^k$, for each
+    $k = 0, 1, \ldots, n$:
+
+    $$\aligned{
+    \mathbf{A}^n \mathbf{B}_{n-1}                          &= \mathbf{A}^n              \\
+    \mathbf{A}^{n-1}\mathbf{B}_{n-2} - \mathbf{A}^n\mathbf{B}_{n-1} &= c_{n-1}\mathbf{A}^{n-1} \\
+    \mathbf{A}^{n-2}\mathbf{B}_{n-3} - \mathbf{A}^{n-1}\mathbf{B}_{n-2} &= c_{n-2}\mathbf{A}^{n-2} \\
+    &\;\vdots \\
+    -\mathbf{A}\mathbf{B}_0 &= c_0\,\mathbf{I}
+    } \tag{8}$$
+
+    where we set $\mathbf{B}_{-1} \coloneqq \mathbf{0}$ for notational
+    convenience. Summing all rows of (8), every term $\mathbf{A}^k \mathbf{B}_{k-1}$
+    appears once with a positive sign and once with a negative sign, so the entire
+    left-hand side telescopes to zero:
+
+    $$\mathbf{0} = \mathbf{A}^n + c_{n-1}\mathbf{A}^{n-1} + \cdots +
+    c_1\mathbf{A} + c_0\mathbf{I} = p(\mathbf{A}) \tag{9}$$
+
+    This is precisely $p(\mathbf{A}) = \mathbf{0}$. $\square$
+
+    \vskip{1}
+
+    \textbf{Remark} (Non-diagonalisable case). The proof above is purely
+    algebraic — it uses no eigenvalues, no diagonalisation, and works over any
+    commutative ring. In particular it applies when $\mathbf{A}$ is not
+    diagonalisable and when $\mathbb{F}$ has characteristic $p > 0$. The
+    argument via density of diagonalisable matrices over $\mathbb{C}$ (which also
+    works) implicitly assumes the field is infinite, whereas this proof does not.
+
+    \textbf{Corollary} (Minimal polynomial). \textit{The minimal polynomial
+    $m_{\mathbf{A}}(\lambda)$ of $\mathbf{A}$ — the monic polynomial of least
+    degree annihilating $\mathbf{A}$ — divides $p(\lambda)$. Hence every
+    eigenvalue of $\mathbf{A}$ is a root of $m_{\mathbf{A}}(\lambda)$, and}
+
+    $$m_{\mathbf{A}}(\lambda) \mid p(\lambda) \tag{10}$$
+
+    \textit{In particular, $\deg m_{\mathbf{A}} \leq n$.}
+@end
+
+@cassilda: riemann-lebesgue
+@label riemann-lebesgue
+    \textbf{Theorem} (Riemann-Lebesgue).
+    \textit{Let $f \in L^1(\mathbb{R})$, i.e.\ $f$ is Lebesgue integrable with}
+
+    $$\lVert f \rVert_{L^1} \coloneqq \int_{-\infty}^{\infty} |f(t)|\, dt < \infty \tag{1}$$
+
+    \textit{Then the Fourier transform}
+
+    $$\hat{f}(\xi) \coloneqq \int_{-\infty}^{\infty} f(t)\, e^{-2\pi i \xi t}\, dt \tag{2}$$
+
+    \textit{satisfies}
+
+    $$\lim_{|\xi| \to \infty} \hat{f}(\xi) = 0 \tag{RL}$$
+
+    \textbf{Proof.} (Via density of step functions in $L^1(\mathbb{R})$.)
+
+    \textbf{Step 1: The result for indicator functions.}
+    Let $f = \mathbf{1}_{[a,b]}$ be the indicator of an interval. Then
+
+    $$\hat{f}(\xi) = \int_a^b e^{-2\pi i \xi t}\, dt
+    = \frac{e^{-2\pi i \xi b} - e^{-2\pi i \xi a}}{-2\pi i \xi}
+    \qquad (\xi \neq 0) \tag{3}$$
+
+    Taking absolute values and applying the triangle inequality:
+
+    $$\left|\hat{f}(\xi)\right| \leq \frac{\left|e^{-2\pi i \xi b}\right|
+    + \left|e^{-2\pi i \xi a}\right|}{2\pi|\xi|}
+    = \frac{2}{2\pi|\xi|} = \frac{1}{\pi|\xi|} \tag{4}$$
+
+    since $|e^{i\theta}| = 1$ for all $\theta \in \mathbb{R}$. Hence
+    $\hat{f}(\xi) \to 0$ as $|\xi| \to \infty$.
+
+    \textbf{Step 2: Extension to step functions.}
+    Any step function $s = \sum_{k=1}^{N} c_k \mathbf{1}_{[a_k, b_k]}$ satisfies
+
+    $$\left|\hat{s}(\xi)\right| \leq \sum_{k=1}^{N} |c_k|
+    \cdot \frac{1}{\pi|\xi|} \xrightarrow{|\xi| \to \infty} 0 \tag{5}$$
+
+    by linearity of the Fourier transform and Step 1 applied to each indicator.
+
+    \textbf{Step 3: Density argument.}
+    The step functions are dense in $L^1(\mathbb{R})$: for any $\varepsilon > 0$
+    and any $f \in L^1(\mathbb{R})$, there exists a step function $s$ such that
+
+    $$\lVert f - s \rVert_{L^1} < \varepsilon \tag{6}$$
+
+    Now decompose $\hat{f}(\xi)$ using the triangle inequality:
+
+    $$\aligned{
+    \left|\hat{f}(\xi)\right|
+    &= \left|\hat{f}(\xi) - \hat{s}(\xi) + \hat{s}(\xi)\right| \\
+    &\leq \left|\hat{f}(\xi) - \hat{s}(\xi)\right| + \left|\hat{s}(\xi)\right| \\
+    &= \left|\widehat{f - s}(\xi)\right| + \left|\hat{s}(\xi)\right|
+    } \tag{7}$$
+
+    For the first term, apply the trivial bound
+    $|\hat{g}(\xi)| \leq \lVert g \rVert_{L^1}$:
+
+    $$\left|\widehat{f - s}(\xi)\right|
+    \leq \lVert f - s \rVert_{L^1} < \varepsilon \tag{8}$$
+
+    For the second term, by Step 2, there exists $M > 0$ such that
+    $|\xi| > M$ implies $|\hat{s}(\xi)| < \varepsilon$. Therefore, for all
+    $|\xi| > M$:
+
+    $$\left|\hat{f}(\xi)\right| < \varepsilon + \varepsilon = 2\varepsilon \tag{9}$$
+
+    Since $\varepsilon > 0$ was arbitrary, $\hat{f}(\xi) \to 0$ as
+    $|\xi| \to \infty$. $\square$
+
+    \vskip{1}
+
+    \textbf{Remark 1} (Sharpness). The conclusion cannot be strengthened to
+    uniform decay: for any sequence $a_n \to 0$, there exists
+    $f \in L^1(\mathbb{R})$ such that $\limsup_{|\xi| \to \infty}
+    \lVert\hat{f}(\xi)\rVert / a_{|\xi|} = \infty$. In particular, one cannot
+    bound the rate of decay in terms of $\lVert f \rVert_{L^1}$ alone.
+
+    \textbf{Remark 2} (Fourier series version).
+    \textit{The analogous statement holds for Fourier series: if
+    $f \in L^1(\mathbb{T})$ where $\mathbb{T} = \mathbb{R}/\mathbb{Z}$, then the
+    Fourier coefficients}
+
+    $$\hat{f}(n) \coloneqq \int_0^1 f(t)\, e^{-2\pi i n t}\, dt \tag{10}$$
+
+    \textit{satisfy $\hat{f}(n) \to 0$ as $|n| \to \infty$, $n \in \mathbb{Z}$.
+    The same density proof applies, with step functions replaced by trigonometric
+    polynomials.}
+
+    \textbf{Corollary} (Plancherel). If additionally $f \in L^2(\mathbb{R})$,
+    then $\hat{f} \in L^2(\mathbb{R})$ and the Fourier transform extends to a
+    unitary operator on $L^2(\mathbb{R})$ satisfying
+
+    $$\lVert\hat{f}\rVert_{L^2} = \lVert f \rVert_{L^2} \tag{11}$$
+
+    In this setting the pointwise Riemann-Lebesgue decay is complemented by the
+    global $L^2$ isometry: the transform neither concentrates nor disperses
+    energy.
+@end
+
+
+% ─── SYSTEM SETUP
+
+#target_prefix "│ " % <- what gets prepended to each line of output
+
+#before_each
+    \setunicode{true}
+    \setmathitalic{true}
+    \setwidth{78}
+    \setparskip{1} % implicit spacing around paragraphs
+    \setmathabove{1} % implicit spacing around display math
+    \setmathbelow{1}
+    \linebreaker{greedy} % greedy for smart column alignment, raggedright for left aligned
+
+    \macro<\indented{content}>{\indent[2]{${content}}}
+    \macro<\cmd{x}>{\textbackslash{}\textit{${x}}}
+#end

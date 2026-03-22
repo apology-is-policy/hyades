@@ -1,0 +1,308 @@
+name: Build
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main, develop ]
+
+jobs:
+  # Native builds for Mac, Linux, Windows
+  build-native:
+    name: Build ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x86_64
+          - os: macos-latest
+            platform: macos-arm64
+          - os: windows-latest
+            platform: windows-x86_64
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build
+
+    - name: Install dependencies (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install cmake ninja
+
+    - name: Install dependencies (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        echo "cmake and ninja are pre-installed on windows-latest runners"
+        cmake --version
+        ninja --version
+
+    - name: Configure CMake
+      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: Test (basic executable check)
+      run: |
+        ./build/cassilda --help || true
+        ./build/hyades --help || true
+      shell: bash
+
+    - name: Build tree-sitter grammar
+      run: |
+        cd tree-sitter-cassilda
+        npm install --ignore-scripts
+        cd node_modules/tree-sitter-cli && node install.js && cd ../..
+        cd ..
+        cmake --build build --target tree-sitter-grammar
+      shell: bash
+
+    - name: Create release package
+      run: |
+        mkdir -p artifacts/bin artifacts/lib artifacts/include
+        mkdir -p artifacts/lsp-server artifacts/tree-sitter-cassilda/queries
+        mkdir -p artifacts/editor-configs artifacts/docs
+
+        # Copy binaries
+        if [ "${{ matrix.os }}" == "windows-latest" ]; then
+          cp build/hyades.exe build/cassilda.exe build/hyades-mcp.exe artifacts/bin/ 2>/dev/null || true
+          cp build/hyades.lib artifacts/lib/ 2>/dev/null || true
+          cp tree-sitter-cassilda/cassilda.dll artifacts/tree-sitter-cassilda/ 2>/dev/null || true
+        else
+          cp build/hyades build/cassilda build/hyades-mcp artifacts/bin/ 2>/dev/null || true
+          cp build/libhyades.a artifacts/lib/ 2>/dev/null || true
+          cp tree-sitter-cassilda/cassilda.so artifacts/tree-sitter-cassilda/ 2>/dev/null || true
+        fi
+
+        # Copy headers
+        cp include/hyades.h artifacts/include/
+
+        # Copy tree-sitter source and queries
+        cp tree-sitter-cassilda/grammar.js artifacts/tree-sitter-cassilda/
+        cp tree-sitter-cassilda/package.json artifacts/tree-sitter-cassilda/
+        cp -r tree-sitter-cassilda/queries/* artifacts/tree-sitter-cassilda/queries/
+        cp -r tree-sitter-cassilda/src artifacts/tree-sitter-cassilda/ 2>/dev/null || true
+
+        # Copy editor configs
+        cp editor-configs/*.lua artifacts/editor-configs/ 2>/dev/null || true
+        cp editor-configs/*.toml artifacts/editor-configs/ 2>/dev/null || true
+
+        # Copy install and render-docs scripts to package root
+        cp editor-configs/install.sh editor-configs/install.ps1 artifacts/ 2>/dev/null || true
+        cp editor-configs/render-docs.sh editor-configs/render-docs.ps1 artifacts/ 2>/dev/null || true
+
+        # Copy documentation (.cld notebook files)
+        cp wasm/examples/*.cld artifacts/docs/ 2>/dev/null || true
+        cp -r cl_demos artifacts/docs/cl_demos 2>/dev/null || true
+        cp README.md artifacts/ 2>/dev/null || true
+      shell: bash
+
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: hyades-${{ matrix.platform }}
+        path: artifacts/
+        retention-days: 30
+
+  # WASM build using Emscripten
+  build-wasm:
+    name: Build WASM
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: '3.1.51'
+        actions-cache-folder: 'emsdk-cache'
+
+    - name: Verify Emscripten
+      run: |
+        emcc --version
+        which emcmake
+
+    - name: Configure CMake for WASM
+      working-directory: wasm
+      run: emcmake cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build WASM
+      working-directory: wasm
+      run: cmake --build build
+
+    - name: Build LSP Server
+      run: |
+        # Copy WASM files to lsp-server
+        cp wasm/build/hyades-compat.js lsp-server/
+        cp wasm/build/hyades-compat.wasm lsp-server/
+        # Build TypeScript and bundle into single file
+        cd lsp-server
+        npm install
+        npm run bundle
+
+    - name: Create LSP server package
+      run: |
+        mkdir -p artifacts/lsp-server
+        cp lsp-server/bundle/server.js artifacts/lsp-server/
+        cp lsp-server/bundle/hyades-compat.js artifacts/lsp-server/
+        cp lsp-server/bundle/hyades-compat.wasm artifacts/lsp-server/
+
+    - name: Prepare GitHub Pages deployment
+      run: |
+        cp wasm/index.html wasm/build/ 2>/dev/null || echo "No index.html to copy"
+        cp wasm/dist/* wasm/build/ 2>/dev/null || echo "No dist files to copy"
+        touch wasm/build/.nojekyll
+
+    - name: List WASM outputs
+      working-directory: wasm/build
+      run: |
+        echo "Contents of wasm/build:"
+        ls -lah
+        echo ""
+        echo "WASM and JS files:"
+        ls -lah *.wasm *.js 2>/dev/null || true
+
+    - name: Upload LSP server artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: hyades-lsp-server
+        path: artifacts/lsp-server/
+        retention-days: 30
+
+    - name: Upload WASM artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: hyades-wasm
+        path: |
+          wasm/build/*.wasm
+          wasm/build/*.js
+          wasm/build/*.html
+        retention-days: 30
+
+    - name: Upload WASM to GitHub Pages
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: wasm/build
+
+  # VS Code extension build
+  build-vscode:
+    name: Build VS Code Extension
+    runs-on: ubuntu-latest
+    needs: build-wasm
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Download LSP server
+      uses: actions/download-artifact@v4
+      with:
+        name: hyades-lsp-server
+        path: hyades-vscode-ext/lsp-server
+
+    - name: Build VS Code extension
+      working-directory: hyades-vscode-ext
+      run: |
+        npm install
+        npm run compile
+        npx vsce package --out hyades-vscode.vsix || echo "vsce not available, skipping package"
+
+    - name: Upload VS Code extension
+      uses: actions/upload-artifact@v4
+      with:
+        name: hyades-vscode-extension
+        path: hyades-vscode-ext/*.vsix
+        retention-days: 30
+        if-no-files-found: ignore
+
+  # Deploy WASM to GitHub Pages
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    needs: build-wasm
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # Create combined release package
+  package-release:
+    name: Package Release
+    needs: [build-native, build-wasm, build-vscode]
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: downloaded-artifacts
+
+    - name: Create combined packages
+      run: |
+        # Create platform-specific release packages
+        for platform in linux-x86_64 macos-arm64 windows-x86_64; do
+          if [ -d "downloaded-artifacts/hyades-${platform}" ]; then
+            # Add LSP server to each platform package
+            mkdir -p downloaded-artifacts/hyades-${platform}/lsp-server
+            cp -r downloaded-artifacts/hyades-lsp-server/* \
+                  downloaded-artifacts/hyades-${platform}/lsp-server/ 2>/dev/null || true
+
+            # Add WASM binaries from hyades-wasm artifact
+            mkdir -p downloaded-artifacts/hyades-${platform}/wasm
+            cp downloaded-artifacts/hyades-wasm/wasm/build/hyades.wasm \
+               downloaded-artifacts/hyades-${platform}/wasm/ 2>/dev/null || true
+            cp downloaded-artifacts/hyades-wasm/wasm/build/hyades.js \
+               downloaded-artifacts/hyades-${platform}/wasm/ 2>/dev/null || true
+
+            # Create tarball (or zip for Windows)
+            cd downloaded-artifacts
+            if [ "$platform" == "windows-x86_64" ]; then
+              zip -r ../hyades-${platform}.zip hyades-${platform}/
+            else
+              tar -czf ../hyades-${platform}.tar.gz hyades-${platform}/
+            fi
+            cd ..
+          fi
+        done
+
+    - name: Upload combined packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: hyades-release-packages
+        path: |
+          hyades-*.tar.gz
+          hyades-*.zip
+        retention-days: 90

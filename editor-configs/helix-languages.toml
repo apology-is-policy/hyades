@@ -1,0 +1,20 @@
+# Cassilda/Hyades language support for Helix
+# Copy this content to ~/.config/helix/languages.toml
+
+[language-server.hyades-lsp]
+command = "node"
+# Update this path to where you installed the LSP server
+args = ["~/.local/share/hyades/lsp-server/server.js", "--stdio"]
+
+[[language]]
+name = "cassilda"
+scope = "source.cassilda"
+file-types = ["cld", "hy"]
+comment-token = "%"
+language-servers = ["hyades-lsp"]
+grammar = "cassilda"  # Links to ~/.config/helix/runtime/grammars/cassilda.so
+
+# Formatter: processes @cassilda: references
+# Use :format to render, or set auto-format = true for render-on-save
+formatter = { command = "cassilda", args = ["process", "-"] }
+auto-format = false

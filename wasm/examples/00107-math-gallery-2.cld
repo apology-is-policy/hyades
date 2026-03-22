@@ -1,0 +1,368 @@
+% @category: Math Typesetting
+% @name: Math Example Gallery (2)
+% @description: Example Complex Proofs
+@cassilda: virasoro-algebra
+@label virasoro-algebra
+    \textbf{Theorem} (Virasoro Algebra).
+    \textit{Let $T(z)$ be the holomorphic stress-energy tensor of a
+    two-dimensional conformal field theory with central charge $c$, satisfying
+    the operator product expansion}
+
+    $$T(z)\,T(w) \sim \frac{c/2}{(z-w)^4} + \frac{2\,T(w)}{(z-w)^2}
+    + \frac{\partial_w T(w)}{z - w} + \cdots \tag{OPE}$$
+
+    \textit{Define the Virasoro modes by the Laurent expansion}
+
+    $$T(z) = \sum_{n \in \mathbb{Z}} L_n\, z^{-n-2} \tag{1}$$
+
+    \textit{or equivalently as contour integrals around the origin:}
+
+    $$L_n \coloneqq \oint \frac{dz}{2\pi i}\, z^{n+1}\, T(z) \tag{2}$$
+
+    \textit{Then the modes $\{L_n\}$ close under commutation to form the
+    Virasoro algebra:}
+
+    $$\boxed{[L_m,\, L_n] = (m - n)\,L_{m+n}
+    + \frac{c}{12}\,m(m^2 - 1)\,\delta_{m+n,\,0}} \tag{Vir}$$
+
+    \textbf{Proof.}
+
+    \textbf{Step 1: Commutator as a double contour integral.}
+    Using definition (2) for each mode:
+
+    $$[L_m, L_n] = \oint_0 \frac{dw}{2\pi i}\, w^{n+1}
+    \oint_w \frac{dz}{2\pi i}\, z^{m+1}\, T(z)\,T(w)
+    \;-\; (m \leftrightarrow n,\; z \leftrightarrow w) \tag{3}$$
+
+    where $\oint_w$ denotes a contour encircling $z = w$. In a radially ordered
+    theory the difference of the two orderings picks out exactly the singular
+    part of the OPE, so:
+
+    $$[L_m, L_n] = \oint_0 \frac{dw}{2\pi i}\, w^{n+1}
+    \oint_w \frac{dz}{2\pi i}\, z^{m+1}
+    \left[\frac{c/2}{(z-w)^4} + \frac{2\,T(w)}{(z-w)^2}
+    + \frac{\partial_w T(w)}{z - w}\right] \tag{4}$$
+
+    \textbf{Step 2: Inner residue integrals.} The inner $z$-integral
+    in (4) selects the residue at $z = w$ for each of the three singular
+    terms. The general formula for a holomorphic function $f(z)$ is:
+
+    $$\oint_w \frac{dz}{2\pi i}\, \frac{f(z)}{(z-w)^k}
+    = \frac{1}{(k-1)!}\, f^{(k-1)}(w) \tag{5}$$
+
+    Applying (5) with $f(z) = z^{m+1}$ to each term in turn:
+
+    \textbf{Term A} (fourth-order pole, $k = 4$):
+
+    $$\oint_w \frac{dz}{2\pi i}\, \frac{z^{m+1}}{(z-w)^4}
+    = \frac{1}{3!}\, \frac{d^3}{dz^3}\, z^{m+1}\biggr|_{z=w}
+    = \frac{(m+1)m(m-1)}{6}\, w^{m-2} \tag{6}$$
+
+    \textbf{Term B} (double pole, $k = 2$):
+
+    $$\oint_w \frac{dz}{2\pi i}\, \frac{z^{m+1}}{(z-w)^2}
+    = \frac{d}{dz}\, z^{m+1}\biggr|_{z=w}
+    = (m+1)\,w^m \tag{7}$$
+
+    \textbf{Term C} (simple pole, $k = 1$):
+
+    $$\oint_w \frac{dz}{2\pi i}\, \frac{z^{m+1}}{z - w}
+    = z^{m+1}\bigr|_{z=w} = w^{m+1} \tag{8}$$
+
+    \textbf{Step 3: Assembling the outer integral.} Substituting
+    (6), (7), (8) into (4) and collecting:
+
+    $$\aligned{
+    [L_m, L_n]
+    &= \frac{c}{12}(m+1)m(m-1)
+       \oint_0 \frac{dw}{2\pi i}\, w^{m+n-1} \\
+    &\quad + 2(m+1)
+       \oint_0 \frac{dw}{2\pi i}\, w^{m+n+1}\, T(w) \\
+    &\quad +
+       \oint_0 \frac{dw}{2\pi i}\, w^{m+n+2}\, \partial_w T(w)
+    } \tag{9}$$
+
+    \textbf{Step 4: Evaluating the outer integrals.}
+    The three integrals in (9) are evaluated as follows.
+
+    The first uses $\oint_0 \frac{dw}{2\pi i}\, w^k = \delta_{k,\,-1}$:
+
+    $$\oint_0 \frac{dw}{2\pi i}\, w^{m+n-1} = \delta_{m+n,\,0} \tag{10}$$
+
+    The second is directly a Virasoro mode by definition (2):
+
+    $$\oint_0 \frac{dw}{2\pi i}\, w^{m+n+1}\, T(w) = L_{m+n} \tag{11}$$
+
+    The third is handled by integration by parts on the contour. Since the
+    integrand is single-valued, $\oint_0 \partial_w(\cdots)\,dw = 0$, so:
+
+    $$\aligned{
+    0 &= \oint_0 \frac{dw}{2\pi i}\,
+       \partial_w\!\left[w^{m+n+2}\, T(w)\right] \\
+      &= (m+n+2) \oint_0 \frac{dw}{2\pi i}\, w^{m+n+1}\, T(w)
+       + \oint_0 \frac{dw}{2\pi i}\, w^{m+n+2}\, \partial_w T(w)
+    } \tag{12}$$
+
+    Therefore:
+
+    $$\oint_0 \frac{dw}{2\pi i}\, w^{m+n+2}\, \partial_w T(w)
+    = -(m+n+2)\, L_{m+n} \tag{13}$$
+
+    \textbf{Step 5: Combining.}
+    Substituting (10), (11), (13) into (9):
+
+    $$\aligned{
+    [L_m, L_n]
+    &= \frac{c}{12}(m+1)m(m-1)\,\delta_{m+n,\,0}
+       + 2(m+1)\, L_{m+n} - (m+n+2)\, L_{m+n} \\
+    \intertext{Simplifying the coefficient of $L_{m+n}$:}
+    &= \frac{c}{12}(m+1)m(m-1)\,\delta_{m+n,\,0}
+       + \bigl(2m + 2 - m - n - 2\bigr)\, L_{m+n} \\
+    &= (m - n)\, L_{m+n}
+       + \frac{c}{12}\,m(m^2 - 1)\,\delta_{m+n,\,0}
+    } \tag{14}$$
+
+    This is precisely (Vir). $\square$
+
+    \vskip{1}
+
+    \textbf{Remark 1} (Classical limit). Setting $c = 0$ recovers
+    $[L_m, L_n] = (m-n)L_{m+n}$, the \textbf{Witt algebra} of meromorphic
+    vector fields $-z^{n+1}\partial_z$ on $S^1$. The central charge $c$ is
+    therefore a purely quantum correction — the \textit{central extension}
+    of the Witt algebra — arising from the normal-ordering ambiguity in the
+    composite operator $T(z)T(w)$.
+
+    \textbf{Remark 2} (Unitarity and the Kac table).
+    \textit{The vacuum $|0\rangle$ satisfies $L_n|0\rangle = 0$ for all
+    $n \geq -1$. Physical states are eigenstates of $L_0$:}
+
+    $$L_0\,|h\rangle = h\,|h\rangle \tag{15}$$
+
+    \textit{with $h \geq 0$ the conformal weight. The norm of the
+    level-$n$ descendant $L_{-n}|h\rangle$ follows from (Vir):}
+
+    $$\lVert L_{-n}|h\rangle \rVert^2
+    = \langle h|\,L_n L_{-n}\,|h\rangle
+    = 2n h + \frac{c}{12}\,n(n^2 - 1) \tag{16}$$
+
+    \textit{Unitarity demands this be non-negative for all $n \geq 1$,
+    yielding nontrivial constraints on the allowed pairs $(c, h)$. For
+    $0 < c < 1$ these constraints are highly restrictive, and the solutions
+    form the discrete} \textbf{Kac table} \textit{of minimal models
+    $\mathcal{M}(p, q)$.}
+
+    \textbf{Remark 3} (Critical dimension of the bosonic string).
+    In bosonic string theory the stress tensor is built from $D$ free bosons
+    $X^\mu(z)$, each contributing $c = 1$, plus a Faddeev-Popov ghost system
+    with $c = -26$. The condition that the total Weyl anomaly vanishes is:
+
+    $$c_{\text{total}} = D \cdot 1 + (-26) = 0 \implies D = 26 \tag{17}$$
+
+    This is the origin of the \textbf{critical dimension}. For the superstring,
+    each boson is paired with a Majorana-Weyl fermion contributing
+    $c = \tfrac{1}{2}$, and the superghosts contribute $c = +11$, giving
+    $c_{\text{total}} = 0$ when $D = 10$.
+@end
+
+@cassilda: noether
+@label noether
+   \setwidth{78}
+
+   \textbf{Theorem} (Noether, field-theory version).
+   \textit{Let $\mathcal{L}(\phi^a, \partial_\mu \phi^a, x^\mu)$ be a
+   Lagrangian density depending on $N$ fields $\phi^a$ ($a = 1, \ldots, N$)
+   and their first derivatives, and let the action be}
+
+   $$S[\phi] = \int d^4x\; \mathcal{L}(\phi^a, \partial_\mu \phi^a, x^\mu) \tag{1}$$
+
+   \textit{Suppose $S$ is invariant — up to a total divergence — under a
+   continuous one-parameter family of field transformations parametrised by
+   $\epsilon$:}
+
+   $$\phi^a(x) \;\longmapsto\; \phi^a(x) + \epsilon\,\Delta\phi^a(x),
+   \qquad x^\mu \;\longmapsto\; x^\mu + \epsilon\,\xi^\mu(x) \tag{2}$$
+
+   \textit{Then there exists a conserved current $j^\mu(x)$ satisfying}
+
+   $$\boxed{\partial_\mu j^\mu = 0} \tag{N}$$
+
+   \textit{and a corresponding conserved charge}
+
+   $$Q \coloneqq \int_{\Sigma} d^3x\; j^0(x), \qquad \frac{dQ}{dt} = 0 \tag{3}$$
+
+   \textit{where $\Sigma$ is any spacelike hypersurface.}
+
+   \textbf{Proof.}
+
+   \textbf{Step 1: Variation of the action.}
+   Under the transformation (2), the field variation at fixed spacetime
+   point $x$ is
+
+   $$\delta_\epsilon \phi^a \coloneqq \epsilon\!\left(
+   \Delta\phi^a - \xi^\mu \partial_\mu \phi^a\right)
+   \eqqcolon \epsilon\,\bar{\Delta}\phi^a \tag{4}$$
+
+   where $\bar{\Delta}\phi^a$ is the \textit{internal} variation — the
+   change in the field value at a fixed label point. The corresponding
+   variation of the Lagrangian density is:
+
+   $$\delta_\epsilon \mathcal{L} = \frac{\partial \mathcal{L}}{\partial \phi^a}
+   \,\bar{\Delta}\phi^a
+   + \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+   \,\partial_\mu(\bar{\Delta}\phi^a)
+   + \xi^\mu \partial_\mu \mathcal{L} \tag{5}$$
+
+   \textbf{Step 2: Using the Euler-Lagrange equations.}
+   On-shell — i.e.\ for fields satisfying the field equations — the
+   Euler-Lagrange equations hold for each field $\phi^a$:
+
+   $$\frac{\partial \mathcal{L}}{\partial \phi^a}
+   - \partial_\mu \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+   = 0 \tag{EL}$$
+
+   We use (EL) to rewrite the first term in (5). Adding and subtracting
+   $\partial_\mu\!\left(\frac{\partial \mathcal{L}}{\partial(\partial_\mu
+   \phi^a)}\right)\bar{\Delta}\phi^a$:
+
+   $$\aligned{
+   \frac{\partial \mathcal{L}}{\partial \phi^a}\,\bar{\Delta}\phi^a
+   + \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+     \,\partial_\mu(\bar{\Delta}\phi^a)
+   &= \partial_\mu\!\left[
+      \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+      \,\bar{\Delta}\phi^a\right] \\
+   &\quad + \underbrace{\left[
+      \frac{\partial \mathcal{L}}{\partial \phi^a}
+      - \partial_\mu\frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+      \right]}_{\displaystyle =\;0\;\text{(EL)}}\!\bar{\Delta}\phi^a
+   } \tag{6}$$
+
+   The underbraced term vanishes on-shell. Substituting back into (5):
+
+   $$\delta_\epsilon \mathcal{L}
+   = \partial_\mu\!\left[
+     \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+     \,\bar{\Delta}\phi^a\right]
+   + \xi^\mu \partial_\mu \mathcal{L} \tag{7}$$
+
+   \textbf{Step 3: The symmetry condition.}
+   By assumption, the transformation (2) is a symmetry: $S$ is invariant
+   up to a total divergence, meaning
+
+   $$\delta_\epsilon \mathcal{L} = \epsilon\,\partial_\mu K^\mu(x) \tag{8}$$
+
+   for some current $K^\mu$ (which vanishes for strict symmetries).
+   Dividing by $\epsilon$ and combining (7) and (8):
+
+   $$\partial_\mu\!\left[
+     \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+     \,\bar{\Delta}\phi^a
+     + \xi^\mu \mathcal{L} - K^\mu
+   \right] = 0 \tag{9}$$
+
+   \textbf{Step 4: The Noether current.}
+   Equation (9) is a conservation law $\partial_\mu j^\mu = 0$ with
+
+   $$j^\mu \coloneqq \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+   \,\bar{\Delta}\phi^a
+   + \xi^\mu \mathcal{L} - K^\mu \tag{10}$$
+
+   Substituting back the definition $\bar{\Delta}\phi^a = \Delta\phi^a -
+   \xi^\nu \partial_\nu \phi^a$ from (4):
+
+   $$\boxed{j^\mu = \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+   \!\left(\Delta\phi^a - \xi^\nu \partial_\nu \phi^a\right)
+   + \xi^\mu \mathcal{L} - K^\mu} \tag{11}$$
+
+   This is the \textbf{Noether current}.
+
+   \textbf{Step 5: The conserved charge.}
+   Integrating $\partial_\mu j^\mu = 0$ over a spacetime volume $V$
+   bounded by two spacelike slices $\Sigma_{t_1}$ and $\Sigma_{t_2}$,
+   and applying the divergence theorem:
+
+   $$\aligned{
+   0 &= \int_V d^4x\; \partial_\mu j^\mu \\
+     &= \int_{\Sigma_{t_2}} d^3x\; j^0
+      - \int_{\Sigma_{t_1}} d^3x\; j^0
+      + \oint_{\partial V_\text{spatial}} j^i \, dS_i
+   } \tag{12}$$
+
+   Assuming the fields fall off sufficiently fast at spatial infinity so
+   that the boundary term vanishes, we obtain
+
+   $$\frac{d}{dt} \int_\Sigma d^3x\; j^0(x) = 0 \tag{13}$$
+
+   so the charge $Q \coloneqq \int_\Sigma d^3x\; j^0$ is conserved. $\square$
+
+   \vskip{1}
+
+   \textbf{Remark 1} (Internal symmetry: $U(1)$ example).
+   \textit{Consider a complex scalar field $\psi$ with Lagrangian
+   $\mathcal{L} = |\partial_\mu \psi|^2 - m^2|\psi|^2$. The transformation
+   $\psi \mapsto e^{i\epsilon}\psi$ is a $U(1)$ symmetry with $\xi^\mu = 0$
+   and $\Delta\psi = i\psi$. The Noether current is}
+
+   $$j^\mu = i\!\left[\psi^* \partial^\mu\psi - (\partial^\mu\psi^*)\psi\right]
+   \tag{14}$$
+
+   \textit{and the conserved charge is the total electric charge
+   $Q = \int d^3x\; j^0$. This is the prototype for all gauge theories.}
+
+   \textbf{Remark 2} (Spacetime translation: energy-momentum tensor).
+   For the spacetime translation $x^\mu \to x^\mu + \epsilon^\mu$ we have
+   $\xi^\mu = \delta^\mu_\nu$ (for translation in direction $\nu$) and
+   $\Delta\phi^a = 0$, $K^\mu = 0$. The four conserved currents (one per
+   direction $\nu$) are assembled into the \textbf{energy-momentum tensor}:
+
+   $$T^\mu{}_\nu \coloneqq
+   \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}\,\partial_\nu \phi^a
+   - \delta^\mu_\nu\,\mathcal{L} \tag{15}$$
+
+   satisfying $\partial_\mu T^\mu{}_\nu = 0$. The four conserved charges are
+
+   $$P^\nu = \int_\Sigma d^3x\; T^{0\nu} \tag{16}$$
+
+   — the total energy ($\nu = 0$) and spatial momentum ($\nu = 1, 2, 3$)
+   of the field configuration.
+
+   \textbf{Remark 3} (Angular momentum and Lorentz invariance).
+   For Lorentz boosts and rotations $x^\mu \to x^\mu +
+   \omega^\mu{}_\nu x^\nu$ (with $\omega_{\mu\nu}$ antisymmetric), the
+   Noether procedure yields the \textbf{angular momentum tensor}
+
+   $$M^{\mu\nu\rho} \coloneqq x^\nu T^{\mu\rho} - x^\rho T^{\mu\nu}
+   + \frac{\partial \mathcal{L}}{\partial(\partial_\mu \phi^a)}
+   \,(S^{\nu\rho})^a{}_b\,\phi^b \tag{17}$$
+
+   where $(S^{\nu\rho})^a{}_b$ are the spin matrices of the field in
+   representation $a$. The last term is the intrinsic spin contribution,
+   absent for scalar fields.
+
+   \textbf{Remark 4} (Quantum version).
+   \textit{In canonical quantisation, $Q$ becomes an operator. If the
+   vacuum is invariant, $Q|0\rangle = 0$, then the symmetry is realised in
+   the Wigner-Weyl mode and the spectrum organises into multiplets of the
+   symmetry group. If $Q|0\rangle \neq 0$, the symmetry is spontaneously
+   broken — the Goldstone theorem then guarantees a massless scalar
+   particle for each broken generator, with $\partial_\mu j^\mu = 0$
+   holding as an operator equation.}
+@end
+
+% ─── SYSTEM SETUP
+
+#target_prefix "│ " % <- what gets prepended to each line of output
+
+#before_each
+    \setunicode{true}
+    \setmathitalic{true}
+    \setwidth{95}
+    \setparskip{1} % implicit spacing around paragraphs
+    \setmathabove{1} % implicit spacing around display math
+    \setmathbelow{1}
+    \linebreaker{greedy} % greedy for smart column alignment, raggedright for left aligned
+
+    \macro<\indented{content}>{\indent[2]{${content}}}
+    \macro<\cmd{x}>{\textbackslash{}\textit{${x}}}
+#end

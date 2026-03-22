@@ -1,0 +1,5 @@
+# Force LF line endings for source and test files so golden diffs
+# work correctly on Windows (cassilda outputs LF).
+*.cld text eol=lf
+*.hy  text eol=lf
+*.sh  text eol=lf

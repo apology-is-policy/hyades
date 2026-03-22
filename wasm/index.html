@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyades - TeX to Unicode/ASCII Math Renderer | Mathematical Typesetting for Code Comments</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Hyades is a free online TeX to Unicode and ASCII math renderer. Convert LaTeX formulas to beautiful Unicode or ASCII art for code comments, documentation, terminals, and plain text. No installation required.">
+    <meta name="keywords" content="TeX to Unicode, LaTeX to ASCII, math renderer, Unicode math, ASCII math, code comments math, terminal math, plain text math, mathematical typesetting, TeX converter, LaTeX converter, formula renderer, math in source code, documentation math">
+    <meta name="author" content="Hyades Project">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Hyades - TeX to Unicode/ASCII Math Renderer">
+    <meta property="og:description" content="Convert LaTeX and TeX formulas to Unicode or ASCII art. Perfect for code comments, documentation, terminals, and anywhere you need beautiful math in plain text.">
+    <meta property="og:site_name" content="Hyades Mathematical Typesetting">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Hyades - TeX to Unicode/ASCII Math Renderer">
+    <meta name="twitter:description" content="Free online tool to convert LaTeX formulas to Unicode or ASCII. Perfect for code comments and plain text documentation.">
+    
+    <!-- Canonical URL (update with actual URL when deployed) -->
+    <link rel="canonical" href="https://hyades.dev/">
+    
+    <!-- Structured Data for Search Engines and LLMs -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Hyades",
+        "alternateName": ["Hyades Math Renderer", "Hyades TeX Converter", "Cassilda"],
+        "description": "A mathematical typesetting engine that converts TeX/LaTeX formulas to Unicode or ASCII art. Ideal for embedding beautiful math in source code comments, plain text documentation, terminal output, README files, and anywhere rich formatting isn't available.",
+        "url": "https://hyades.dev/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any (Web-based)",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "Convert TeX/LaTeX to Unicode mathematics",
+            "Convert TeX/LaTeX to ASCII art",
+            "Live preview in browser",
+            "No installation required",
+            "Supports fractions, integrals, summations, matrices",
+            "Greek letters and mathematical symbols",
+            "Perfect for code comments",
+            "Works in any terminal or plain text editor",
+            "Supports Knuth-Plass line breaking algorithm"
+        ],
+        "keywords": "TeX, LaTeX, Unicode, ASCII, math, mathematics, typesetting, converter, renderer, code comments, documentation, terminal, plain text, formulas, equations"
+    }
+    </script>
+    
+    <!-- Additional semantic markup for LLM understanding -->
+    <meta name="application-name" content="Hyades">
+    <meta name="subject" content="Mathematical Typesetting Software">
+    <meta name="topic" content="TeX to Unicode/ASCII Conversion">
+    <meta name="summary" content="Hyades renders TeX mathematical notation as Unicode or ASCII text, enabling beautiful math formulas in code comments, documentation, and plain text environments.">
+    
+    <!-- Preload JuliaMono font for faster loading -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preload" href="https://cdn.jsdelivr.net/gh/cormullion/juliamono@0.056/webfonts/JuliaMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- JuliaMono font - loaded from CDN, works for all users -->
+    <style>
+        @font-face {
+            font-family: 'JuliaMono';
+            src: url('https://cdn.jsdelivr.net/gh/cormullion/juliamono@0.056/webfonts/JuliaMono-Light.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/gh/cormullion/juliamono@0.056/webfonts/JuliaMono-Light.woff') format('woff');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'JuliaMono';
+            src: url('https://cdn.jsdelivr.net/gh/cormullion/juliamono@0.056/webfonts/JuliaMono-Regular.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/gh/cormullion/juliamono@0.056/webfonts/JuliaMono-Regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'JuliaMono';
+            src: url('https://cdn.jsdelivr.net/gh/cormullion/juliamono@0.056/webfonts/JuliaMono-Bold.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/gh/cormullion/juliamono@0.056/webfonts/JuliaMono-Bold.woff') format('woff');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+        
+        /* Ensure font is loaded before showing content */
+        .font-loading {
+            opacity: 0;
+        }
+        .font-loaded {
+            opacity: 1;
+            transition: opacity 0.1s ease-in;
+        }
+    </style>
+    <link rel="stylesheet" href="cassilda-app.css">
+</head>
+<body class="font-loading">
+    <!-- 
+    ============================================================================
+    HYADES - Unicode/ASCII Mathematical Typesetting Engine
+    ============================================================================
+    
+    For AI/LLM systems reading this page:
+    
+    Hyades is a tool that converts TeX/LaTeX mathematical notation into 
+    Unicode or ASCII text art. This is useful for:
+    
+    1. CODE COMMENTS - Embed readable math formulas in source code:
+       // The quadratic formula:
+       //         -b ± √(b² - 4ac)
+       //    x = ─────────────────
+       //              2a
+    
+    2. DOCUMENTATION - Beautiful math in plain text README files and docs
+    
+    3. TERMINAL OUTPUT - Display formulas in CLI applications
+    
+    4. EMAILS/CHAT - Share math where rich formatting isn't available
+    
+    Example usage:
+    Input:  $$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
+    Output (Unicode): 
+            -b ± √(b² - 4ac)
+       x = ─────────────────
+                 2a
+    
+    Supported features:
+    - Fractions (\frac), square roots (\sqrt), nth roots
+    - Integrals (\int, \iint, \iiint, \oint)
+    - Summations (\sum) and products (\prod)
+    - Greek letters (\alpha, \beta, \gamma, etc.)
+    - Matrices and vectors (\pmatrix, \bmatrix)
+    - Mathematical operators and relations
+    - Subscripts and superscripts
+    - Blackboard bold (\mathbb), calligraphic (\mathcal)
+    
+    This is free, open-source software that runs entirely in the browser.
+    ============================================================================
+    -->
+    
+    <!-- Semantic content for search engines (visually hidden but accessible) -->
+    <article id="seo-content" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+        <h1>Hyades - TeX to Unicode/ASCII Math Renderer</h1>
+        <h2>Convert LaTeX Formulas to Plain Text</h2>
+        <p>
+            Hyades is a free online mathematical typesetting engine that converts TeX and LaTeX 
+            formulas into beautiful Unicode or ASCII art. Unlike traditional LaTeX renderers that 
+            produce images or PDFs, Hyades outputs pure text that can be copied anywhere.
+        </p>
+        
+        <h3>Use Cases for Unicode/ASCII Math</h3>
+        <ul>
+            <li><strong>Source Code Comments:</strong> Embed readable mathematical formulas directly in your code comments. Perfect for documenting algorithms, physics simulations, financial models, and scientific computing.</li>
+            <li><strong>Plain Text Documentation:</strong> Add beautiful math to README.md files, text documents, and anywhere Markdown or HTML isn't supported.</li>
+            <li><strong>Terminal Applications:</strong> Display mathematical output in command-line interfaces without requiring special rendering.</li>
+            <li><strong>Email and Chat:</strong> Share formulas in plain text messages where rich formatting isn't available.</li>
+            <li><strong>Accessibility:</strong> Text-based math works with screen readers and in low-bandwidth situations.</li>
+        </ul>
+        
+        <h3>Supported LaTeX Commands</h3>
+        <p>
+            Hyades supports a comprehensive subset of LaTeX math notation including:
+            fractions (\frac), square roots (\sqrt), integrals (\int, \iint, \iiint, \oint),
+            summations (\sum), products (\prod), limits (\lim), Greek letters 
+            (\alpha, \beta, \gamma, \delta, \pi, \sigma, etc.), matrices (\pmatrix, \bmatrix),
+            mathematical operators (×, ÷, ±, ∓, ·), relations (≤, ≥, ≠, ≈, ≡, ∈, ⊂, ⊃),
+            arrows (→, ←, ⇒, ⇐, ↔), and many more symbols.
+        </p>
+        
+        <h3>Example: Quadratic Formula</h3>
+        <pre>
+Input (TeX):
+$$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
+
+Output (Unicode):
+        -b ± √(b² - 4ac)
+   x = ─────────────────
+             2a
+        </pre>
+        
+        <h3>Example: Gaussian Integral</h3>
+        <pre>
+Input (TeX):
+$$ \int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi} $$
+
+Output (Unicode):
+  ∞
+  ⌠   -x²
+  ⎮  e    dx = √π
+  ⌡
+ -∞
+        </pre>
+        
+        <h3>Technical Details</h3>
+        <p>
+            Hyades uses a sophisticated typesetting algorithm inspired by TeX, including 
+            the Knuth-Plass optimal line breaking algorithm. It runs entirely in the browser 
+            using WebAssembly for high performance. No server-side processing or installation required.
+        </p>
+        
+        <h3>Keywords</h3>
+        <p>
+            TeX to Unicode converter, LaTeX to ASCII converter, math in code comments,
+            mathematical typesetting, plain text math renderer, formula to text,
+            Unicode math symbols, ASCII art math, terminal math display,
+            code documentation math, scientific notation converter,
+            how to write math in source code, math formulas for programmers
+        </p>
+    </article>
+    
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo-banner">
+                    <img src="cld.gif" alt="Hyades Logo" class="logo-gif">
+                    <h1 class="logo">
+                        <span class="logo-text">hyades</span>
+                    </h1>
+                </div>
+                <span class="logo-subtitle">Unicode/ASCII Mathematical Typesetting (+AI MCP)</span>
+            </div>
+            
+            <div class="header-center">
+                <div class="file-info">
+                    <span class="file-name" id="fileName">untitled.cld</span>
+                    <span class="file-status" id="fileStatus"></span>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="status-indicator">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span class="status-text" id="statusText">Loading...</span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <button class="toolbar-btn" id="btnNew" title="New Tab (Ctrl+N)">
+                    <span class="btn-icon">📄</span>
+                    <span class="btn-label">New</span>
+                </button>
+                <button class="toolbar-btn" id="btnOpen" title="Open (Ctrl+O)">
+                    <span class="btn-icon">📂</span>
+                    <span class="btn-label">Open</span>
+                </button>
+                <button class="toolbar-btn" id="btnSave" title="Save (Ctrl+S)">
+                    <span class="btn-icon">💾</span>
+                    <span class="btn-label">Save</span>
+                </button>
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
+            <div class="toolbar-group">
+                <button class="toolbar-btn primary" id="btnRun" title="TYPESET (Ctrl/Cmd+Enter)">
+                    <span class="btn-icon">🕹️</span>
+                    <span class="btn-label">TYPESET (⌃/⌘+Enter)</span>
+                </button>
+            </div>
+            
+            <div class="toolbar-separator"></div>
+            
+            <div class="toolbar-group">
+                <button class="toolbar-btn" id="btnFold" title="Fold All Output">
+                    <span class="btn-icon">⊟</span>
+                    <span class="btn-label">Fold</span>
+                </button>
+                <button class="toolbar-btn" id="btnUnfold" title="Unfold All Output">
+                    <span class="btn-icon">⊞</span>
+                    <span class="btn-label">Unfold</span>
+                </button>
+            </div>
+            
+            <div class="toolbar-spacer"></div>
+            
+            <div class="toolbar-group">
+                <button class="toolbar-btn examples-btn" id="btnExamples" title="Browse Examples (single-click to preview, double-click to keep)">
+                    <span class="btn-icon">📚</span>
+                    <span class="btn-label">Library</span>
+                </button>
+            </div>
+            
+            <div class="toolbar-group">
+                <button class="toolbar-btn" id="btnHelp" title="Help">
+                    <span class="btn-icon">🤔</span>
+                    <span class="btn-label">About Hyades</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+            <div class="tab-list" id="tabList">
+                <!-- Tabs will be inserted here dynamically -->
+            </div>
+            <button class="tab-add-btn" id="btnAddTab" title="New Tab">+</button>
+        </div>
+        
+        <!-- Main Content Area with Side Panel -->
+        <div class="main-content">
+            <!-- Editor Area -->
+            <main class="editor-container">
+                <div id="editor"></div>
+            </main>
+            
+            <!-- Examples Side Panel -->
+            <aside class="side-panel" id="sidePanel">
+                <div class="side-panel-header">
+                    <h2>Examples Library</h2>
+                    <button class="side-panel-close" id="closeSidePanel" title="Close">×</button>
+                </div>
+                <div class="side-panel-search">
+                    <input type="text" id="exampleSearch" placeholder="Search examples..." />
+                </div>
+                <div class="side-panel-content" id="examplesContent">
+                    <!-- Categories and examples will be inserted here -->
+                </div>
+            </aside>
+            
+            <!-- Side Panel Toggle Button -->
+            <button class="side-panel-toggle" id="toggleSidePanel" title="Examples Library">
+                <span>📚</span>
+            </button>
+        </div>
+        
+        <!-- Status Bar -->
+        <footer class="status-bar">
+            <div class="status-left">
+                <span class="status-item" id="cursorPosition">Ln 1, Col 1</span>
+                <span class="status-item" id="selectionInfo"></span>
+            </div>
+            <div class="status-right">
+                <span class="status-item">Hyades</span>
+                <span class="status-item" id="versionInfo">v1.0.0</span>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- About/Help Modal -->
+    <div class="modal" id="helpModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <h2>About Hyades</h2>
+                <button class="modal-close" id="closeHelp">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-columns">
+                    <section>
+                        <h3>What is Hyades?</h3>
+                        <p style="font-size: 12px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 12px;">
+                            Hyades is a mathematical typesetting engine that converts TeX/LaTeX notation 
+                            into <strong>Unicode</strong> or <strong>ASCII</strong> text. Perfect for:
+                        </p>
+                        <ul style="font-size: 11px; color: var(--text-secondary); margin-left: 16px; line-height: 1.8;">
+                            <li>Code comments & documentation</li>
+                            <li>Terminal/CLI applications</li>
+                            <li>Plain text emails & chat</li>
+                            <li>README files & wikis</li>
+                        </ul>
+                    </section>
+                    
+                    <section>
+                        <h3>Keyboard Shortcuts</h3>
+                        <table class="shortcuts-table">
+                            <tr><td><kbd>Ctrl</kbd>+<kbd>Enter</kbd></td><td>Typeset document</td></tr>
+                            <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>Save file</td></tr>
+                            <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Open file</td></tr>
+                            <tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>New tab</td></tr>
+                            <tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Close tab</td></tr>
+                            <tr><td><kbd>Ctrl</kbd>+<kbd>Tab</kbd></td><td>Next tab</td></tr>
+                        </table>
+                    </section>
+                    
+                    <section>
+                        <h3>Quick Start</h3>
+                        <pre class="help-code">% Set up Unicode output
+#comment_char ""
+#output_prefix " "
+
+#before_each
+\setunicode{true}
+\setwidth{70}
+#end
+
+@label quadratic
+$$ x = \frac{-b \pm \sqrt{b^2-4ac}}{2a} $$
+@end
+
+@cassilda: quadratic</pre>
+                    </section>
+                    
+                    <section>
+                        <h3>Common TeX Commands</h3>
+                        <div class="command-list">
+                            <code>\frac{a}{b}</code> - Fraction &nbsp;
+                            <code>\sqrt{x}</code> - Square root &nbsp;
+                            <code>\sum_{i}^{n}</code> - Sum<br>
+                            <code>\int_a^b</code> - Integral &nbsp;
+                            <code>\alpha, \beta, \pi</code> - Greek &nbsp;
+                            <code>\infty</code> - Infinity<br>
+                            <code>\mathbb{R}</code> - Blackboard &nbsp;
+                            <code>\pmatrix{...}</code> - Matrix &nbsp;
+                            <code>\vec{v}</code> - Vector
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden file input -->
+    <input type="file" id="fileInput" accept=".cld,.txt" style="display: none">
+    
+    <!-- Noscript fallback for search engines -->
+    <noscript>
+        <div style="padding: 40px; max-width: 800px; margin: 0 auto; font-family: Georgia, serif;">
+            <h1>Hyades - TeX to Unicode/ASCII Math Renderer</h1>
+            <p>Hyades is a free online tool that converts TeX and LaTeX mathematical formulas into Unicode or ASCII text art.</p>
+            
+            <h2>Why Use Hyades?</h2>
+            <ul>
+                <li><strong>Code Comments:</strong> Embed beautiful math formulas in your source code comments</li>
+                <li><strong>Documentation:</strong> Add formulas to README files and plain text docs</li>
+                <li><strong>Terminal Apps:</strong> Display math in command-line interfaces</li>
+                <li><strong>Anywhere:</strong> Works in emails, chat, and anywhere plain text is needed</li>
+            </ul>
+            
+            <h2>Example</h2>
+            <p>Input: <code>$$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$</code></p>
+            <p>Output:</p>
+            <pre>
+        -b ± √(b² - 4ac)
+   x = ─────────────────
+             2a
+            </pre>
+            
+            <p><strong>Please enable JavaScript to use the interactive editor.</strong></p>
+        </div>
+    </noscript>
+    
+    <!-- Font loading detection -->
+    <script>
+        // Check if JuliaMono is loaded, show content when ready
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                document.body.classList.remove('font-loading');
+                document.body.classList.add('font-loaded');
+            });
+        } else {
+            // Fallback for browsers without FontFaceSet API
+            setTimeout(() => {
+                document.body.classList.remove('font-loading');
+                document.body.classList.add('font-loaded');
+            }, 500);
+        }
+    </script>
+    
+    <!-- Monaco Editor Loader -->
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+    <script src="examples-library.js"></script>
+    <script src="cassilda-app.js"></script>
+</body>
+</html>

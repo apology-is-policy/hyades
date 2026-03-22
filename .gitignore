@@ -1,0 +1,78 @@
+# Build
+/build/
+/build-debug/
+/build_*/*
+/Makefile
+
+/wasm/build/
+/wasm/dist/
+
+/mcp-server/wasm/build/
+/mcp-server/worker/node_modules/
+/mcp-server/worker/.wrangler/
+/mcp-server/worker/src/hyades-render.js
+/mcp-server/worker/src/hyades-render.wasm
+
+/lsp-server/dist/
+/lsp-server/*.wasm
+/lsp-server/*.js
+!/lsp-server/test-lsp.js
+
+/hyades-vscode-ext/node_modules/
+/hyades-vscode-ext/out/
+/hyades-vscode-ext/*.vsix
+/lsp-server/node_modules/
+
+# CMake build artifacts (anywhere in tree)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+
+# Tree-sitter
+/tree-sitter-cassilda/node_modules/
+/tree-sitter-cassilda/*.dylib
+/tree-sitter-cassilda/*.so
+/tree-sitter-cassilda/*.dll
+/tree-sitter-cassilda/*.dSYM/
+/tree-sitter-cassilda/src/parser.c
+/tree-sitter-cassilda/src/grammar.json
+/tree-sitter-cassilda/src/node-types.json
+/tree-sitter-cassilda/src/tree_sitter/
+/tree-sitter-cassilda/cassilda
+/tree-sitter-cassilda/hyades
+/tree-sitter-cassilda/test_lsp_parse
+/tree-sitter-cassilda/export_symbol_templates
+/tree-sitter-cassilda/gen_stdlib
+/tree-sitter-cassilda/gen_stdlib_lambdas
+/tree-sitter-cassilda/stdlib_macros.c
+/tree-sitter-cassilda/stdlib_lambdas.c
+/tree-sitter-cassilda/*.cld
+
+# VSCode
+.vscode/ipch
+.vscode/**/ipch
+
+.cache
+/.cache/
+.claude
+.cassilda-cache
+
+# Subnivean build artifacts
+/src/subnivean/test_*
+/src/subnivean/*.o
+/src/subnivean/*.dSYM/
+/src/subnivean/v2/test_*
+/src/subnivean/v2/bench_*
+/src/subnivean/v2/*.o
+/src/subnivean/v2/*.dSYM/
+
+# Local (scratch/dev-only files)
+/local/
+/tmp/
+/Testing/
+/docs/
+
+# OS
+.DS_Store
+Thumbs.db

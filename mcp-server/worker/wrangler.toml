@@ -1,0 +1,11 @@
+name = "hyades-mcp"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[observability]
+enabled = true
+head_sampling_rate = 1  # log 100% of requests; lower to e.g. 0.1 if volume gets high
+
+[[rules]]
+type = "CompiledWasm"
+globs = ["**/*.wasm"]

@@ -1,0 +1,12 @@
+{
+  "include_subdirs": true,
+  "cache_path": ".cassilda-cache",
+  "library_dirs": [
+    "library",
+    "stdlib"
+  ],
+  "target_prefix": {
+    ".c": " *",
+    ".h": " *"
+  }
+}

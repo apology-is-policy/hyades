@@ -1,0 +1,107 @@
+% @category: General Typesetting
+% @name: Lists
+% @description: A guide to the \list system macro
+@cassilda: lists
+ For lists, I inspired myself with Markdown, since their list syntax is very hard
+ to beat (contrary to their table syntax, which is pretty limited and a downright
+ maintenance nightmare). The core \𝑙𝑖𝑠𝑡 system macro in configurable  with sensi-
+ ble defaults:
+ 
+   - This is the root element
+   - A sibling element that is long enough to spill over to the next line. When
+     you spill over to the next line, the text will be aligned correctly on the
+     left side, and will use the ragged-right alignment (no hyphenation or
+     dynamic spaces, since that only looks good in prose).
+   - Another sibling
+     - It’s child
+     - Another child
+       - A grandchild
+       - There are only three levels, which is more than enough.
+ 
+ You can customize 3 things about a list:
+ 
+   ● The bullets (per level)
+   ● The indent (space between the bullet and the text)
+   ● Right-ragedness (yes or no)
+ 
+ Which is exactly what the \𝑓𝑎𝑛𝑐𝑦𝑙𝑖𝑠𝑡 stdlib macro does:
+ 
+   1:  │  \macro<\fancylist[indent=2]{content}>{
+   2:  │      \assign<uni>{
+   3:  │          \list[indent:${indent}, point1:●, point2:○, point3:○, ragged:1]
+   4:  │              {${content}}
+   5:  │      }
+   6:  │      \assign<asc>{
+   7:  │          \list[indent:${indent}, point1:-, point2:-, point3:-, ragged:1]
+   8:  │              {${content}}
+   9:  │      }
+   10: │      \if{\unicode}{\recall<uni>}\else{\recall<asc>}
+   11: │  }
+ 
+ It customizes (unicode-mode-aware) the bullet symbols:
+ 
+   ● So that the items
+     ○ then look like
+       ○ this
+ 
+ And that’s all there is to know about lists in 𝐻𝑦𝑎δες.
+
+
+@label lists
+
+
+    For lists, I inspired myself with Markdown, since their list syntax is
+    very hard to beat (contrary to their table syntax, which is pretty limited
+    and a downright maintenance nightmare). The core \textbackslash\textit{list}
+    system macro in configurable with sensible defaults:
+
+    \indent[2]{\list{
+        - This is the root element
+        - A sibling element that is long enough to spill over to the next line. When
+          you spill over to the next line, the text will be aligned correctly on the
+          left side, and will use the ragged-right alignment (no hyphenation or
+          dynamic spaces, since that only looks good in prose).
+        - Another sibling
+          - It's child
+          - Another child
+            - A grandchild
+              - There are only three levels, which is more than enough.
+    }}
+
+    You can customize 3 things about a list:
+
+    \indent[2]{\fancylist{
+        - The bullets (per level)
+        - The indent (space between the bullet and the text)
+        - Right-ragedness (yes or no)
+    }}
+
+    Which is exactly what the \textbackslash\textit{fancylist} stdlib macro does:
+
+    \listing{
+        \verb|
+\macro<\fancylist[indent=2]{content}>{
+    \assign<uni>{
+        \list[indent:${indent}, point1:●, point2:○, point3:○, ragged:1]
+            {${content}}
+    }
+    \assign<asc>{
+        \list[indent:${indent}, point1:-, point2:-, point3:-, ragged:1]
+            {${content}}
+    }
+    \if{\unicode}{\recall<uni>}\else{\recall<asc>}
+}
+|
+    }
+
+    It customizes (unicode-mode-aware) the bullet symbols:
+
+    \indent[2]{\fancylist{
+        - So that the items
+          - then look like
+            - this
+    }}
+
+    And that's all there is to know about lists in \hyades{}.
+
+@end

@@ -1,0 +1,13 @@
+# Recommended Helix settings for Cassilda
+# Merge with your ~/.config/helix/config.toml
+
+[editor]
+color-modes = true  # Status bar changes color based on mode (normal/insert/select)
+
+[editor.lsp]
+display-messages = true      # Show LSP messages in status bar
+display-inlay-hints = true   # Show inlay hints (if supported)
+
+[editor.inline-diagnostics]
+cursor-line = "hint"    # Show all diagnostic severities on cursor line
+other-lines = "error"   # Show only errors on other lines

@@ -1,0 +1,280 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "UNIX Configure",
+      "type": "shell",
+      "command": "cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "UNIX Build (Desktop)",
+      "type": "shell",
+      "command": "cmake --build build --config RelWithDebInfo -j",
+      "group": "build",
+      "dependsOn": [
+        "UNIX Configure"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "UNIX Configure (Debug + ASan)",
+      "type": "shell",
+      "command": "cmake -S . -B build-debug -DCMAKE_BUILD_TYPE=Debug -DHYADES_ENABLE_ASAN=ON",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Configure debug build with AddressSanitizer enabled"
+    },
+    {
+      "label": "UNIX Build (Debug + ASan)",
+      "type": "shell",
+      "command": "cmake --build build-debug -j",
+      "group": "build",
+      "dependsOn": [
+        "UNIX Configure (Debug + ASan)"
+      ],
+      "problemMatcher": [],
+      "detail": "Build debug version with AddressSanitizer for memory bug detection"
+    },
+    {
+      "label": "LSP Stress Test",
+      "type": "shell",
+      "command": "./tests/lsp_stress_test.sh",
+      "group": "test",
+      "dependsOn": [
+        "UNIX Build (Debug + ASan)"
+      ],
+      "problemMatcher": [],
+      "detail": "Run LSP parser stress test with ASan-enabled binary"
+    },
+    {
+      "label": "LSP Stress Test (5x)",
+      "type": "shell",
+      "command": "./tests/lsp_stress_test.sh --repeat 5",
+      "group": "test",
+      "dependsOn": [
+        "UNIX Build (Debug + ASan)"
+      ],
+      "problemMatcher": [],
+      "detail": "Run LSP parser stress test 5 times for thorough validation"
+    },
+    {
+      "label": "WIN Configure",
+      "type": "process",
+      "command": "cmd.exe",
+      "args": [
+        "/d",
+        "/c",
+        "call",
+        "tools\\vsenv.cmd",
+        "&&",
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "-S",
+        ".",
+        "-B",
+        "build",
+        "-G",
+        "Ninja",
+        "-D",
+        "CMAKE_C_COMPILER=clang-cl",
+        "-D",
+        "CMAKE_MAKE_PROGRAM=C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja\\ninja.exe",
+        "-D",
+        "CMAKE_BUILD_TYPE=RelWithDebInfo"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "WIN Build (Desktop)",
+      "type": "process",
+      "command": "cmd.exe",
+      "args": [
+        "/d",
+        "/c",
+        "call",
+        "tools\\vsenv.cmd",
+        "&&",
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "--build",
+        "build",
+        "-j"
+      ],
+      "dependsOn": [
+        "WIN Configure"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "WASM Build (Release)",
+      "type": "shell",
+      "command": "wasm/build-wasm.sh",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "WASM Build (Debug)",
+      "type": "shell",
+      "command": "wasm/build-wasm.sh debug",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Hyades Gen Templates",
+      "type": "shell",
+      "command": "cmake --build build --target templates",
+      "group": "build",
+      "dependsOn": [
+        "UNIX Configure"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Generate Examples Library",
+      "type": "shell",
+      "command": "cmake --build build --target examples",
+      "group": "build",
+      "dependsOn": [
+        "UNIX Build (Desktop)"
+      ],
+      "problemMatcher": [],
+      "detail": "Generate wasm/examples-library.js from wasm/examples/*.cld files"
+    },
+    {
+      "label": "clang-format",
+      "type": "shell",
+      "command": "find . \\( -name \"*.c\" -o -name \"*.h\" \\) | xargs clang-format -style=file -i",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "LSP Server Build",
+      "type": "shell",
+      "command": "cp wasm/build/hyades*.js wasm/build/hyades*.wasm lsp-server/ && cd lsp-server && npm run build",
+      "group": "build",
+      "dependsOn": [
+        "WASM Build (Release)"
+      ],
+      "problemMatcher": "$tsc",
+      "detail": "Copies WASM files to lsp-server/ then builds TypeScript"
+    },
+    {
+      "label": "LSP Server Build (no WASM)",
+      "type": "shell",
+      "command": "npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/lsp-server"
+      },
+      "group": "build",
+      "problemMatcher": "$tsc",
+      "detail": "Build LSP server only (assumes WASM already built)"
+    },
+    {
+      "label": "Package Release",
+      "type": "shell",
+      "command": "cmake --build build --target package-release",
+      "group": "build",
+      "dependsOn": [
+        "UNIX Build (Desktop)"
+      ],
+      "problemMatcher": [],
+      "detail": "Create release package in build/artifacts/ with binaries, LSP server, tree-sitter, and editor configs"
+    },
+    {
+      "label": "Tree-sitter Build",
+      "type": "shell",
+      "command": "npm install && npx tree-sitter generate && npx tree-sitter build",
+      "options": {
+        "cwd": "${workspaceFolder}/tree-sitter-cassilda"
+      },
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Build tree-sitter grammar for Cassilda (generates cassilda.dylib/so)"
+    },
+    {
+      "label": "MCP WASM Build",
+      "type": "shell",
+      "command": "mcp-server/wasm/build.sh",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Build render-only WASM binary for MCP server (requires Emscripten)"
+    },
+    {
+      "label": "MCP Worker Setup",
+      "type": "shell",
+      "command": "npm install && npm run copy-wasm",
+      "options": {
+        "cwd": "${workspaceFolder}/mcp-server/worker"
+      },
+      "group": "build",
+      "dependsOn": [
+        "MCP WASM Build"
+      ],
+      "problemMatcher": [],
+      "detail": "Install MCP worker dependencies and copy WASM artifacts"
+    },
+    {
+      "label": "MCP Worker Dev",
+      "type": "shell",
+      "command": "npx wrangler dev",
+      "options": {
+        "cwd": "${workspaceFolder}/mcp-server/worker"
+      },
+      "group": "test",
+      "dependsOn": [
+        "MCP Worker Setup"
+      ],
+      "problemMatcher": [],
+      "isBackground": true,
+      "detail": "Start MCP worker local dev server on localhost:8787"
+    },
+    {
+      "label": "MCP Worker Deploy",
+      "type": "shell",
+      "command": "npx wrangler deploy",
+      "options": {
+        "cwd": "${workspaceFolder}/mcp-server/worker"
+      },
+      "group": "build",
+      "dependsOn": [
+        "MCP Worker Setup"
+      ],
+      "problemMatcher": [],
+      "detail": "Deploy MCP worker to Cloudflare Workers"
+    },
+    {
+      "label": "Golden Tests",
+      "type": "shell",
+      "command": "cmake --build build --target test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "dependsOn": [
+        "UNIX Build (Desktop)"
+      ],
+      "problemMatcher": [],
+      "detail": "Run golden tests against wasm/examples/*.cld"
+    },
+    {
+      "label": "Update Goldens",
+      "type": "shell",
+      "command": "cmake --build build --target update-goldens",
+      "group": "build",
+      "dependsOn": [
+        "UNIX Build (Desktop)"
+      ],
+      "problemMatcher": [],
+      "detail": "Regenerate golden files from wasm/examples/*.cld"
+    }
+  ]
+}

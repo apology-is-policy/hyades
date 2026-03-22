@@ -1,0 +1,62 @@
+@label fresnel_sine
+    Fresnel Sine Integral:
+
+    $ \fn{S}(x) = \int_0^x
+      \sin\left(\frac{\pi t^2}{2}\right) dt $
+
+    Taylor expansion:
+
+    $ \fn{S}(x) = \sum_{n=0}^\infty
+      \frac{(-1)^n \left(\pi / 2\right)^{2n+1} x^{4n+3}}
+      {(4n+3)(2n+1)!} $
+
+    TODO: Use Cassilda (A Hyades file processor), it rocks!\\
+    TODO: Document more obscure functions.
+@end
+
+@cassilda: fresnel_sine
+    Fresnel Sine Integral:
+    
+            𝑥      ⎛    2  ⎞
+            ⌠      ⎜  π𝑡   ⎟
+    S(𝑥) =  ⎮  sin ⎜ ───── ⎟ 𝑑𝑡
+            ⌡      ⎜   2   ⎟
+            0      ⎝       ⎠
+    
+    Taylor expansion:
+    
+             ∞         𝑛       2𝑛 + 1 4𝑛 + 3
+            ───    (-1) (π / 2)      𝑥
+    S(𝑥) =  ╲     ───────────────────────────
+            ╱⎽⎽        (4𝑛 + 3)(2𝑛 + 1)!
+           𝑛 = 0
+    
+    TODO: Use Cassilda (A Hyades file processor), it rocks!
+    TODO: Document more obscure functions.
+    Fresnel Sine Integral:
+    
+            𝑥      ⎛    2  ⎞
+            ⌠      ⎜  π𝑡   ⎟
+    S(𝑥) =  ⎮  sin ⎜ ───── ⎟ 𝑑𝑡
+            ⌡      ⎜   2   ⎟
+            0      ⎝       ⎠
+    
+    Taylor expansion:
+    
+             ∞         𝑛       2𝑛 + 1 4𝑛 + 3
+            ───    (-1) (π / 2)      𝑥
+    S(𝑥) =  ╲     ───────────────────────────
+            ╱__        (4𝑛 + 3)(2𝑛 + 1)!
+           𝑛 = 0
+    
+    TODO: Use Cassilda (A Hyades file processor), it rocks!
+    TODO: Document more obscure functions.
+
+#before_each
+    \setwidth{60}
+    \setunicode{true}
+    \setmathitalic{true}
+#end
+
+#output_prefix "   "
+#comment_char ""

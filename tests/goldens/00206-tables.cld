@@ -1,0 +1,473 @@
+% @category: General Typesetting
+% @name: Tables
+% @description: A guide to the \tables system macro
+@cassilda: tables1
+ Hyades has an infinitely configurable \𝑡𝑎𝑏𝑙𝑒𝑠 system macro. You can set:
+ 
+   ● Multiline cells
+     ○ Multiline math, paragraphs
+   ● Outer border style
+   ● Inner border style
+     ○ Override per-row
+     ○ Override per-cell
+   ● Padding (overridable)
+   ● Alignment
+     ○ Horizontal
+     ○ Vertical
+   ● Column width
+     ○ Explicit
+     ○ Automatic (fill)
+     ○ Flex-like space distribution
+ 
+ A table at its simplest:
+ 
+                                ┌───────┬───────┐
+                                │   A   │   B   │
+                                ├───────┼───────┤
+                                │   D   │   E   │
+                                └───────┴───────┘
+ 
+ The properties are inherited from the top level in a cascading manner.
+ 
+ Certain  properties can be applied partially, e.g. the 𝑝𝑎𝑑 property, which defi-
+ nes cell  padding, can either be applied to all sides by “pad:1”, or only to se-
+ lected sides by:
+ 
+                              pad:{l:1,r:2,t:3,b:4}
+ (no diagnostic entries)
+ 
+ Let’s say we want to have a more  prominent header – we can separate it from the
+ content with a double line:
+ 
+                            ╭───────────┬───────────╮
+                            │  𝐿𝑒𝑡𝑡𝑒𝑟   │   𝐴𝑆𝐶𝐼𝐼   │
+                            ╞═══════════╪═══════════╡
+                            │     A     │   0x41    │
+                            ├───────────┼───────────┤
+                            │     B     │   0x44    │
+                            ╰───────────┴───────────╯
+ 
+ The first row  inherits the default frame  (single) from the root since it’s not
+ specified  explicitly. It overrides it with a double frame. When a row overrides
+ a property, it is:
+ 
+   ● Inherited by all its columns (unless overriden per-column)
+   ● Inherided by all subsequent rows
+ 
+ So the second row must set the frame back to single, otherwise the double bottom
+ frame would repeat for every row below it.
+ 
+ Frame is another property that can be fully or partially defined:
+ 
+                     frame:{l:none,r:single,t:double,b:none}
+ 
+ or
+ 
+                                   frame:single
+ 
+ Let’s try a table with  multi-line math. Every table cell goes  through the same
+ pipeline as the  top-level document  content, so it can contain  anything 𝐻𝑦𝑎δες
+ can render.
+ 
+           ╔═══════════╤═══════════════╤══════════════════════════════╗
+           ║   𝐺𝑟𝑒𝑒𝑘   │  𝐷𝑒𝑓𝑖𝑛𝑖𝑡𝑖𝑜𝑛   │          𝐶𝑎𝑙𝑙 𝑉𝑎𝑙𝑢𝑒          ║
+           ╠═══════════╪═══════════════╪══════════════════════════════╣
+           ║           │      ∂𝑉       │            𝑁(𝑑 )             ║
+           ║  Delta Δ  │     ────      │               1              ║
+           ║           │      ∂𝑆       │                              ║
+           ╟───────────┼───────────────┼──────────────────────────────╢
+           ║           │       2       │           𝑁′(𝑑 )             ║
+           ║           │      ∂ 𝑉      │               1              ║
+           ║  Gamma Γ  │     ─────     │         ───────────          ║
+           ║           │        2      │              ⎽⎽⎽⎽⎽           ║
+           ║           │      ∂𝑆       │          𝑆σ √𝑇 − 𝑡           ║
+           ╟───────────┼───────────────┼──────────────────────────────╢
+           ║           │      ∂𝑉       │          ⎽⎽⎽⎽⎽               ║
+           ║  Vega ν   │     ────      │       𝑆 √𝑇 − 𝑡 𝑁′(𝑑 )        ║
+           ║           │      ∂σ       │                    1         ║
+           ╟───────────┼───────────────┼──────────────────────────────╢
+           ║           │      ∂𝑉       │            -𝑟(𝑇 − 𝑡)         ║
+           ║   Rho ρ   │     ────      │   𝐾(𝑇 − 𝑡)𝑒         𝑁(𝑑 )    ║
+           ║           │      ∂𝑟       │                        2     ║
+           ╚═══════════╧═══════════════╧══════════════════════════════╝
+                                  𝑂𝑝𝑡𝑖𝑜𝑛𝑠 𝐺𝑟𝑒𝑒𝑘𝑠
+ 
+ The 𝑏𝑜𝑟𝑑𝑒𝑟 property  specifies the style of the outer table border and when spe-
+ cified, it cannot be overriden by 𝑓𝑟𝑎𝑚𝑒 on the row or the column level.
+ 
+ The vertical alignment (𝑣𝑎𝑙𝑖𝑔𝑛) can be set to:
+ 
+   ● (𝐭)op
+   ● (𝐦)iddle
+   ● (𝐛)ottom
+ 
+ There  are  no  limits  to  how  you  can  arrange  the  borders, for  example a
+ “rudimentary”  styled table  could be achieved by having no frame and  border on
+ the table  level, and then have the  first row and the first set of columns  set
+ the template for the rest of the table:
+ 
+              𝐺𝑟𝑒𝑒𝑘   ┆  𝐷𝑒𝑓𝑖𝑛𝑖𝑡𝑖𝑜𝑛   ┆           𝐶𝑎𝑙𝑙 𝑉𝑎𝑙𝑢𝑒
+           ───────────┼───────────────┼────────────────────────────────
+                      ┆      ∂𝑉       ┆             𝑁(𝑑 )
+             Delta Δ  ┆     ────      ┆                1
+                      ┆      ∂𝑆       ┆
+           ┄┄┄┄┄┄┄┄┄┄┄┼┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┼┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+                      ┆       2       ┆            𝑁′(𝑑 )
+                      ┆      ∂ 𝑉      ┆                1
+             Gamma Γ  ┆     ─────     ┆          ───────────
+                      ┆        2      ┆               ⎽⎽⎽⎽⎽
+                      ┆      ∂𝑆       ┆           𝑆σ √𝑇 − 𝑡
+           ┄┄┄┄┄┄┄┄┄┄┄┼┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┼┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+                      ┆      ∂𝑉       ┆           ⎽⎽⎽⎽⎽
+             Vega ν   ┆     ────      ┆        𝑆 √𝑇 − 𝑡 𝑁′(𝑑 )
+                      ┆      ∂σ       ┆                     1
+           ┄┄┄┄┄┄┄┄┄┄┄┼┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┼┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+                      ┆      ∂𝑉       ┆             -𝑟(𝑇 − 𝑡)
+              Rho ρ   ┆     ────      ┆    𝐾(𝑇 − 𝑡)𝑒         𝑁(𝑑 )
+                      ┆      ∂𝑟       ┆                         2
+ 
+ Nested tables are absolutely possible as well:
+ 
+             ┌──────────────────────────┬──────────────────────────┐
+             │  More multi-line math:   │ ● This list              │
+             │                          │   ○ Exists inside a      │
+             │          ⎧  𝑥 if 𝑥 > 0   │     table cell           │
+             │          ⎪               │                          │
+             │   f(𝑥) = ⎨  0 if 𝑥 = 0   │                          │
+             │          ⎪               │                          │
+             │          ⎩ -𝑥 if 𝑥 < 0   │                          │
+             │                          │                          │
+             │  More multi-line math.   │                          │
+             ├──────────────────────────┼──────────────────────────┤
+             │          _  _ _          │ Nested  tables? No  pro- │
+             │         | || (_)         │ blem:                    │
+             │         | __ | |         │                          │
+             │         |_||_|_|         │    ┌───────┬───────┐     │
+             │                          │    │   A   │   B   │     │
+             │                          │    ├───────┼───────┤     │
+             │ Anything,  even a figlet │    │   D   │   E   │     │
+             │ can be rendered within a │    └───────┴───────┘     │
+             │ cell.                    │                          │
+             └──────────────────────────┴──────────────────────────┘
+ 
+ \𝑡𝑎𝑏𝑙𝑒 itself is a system macro – it is parsed by a piece of bespoke C code that
+ emits 𝐻𝑦𝑎δες code back to where the table is called, which is then parsed by the
+ standard  pipeline just like  all the rest of the code. For  instance the first,
+ simplest table in this document translates into:
+ 
+   1:  │  \intersect_rules{
+   2:  │  \begin[17]{vbox}
+   3:  │    \child{\hrule[auto]{}{─}{}}
+   4:  │    \child{\begin[top]{hbox}
+   5:  │      \child[1]{\vrule[auto]{}{│}{}}
+   6:  │      \child[center]{\begin{hbox}\child[1]{}\child[center]{A}\...
+   7:  │      \child[1]{\vrule[auto]{}{│}{}}
+   8:  │      \child[center]{\begin{hbox}\child[1]{}\child[center]{B}\...
+   9:  │      \child[1]{\vrule[auto]{}{│}{}}
+   10: │    \end{hbox}}
+   11: │    \child{\hrule[auto]{}{─}{}}
+   12: │    \child{\begin[top]{hbox}
+   13: │      \child[1]{\vrule[auto]{}{│}{}}
+   14: │      \child[center]{\begin{hbox}\child[1]{}\child[center]{D}\...
+   15: │      \child[1]{\vrule[auto]{}{│}{}}
+   16: │      \child[center]{\begin{hbox}\child[1]{}\child[center]{E}\...
+   17: │      \child[1]{\vrule[auto]{}{│}{}}
+   18: │    \end{hbox}}
+   19: │    \child{\hrule[auto]{}{─}{}}
+   20: │  \end{vbox}
+   21: │  }
+ 
+ You can inspect what any 𝐻𝑦𝑎δες code is expanded into with:
+ 
+ ┌─────┬────────────────────────────────────────────────────────────────────────┐
+ │ 1:  │  \diagnostics{expansion}                                               │
+ │ 2:  │                                                                        │
+ │ 3:  │  \diag_expand{%                                                        │
+ │ 4:  │  \table[width:17,frame:single,pad:{l:1,r:1},align:c]{                  │
+ │ 5:  │      \row{                                                             │
+ │ 6:  │          \col{A}                                                       │
+ │ 7:  │          \col{B}                                                       │
+ │ 8:  │      }                                                                 │
+ │ 9:  │      \row{                                                             │
+ │ 10: │          \col{D}                                                       │
+ │ 11: │          \col{E}                                                       │
+ │ 12: │      }                                                                 │
+ │ 13: │  }}                                                                    │
+ │ 14: │                                                                        │
+ │ 15: │  \printdiagnostics                                                     │
+ └─────┴────────────────────────────────────────────────────────────────────────┘
+ 
+ (You can learn more about layout primitives in the  corresponding tutorial docu-
+ ment.)
+
+% CODE:
+@label tables1
+    Hyades has an infinitely configurable \textbackslash\textit{tables} system macro.
+    You can set:
+
+    \indent[2]{\fancylist{
+        - Multiline cells
+          - Multiline math, paragraphs
+        - Outer border style
+        - Inner border style
+          - Override per-row
+          - Override per-cell
+        - Padding (overridable)
+        - Alignment
+          - Horizontal
+          - Vertical
+        - Column width
+          - Explicit
+          - Automatic (fill)
+          - Flex-like space distribution
+    }}
+
+    A table at its simplest:
+
+    \center{\table[width:17,frame:single,pad:{l:1,r:1},align:c]{
+        \row{
+            \col{A}
+            \col{B}
+        }
+        \row{
+            \col{D}
+            \col{E}
+        }
+    }}
+
+    The properties are inherited from the top level in a cascading manner.
+
+    Certain properties can be applied partially, e.g. the \textit{pad} property,
+    which defines cell padding, can either be applied to all sides by "pad:1",
+    or only to selected sides by:
+
+    \center{pad:\{l:1,r:2,t:3,b:4\}}
+
+    \printdiagnostics
+
+    
+    Let's say we want to have
+    a more prominent header -- we can separate it from the content with a double line:
+
+    \center{\table[width:25,pad:{l:1,r:1},border:rounded,align:c]{
+        \row[frame:{b:double}]{
+            \col{\textit{Letter}}
+            \col{\textit{ASCII}}
+        }
+        \row[frame:{b:single}]{
+            \col{A}
+            \col{0x41}
+        }
+        \row{
+            \col{B}
+            \col{0x44}
+        }
+    }}
+
+    The first row inherits the default frame (single) from the root since it's
+    not specified explicitly. It overrides it with a double frame. When a row
+    overrides a property, it is:
+
+    \indent[2]{\fancylist{
+        - Inherited by all its columns (unless overriden per-column)
+        - Inherided by all subsequent rows
+    }}
+
+    So the second row must set the frame back to single, otherwise the double
+    bottom frame would repeat for every row below it.
+
+    Frame is another property that can be fully or partially defined:
+
+    \center{frame:\{l:none,r:single,t:double,b:none\}}
+
+    or
+
+    \center{frame:single}
+
+    
+    Let's try a table with multi-line math. Every table cell goes through the
+    same pipeline as the top-level document content, so it can contain anything
+    \hyades{} can render.
+
+    \center{
+    \subtitle[\textit{Options Greeks},tpad:0]{
+    \table[width:60,align:c,valign:m,frame:single,border:double]{
+        \row[frame:{b:double}]{
+            \col[width:11]{\textit{Greek}}
+            \col[width:15]{\textit{Definition}}
+            \col{\textit{Call Value}}
+        }
+        \row[frame:{b:single}]{
+            \col{Delta $\Delta$}
+            \col{$\frac{\partial V}{\partial S}$}
+            \col{$N(d_1)$}
+        }
+        \row{
+            \col{Gamma $\Gamma$}
+            \col{$\frac{\partial^2 V}{\partial S^2}$}
+            \col{$\frac{N'(d_1)}{S\sigma\sqrt{T-t}}$}
+        }
+        \row{
+            \col{Vega $\nu$}
+            \col{$\frac{\partial V}{\partial \sigma}$}
+            \col{$S\sqrt{T-t}N'(d_1)$}
+        }
+        \row{
+            \col{Rho $\rho$}
+            \col{$\frac{\partial V}{\partial r}$}
+            \col{$K(T-t)e^{-r(T-t)}N(d_2)$}
+        }
+    }}
+    }
+
+    The \textit{border} property specifies the style of the outer table border
+    and when specified, it cannot be overriden by \textit{frame} on the row or
+    the column level.
+
+    The vertical alignment (\textit{valign}) can be set to:
+
+    \indent[2]{\fancylist{
+        - \textbf{(t)}op
+        - \textbf{(m)}iddle
+        - \textbf{(b)}ottom
+    }}
+
+    There are no limits to how you can arrange the borders, for example a
+    "rudimentary" styled table could be achieved by having no frame and
+    border on the table level, and then have the first row and the first
+    set of columns set the template for the rest of the table: 
+
+    \center{
+    \table[width:60,align:c,valign:m,frame:none,border:none]{
+        \row[frame:{b:single}]{
+            \col[width:11,frame:{r:dotted}]{\textit{Greek}}
+            \col[width:15,frame:{r:dotted}]{\textit{Definition}}
+            \col{\textit{Call Value}}
+        }
+        \row[frame:{b:dotted}]{
+            \col{Delta $\Delta$}
+            \col{$\frac{\partial V}{\partial S}$}
+            \col{$N(d_1)$}
+        }
+        \row{
+            \col{Gamma $\Gamma$}
+            \col{$\frac{\partial^2 V}{\partial S^2}$}
+            \col{$\frac{N'(d_1)}{S\sigma\sqrt{T-t}}$}
+        }
+        \row{
+            \col{Vega $\nu$}
+            \col{$\frac{\partial V}{\partial \sigma}$}
+            \col{$S\sqrt{T-t}N'(d_1)$}
+        }
+        \row{
+            \col{Rho $\rho$}
+            \col{$\frac{\partial V}{\partial r}$}
+            \col{$K(T-t)e^{-r(T-t)}N(d_2)$}
+        }
+    }}
+
+    Nested tables are absolutely possible as well:
+
+    \center{\table[width:55,frame:single,pad:{l:1,r:1},align:c]{
+        \row{
+            \col{
+                More multi-line math:
+
+                $\fn{f}(x)=\cases{
+                    x & \text{if } x > 0 \\
+                    0 & \text{if } x = 0 \\
+                    -x & \text{if } x < 0
+                }$
+
+                More multi-line math.
+            }
+            \col[align:l]{
+                \fancylist{
+                    - This list
+                      - Exists inside a table cell
+                }
+            }
+        }
+        \row{
+            \col{
+                \figlet{Hi}
+
+                Anything, even a figlet can be rendered within a cell.
+            }
+            \col[align:c]{
+                Nested tables? No problem:
+                
+                \table[width:17,frame:single,pad:{l:1,r:1},align:c]{
+        \row{
+            \col{A}
+            \col{B}
+        }
+        \row{
+            \col{D}
+            \col{E}
+        }
+    }}
+        }
+    }}
+
+
+    \textbackslash\textit{table} itself is a system macro -- it is parsed
+    by a piece of bespoke C code that emits \hyades{} code back to where
+    the table is called, which is then parsed by the standard pipeline just
+    like all the rest of the code. For instance the first, simplest table
+    in this document translates into:
+
+    \listing{\verb|
+\intersect_rules{
+\begin[17]{vbox}
+  \child{\hrule[auto]{}{─}{}}
+  \child{\begin[top]{hbox}
+    \child[1]{\vrule[auto]{}{│}{}}
+    \child[center]{\begin{hbox}\child[1]{}\child[center]{A}\...
+    \child[1]{\vrule[auto]{}{│}{}}
+    \child[center]{\begin{hbox}\child[1]{}\child[center]{B}\...
+    \child[1]{\vrule[auto]{}{│}{}}
+  \end{hbox}}
+  \child{\hrule[auto]{}{─}{}}
+  \child{\begin[top]{hbox}
+    \child[1]{\vrule[auto]{}{│}{}}
+    \child[center]{\begin{hbox}\child[1]{}\child[center]{D}\...
+    \child[1]{\vrule[auto]{}{│}{}}
+    \child[center]{\begin{hbox}\child[1]{}\child[center]{E}\...
+    \child[1]{\vrule[auto]{}{│}{}}
+  \end{hbox}}
+  \child{\hrule[auto]{}{─}{}}
+\end{vbox}
+}
+|}
+
+    You can inspect what any \hyades{} code is expanded into with:
+
+    \fancylisting{\verb|
+\diagnostics{expansion}
+
+\diag_expand{%
+\table[width:17,frame:single,pad:{l:1,r:1},align:c]{
+    \row{
+        \col{A}
+        \col{B}
+    }
+    \row{
+        \col{D}
+        \col{E}
+    }
+}}
+
+\printdiagnostics
+|}
+
+    (You can learn more about layout primitives in the corresponding tutorial document.)
+
+@end
+
+
+#before_each
+\setwidth{80}
+    %\setunicode{true}
+    %\setmathitalic{true}
+#end

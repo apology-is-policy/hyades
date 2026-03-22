@@ -1,0 +1,1309 @@
+% @category: Getting Started
+% @name: Quick Primer
+% @description: What's Hyades and how to use it
+@cassilda: overview
+      ✩                         _  _              _                                ✩
+      ✩                        | || |_  _ __ _ __| |___ ___                        ✩
+      ✩                        | __ | || / _` / _` / -_(_-<                        ✩
+      ✩                        |_||_|\_, \__,_\__,_\___/__/                        ✩
+      ✩                                |_/ A Quick Overview                        ✩
+      ✩  /....................................................................../  ✩
+      ✩                                                                            ✩
+      ✩  First of all,  whether you’ve made it to this  notebook because you need  ✩
+      ✩  to include pretty math in your code  comments/documentation, or you want  ✩
+      ✩  to send it via e-mail and don’t want to install a 5GB TeX  distribution,  ✩
+      ✩  or send PDFs/screenshots, thank you for showing interest in 𝐻𝑦𝑎δες.       ✩
+      ✩                                                                            ✩
+      ✩                                                                            ✩
+      ✩                               What Is This?                                ✩
+      ✩                               ─────────────                                ✩
+      ✩                                                                            ✩
+      ✩  A lightweight  CLI program that allows you to render TeX into multi-line  ✩
+      ✩  text, and much more!                                                      ✩
+      ✩                                                                            ✩
+      ✩                    (𝑛)       𝑛!    ⌠       𝑓(𝑧)                            ✩
+      ✩                   𝑓   (𝑎) = ─────  ⌽  ──────────────  𝑑𝑧                   ✩
+      ✩                              2π𝑖   ⌡          𝑛 + 1                        ✩
+      ✩                                    γ   (𝑧 − 𝑎)                             ✩
+      ✩                                                                            ✩
+      ✩  This ↑ is what you’ll get on the  standard output if you pipe this piece  ✩
+      ✩  of LaTeX math into hyades:                                                ✩
+      ✩                                                                            ✩
+      ✩    $$ f^{(n)}(a) = \frac{n!}{2\pi i}                                       ✩
+      ✩       \oint_\gamma \frac{f(z)}{(z-a)^{n+1}} \, dz $$                       ✩
+      ✩                                                                            ✩
+      ✩  Moreover, you can have it automatically  rendered to your source code as  ✩
+      ✩  a comment using  Cassilda (yes,  you’ve correctly  recognized the cosmic  ✩
+      ✩  horror  references). We have a VSCode  extension,  and an installer  for  ✩
+      ✩  Helix and Neovim!                                                         ✩
+      ✩                                                                            ✩
+      ✩             ┌───────────────────────────────────────────────┐              ✩
+      ✩             │         — 𝑊ℎ𝑎𝑡 𝑖𝑓 𝐼 𝑑𝑜𝑛‘𝑡 𝑘𝑛𝑜𝑤 𝑇𝑒𝑋? —         │              ✩
+      ✩             │                                               │              ✩
+      ✩             │ 𝐻𝑦𝑎δες has both an online MCP  server, and an │              ✩
+      ✩             │ offline  MCP  binary.  You can add  either to │              ✩
+      ✩             │ your AI, which will equip it with the  𝐻𝑦𝑎δες │              ✩
+      ✩             │ 𝑟𝑒𝑛𝑑𝑒𝑟 tool.                                  │              ✩
+      ✩             │                                               │              ✩
+      ✩             │  ╔════════════════════════════════════════╗   │              ✩
+      ✩             │  ║ https://hyades-mcp.apg.workers.dev/mcp ║   │              ✩
+      ✩             │  ╚════════════════════════════════════════╝   │              ✩
+      ✩             │                                               │              ✩
+      ✩             │ You can  then tell it to write  the math  for │              ✩
+      ✩             │ you, e.g.: 𝑈𝑠𝑒 𝐻𝑦𝑎𝑑𝑒𝑠 𝑡𝑜 𝑤𝑟𝑖𝑡𝑒 𝑎 𝑝𝑟𝑜𝑜𝑓 𝑜𝑓 𝑡ℎ𝑒 │              ✩
+      ✩             │ 𝐺𝑎𝑢𝑠𝑠𝑖𝑎𝑛 𝐼𝑛𝑡𝑒𝑔𝑟𝑎𝑙                             │              ✩
+      ✩             │                                               │              ✩
+      ✩             │                    — or —                     │              ✩
+      ✩             │                                               │              ✩
+      ✩             │ 𝐶𝑜𝑢𝑙𝑑  𝑦𝑜𝑢  𝑢𝑠𝑒  𝐻𝑦𝑎𝑑𝑒𝑠 𝑡𝑜 𝑑𝑒𝑠𝑐𝑟𝑖𝑏𝑒  𝑡ℎ𝑒 𝑚𝑎𝑡ℎ │              ✩
+      ✩             │ 𝑡ℎ𝑖𝑠 𝑐𝑜𝑑𝑒  𝑝𝑒𝑟𝑓𝑜𝑟𝑚𝑠, 𝑎𝑛𝑑 𝑎𝑡𝑡𝑎𝑐ℎ 𝑖𝑡 𝑎𝑠 𝑑𝑜𝑐𝑢𝑚𝑒- │              ✩
+      ✩             │ 𝑛𝑡𝑎𝑡𝑖𝑜𝑛 ℎ𝑒𝑎𝑑𝑒𝑟𝑠?                              │              ✩
+      ✩             └───────────────────────────────────────────────┘              ✩
+      ✩                                                                            ✩
+      ✩  The rest of this primer will take you through the basic setup and usage,  ✩
+      ✩  and if you’ve not had enough by the end of it, there are  follow-up gui-  ✩
+      ✩  des with in-depth focus on specific areas.                                ✩
+      ✩                                                                            ✩
+      ✩                           ___     _                                        ✩
+      ✩                          / __|___| |_ _  _ _ __                            ✩
+      ✩                          \__ / -_)  _| || | '_ \                           ✩
+      ✩                          |___\___|\__|\_,_| .__/                           ✩
+      ✩                        How to Get Started |_|                              ✩
+      ✩  /....................................................................../  ✩
+      ✩                                                                            ✩
+      ✩  Download the release for your architecture directly from GitHub:          ✩
+      ✩                                                                            ✩
+      ✩          ╔══════════════════════════════════════════════════════╗          ✩
+      ✩          ║ https://github.com/apology-is-policy/hyades/releases ║          ✩
+      ✩          ╚══════════════════════════════════════════════════════╝          ✩
+      ✩                                                                            ✩
+      ✩  The release ships with install scripts for MacOS, Linux, and Windows:     ✩
+      ✩                                                                            ✩
+      ✩                      ┌──────────────────────────────┐                      ✩
+      ✩                      │ # Unixes:                    │                      ✩
+      ✩                      │ editor-configs/install.sh    │                      ✩
+      ✩                      │ # Windows:                   │                      ✩
+      ✩                      │ .\editor-configs\install.ps1 │                      ✩
+      ✩                      └──────────────────────────────┘                      ✩
+      ✩                                                                            ✩
+      ✩  This will:                                                                ✩
+      ✩                                                                            ✩
+      ✩    ● Install the two core executables and add them to your PATH.           ✩
+      ✩    ● If there’s a Helix installation, it will register itself with Helix   ✩
+      ✩    ● The same with Neovim                                                  ✩
+      ✩    ● It will typeset something to the console to test the installation.    ✩
+      ✩                                                                            ✩
+      ✩  You are  invited to build from  source, which is very easy – after  all,  ✩
+      ✩  𝐻𝑦𝑎δες has no binary dependencies whatsover.                              ✩
+      ✩                                                                            ✩
+      ✩                      ___                 _                                 ✩
+      ✩                     | _ \ _  _ _ _  _ _ (_)_ _  __ _                       ✩
+      ✩                     |   /| || | ' \| ' \| | ' \/ _` |                      ✩
+      ✩                     |_|_\ \_,_|_||_|_||_|_|_||_\__, |                      ✩
+      ✩                       I’m okay to go, okay to go! |_/                      ✩
+      ✩  /....................................................................../  ✩
+      ✩                                                                            ✩
+      ✩  Let’s use 𝐻𝑒𝑙𝑖𝑥 for our “Hello World”, since it works out of the box and  ✩
+      ✩  VSCode requires an extension and some tinkering with the settings. 𝐻𝑒𝑙𝑖𝑥  ✩
+      ✩  is a modal editor that you can download here:                             ✩
+      ✩                                                                            ✩
+      ✩                        ┌──────────────────────────┐                        ✩
+      ✩                        │ https://helix-editor.com │                        ✩
+      ✩                        └──────────────────────────┘                        ✩
+      ✩                                                                            ✩
+      ✩  Re-run the install script – now that you actualy have 𝐻𝑒𝑙𝑖𝑥, 𝐻𝑦𝑎δες will  ✩
+      ✩  install itself into it. Now create a new Cassilda file:                   ✩
+      ✩                                                                            ✩
+      ✩  ┌──────────────────────────────────────────────────────────────────────┐  ✩
+      ✩  │ > hx hello.cld                                                       │  ✩
+      ✩  └──────────────────────────────────────────────────────────────────────┘  ✩
+      ✩                                                                            ✩
+      ✩  Once in 𝐻𝑒𝑙𝑖𝑥, switch to some normal theme that  supports syntax highli-  ✩
+      ✩  ghting: [:theme dark_plus], and we’re ready for our program:              ✩
+      ✩                                                                            ✩
+      ✩    1:  │  hello                                                            ✩
+      ✩    2:  │                                                                   ✩
+      ✩    3:  │  The \textbf{Riemann curvature tensor} is a central               ✩
+      ✩    4:  │  mathematical tool in the theory of general relativity.           ✩
+      ✩    5:  │                                                                   ✩
+      ✩    6:  │  \subtitle[\textit{Riemann Curvature Tensor}]{$$                  ✩
+      ✩    7:  │      R^\rho{}_{\sigma\mu\nu} =                                    ✩
+      ✩    8:  │      \partial_\mu\Gamma^\rho_{\nu\sigma} -                        ✩
+      ✩    9:  │      \partial_\nu\Gamma^\rho_{\mu\sigma} +                        ✩
+      ✩    10: │      \Gamma^\rho_{\mu\lambda}\Gamma^\lambda_{\nu\sigma} -         ✩
+      ✩    11: │      \Gamma^\rho_{\nu\lambda}\Gamma^\lambda_{\mu\sigma}           ✩
+      ✩    12: │  $$}                                                              ✩
+      ✩    13: │                                                                   ✩
+      ✩    14: │  end                                                              ✩
+      ✩    15: │  cassilda: hello                                                  ✩
+      ✩                                                                            ✩
+      ✩        ↓↓↓            ↓↓↓           ↓↓↓           ↓↓↓           ↓↓↓        ✩
+      ✩  ┌──────────────────────────────────────────────────────────────────────┐  ✩
+      ✩  │ The 𝐑𝐢𝐞𝐦𝐚𝐧𝐧  𝐜𝐮𝐫𝐯𝐚𝐭𝐮𝐫𝐞 𝐭𝐞𝐧𝐬𝐨𝐫 is a central  mathematical tool in the │  ✩
+      ✩  │ theory of general relativity.                                        │  ✩
+      ✩  │                                                                      │  ✩
+      ✩  │                ρ         ρ       ρ     ρ  λ     ρ  λ                 │  ✩
+      ✩  │               𝑅     = ∂ Γ   − ∂ Γ   + Γ  Γ   − Γ  Γ                  │  ✩
+      ✩  │                 σμν    μ νσ    ν μσ    μλ νσ    νλ μσ                │  ✩
+      ✩  │                                                                      │  ✩
+      ✩  │                       𝑅𝑖𝑒𝑚𝑎𝑛𝑛 𝐶𝑢𝑟𝑣𝑎𝑡𝑢𝑟𝑒 𝑇𝑒𝑛𝑠𝑜𝑟                       │  ✩
+      ✩  └──────────────────────────────────────────────────────────────────────┘  ✩
+      ✩                   ╔════════════════════════════════════╗                   ✩
+      ✩                   ║ In order to typeset, invoke [:fmt] ║                   ✩
+      ✩                   ╚════════════════════════════════════╝                   ✩
+      ✩                                                                            ✩
+      ✩  Note that you can make use of the Language Server features in Helix:      ✩
+      ✩                                                                            ✩
+      ✩    ● Syntax errors will show inline diagnostics                            ✩
+      ✩    ● [space+k] will give you a box with an info about the command under    ✩
+      ✩      the caret (or the docuheader if it’s a user macro/lambda)             ✩
+      ✩    ● [gd] will jump to definition                                          ✩
+      ✩    ● “Intellisense” works                                                  ✩
+      ✩                                                                            ✩
+      ✩  Helix  uses the compiled 𝐻𝑦𝑎δες  tree-sitter grammar for syntax  highli-  ✩
+      ✩  ghting,  and the LSP  server for the  rest, which  is  in contrast  with  ✩
+      ✩  VScode, which uses the LSP server for everything, including highlighting  ✩
+      ✩  via semantic tokens). The  tree-sitter-based highlighting is faster (and  ✩
+      ✩  doesn’t need Node), but the LSP highlighting is more complete.            ✩
+      ✩                                                                            ✩
+      ✩                  ___          _     ___     _                              ✩
+      ✩                 | __|___ _ _ | |_  / __|___| |_ _  _ _ __                  ✩
+      ✩                 | _|/ _ | ' \|  _| \__ / -_)  _| || | '_ \                 ✩
+      ✩                 |_| \___|_||_|\__| |___\___|\__|\_,_| .__/                 ✩
+      ✩                       For perfect visual experience |_|                    ✩
+      ✩  /....................................................................../  ✩
+      ✩                                                                            ✩
+      ✩  Not all  monospaced fonts were created equal – some are better for gene-  ✩
+      ✩  ral coding, some for math and box  drawing, some are just  horrible, and  ✩
+      ✩  some are flawless. The crucial font qualities for 𝐻𝑦𝑎δες are:             ✩
+      ✩                                                                            ✩
+      ✩    ● Unicode coverage                                                      ✩
+      ✩      ○ Math symbols, greek, math alphabets – italic, bold, italic,         ✩
+      ✩        blackboard                                                          ✩
+      ✩      ○ Box drawing properly descending from VT100 (continuous scanlines)   ✩
+      ✩        ○ Some multi-line operators use the 9th scanline glyph in the       ✩
+      ✩          unicode mode, but this can be overriden with \cmd.                ✩
+      ✩      ○ You can increase the coverage of any font by specifing fallback     ✩
+      ✩        fonts (more on that we talk about settping up VSCode)               ✩
+      ✩    ● True monospace advance metrics                                        ✩
+      ✩      ○ Usually the “Term” version of the typeface                          ✩
+      ✩      ○ Terminal emulators don’t use advance metrics (they align            ✩
+      ✩        characters to a grid), but it is very important for graphical       ✩
+      ✩        editors such as VSCode, which are capable of rendering              ✩
+      ✩        proportional fonts. If you only work in the terminal, this doesn’t  ✩
+      ✩        need to concern you.                                                ✩
+      ✩                                                                            ✩
+      ✩  Here are the  fonts that are fully  compatible with 𝐻𝑦𝑎δες  and work wi-  ✩
+      ✩  thout  any  fallbacks (meaning they  themselves make good  fallbacks for  ✩
+      ✩  your preferred font):                                                     ✩
+      ✩                                                                            ✩
+      ✩    ┌──────────────┬───────────────────────────────────────────────────┐    ✩
+      ✩    │     Font     │ Comment                                           │    ✩
+      ✩    ╞══════════════╪═══════════════════════════════════════════════════╡    ✩
+      ✩    │ PragmataPro  │ This is a paid font, but by far the most  comple- │    ✩
+      ✩    │ Mono         │ te, legible, and correct  monospaced font availa- │    ✩
+      ✩    │              │ ble.  Despite being a condensed  font, it is more │    ✩
+      ✩    │              │ legible  than most wide fonts, and is also visua- │    ✩
+      ✩    │              │ lly very pretty.                                  │    ✩
+      ✩    │              │                                                   │    ✩
+      ✩    │              │ Fortunately  there  are free  alternatives listed │    ✩
+      ✩    │              │ below.                                            │    ✩
+      ✩    ├──────────────┼───────────────────────────────────────────────────┤    ✩
+      ✩    │  JuliaMono   │ A very  pretty, warm  font that was  designed for │    ✩
+      ✩    │              │ the  Julia  programming  language. The  Julia la- │    ✩
+      ✩    │              │ nguage uses unicode math symbols as syntax, hence │    ✩
+      ✩    │              │ the font’s unicode  coverage is at the same level │    ✩
+      ✩    │              │ as that of PragramataPro.                         │    ✩
+      ✩    │              │                                                   │    ✩
+      ✩    │              │ The typeface is less  analytical than Pragmata or │    ✩
+      ✩    │              │ Iosefka,  and will make a good  fallback for font │    ✩
+      ✩    │              │ with a similar feel.                              │    ✩
+      ✩    │              │                                                   │    ✩
+      ✩    │              │ One  unsatisfying  thing about  JuliaMono is that │    ✩
+      ✩    │              │ its scanline  characters are not fully  continous │    ✩
+      ✩    │              │ (don’t form a clear  uninterrupted line when next │    ✩
+      ✩    │              │ to each  other). In fact the  glyphs that is uses │    ✩
+      ✩    │              │ look  like  stubs and  are visually  inconsistent │    ✩
+      ✩    │              │ with  other  similar  characters. Because of this │    ✩
+      ✩    │              │ there’s  a  \cmd{julia}  macro that replaces  the │    ✩
+      ✩    │              │ scanline with an underscore (also not continuous, │    ✩
+      ✩    │              │ but more similar to the rest of the font).        │    ✩
+      ✩    ├──────────────┼───────────────────────────────────────────────────┤    ✩
+      ✩    │ Iosevka Term │ Iosevka Term Extended is basically an open-source │    ✩
+      ✩    │ Extended     │ alternative  to  PragmataPro. It has an extensive │    ✩
+      ✩    │              │ Unicode coverage, and its metrics are  meticulou- │    ✩
+      ✩    │              │ sly  monospaced. It also has both a condensed and │    ✩
+      ✩    │              │ regular (“Extended”) family.                      │    ✩
+      ✩    │              │                                                   │    ✩
+      ✩    │              │ A tiny ommission in Iosefka – it doesn’t have the │    ✩
+      ✩    │              │ math calligraphy alphabet, so I recommend you use │    ✩
+      ✩    │              │ Julia Mono as a fallback in case you need it.     │    ✩
+      ✩    ├──────────────┼───────────────────────────────────────────────────┤    ✩
+      ✩    │ Iosevka Term │ Same as above, but condensed.                     │    ✩
+      ✩    ├──────────────┼───────────────────────────────────────────────────┤    ✩
+      ✩    │ Iosevka Term │ Same  as  Iosefka Term  Extended, but the  glyphs │    ✩
+      ✩    │ Extended     │ have serifs (think of Courier).                   │    ✩
+      ✩    │ Slab         │                                                   │    ✩
+      ✩    ├──────────────┼───────────────────────────────────────────────────┤    ✩
+      ✩    │ Iosevka Term │ You guessed it!                                   │    ✩
+      ✩    │ Slab         │                                                   │    ✩
+      ✩    └──────────────┴───────────────────────────────────────────────────┘    ✩
+      ✩                                                                            ✩
+      ✩                        ___            _ _    _                             ✩
+      ✩                       / __|__ _ _____(_) |__| |__ _                        ✩
+      ✩                      | (__/ _` (_-<_-< | / _` / _` |                       ✩
+      ✩                       \___\__,_/__/__|_|_\__,_\__,_|                       ✩
+      ✩                Strange is the night where black stars rise…                ✩
+      ✩  /....................................................................../  ✩
+      ✩                                                                            ✩
+      ✩  Cassilda is a 𝐻𝑦𝑎δες  orchestrator – it allows  you to specify  where to  ✩
+      ✩  render  the output of what piece of source  code. It extends  the 𝐻𝑦𝑎δες  ✩
+      ✩  syntax with two types of directives:                                      ✩
+      ✩                                                                            ✩
+      ✩                      𝑙𝑎𝑏𝑒𝑙 – labels segments of code                       ✩
+      ✩  ┌─────┬────────────────────────────────────────────────────────────────┐  ✩
+      ✩  │ 1:  │  label fresnel_sine                                            │  ✩
+      ✩  │ 2:  │                                                                │  ✩
+      ✩  │ 3:  │      Fresnel Sine Integral:                                    │  ✩
+      ✩  │ 4:  │                                                                │  ✩
+      ✩  │ 5:  │      $ \fn{S}(x) = \int_0^x                                    │  ✩
+      ✩  │ 6:  │        \sin\left(\frac{\pi t^2}{2}\right) dt $                 │  ✩
+      ✩  │ 7:  │                                                                │  ✩
+      ✩  │ 8:  │      Taylor expansion:                                         │  ✩
+      ✩  │ 9:  │                                                                │  ✩
+      ✩  │ 10: │      $ \fn{S}(x) = \sum_{n=0}^\infty                           │  ✩
+      ✩  │ 11: │        \frac{(-1)^n \left(\pi / 2\right)^{2n+1} x^{4n+3}}      │  ✩
+      ✩  │ 12: │        {(4n+3)(2n+1)!} $                                       │  ✩
+      ✩  │ 13: │                                                                │  ✩
+      ✩  │ 14: │  end                                                           │  ✩
+      ✩  └─────┴────────────────────────────────────────────────────────────────┘  ✩
+      ✩                                                                            ✩
+      ✩                𝑟𝑒𝑓𝑒𝑟𝑒𝑛𝑐𝑒 – marks where a label will render                 ✩
+      ✩  ┌─────┬────────────────────────────────────────────────────────────────┐  ✩
+      ✩  │ 1:  │  /* cassilda: fresnel_sine                                     │  ✩
+      ✩  │ 2:  │   */                                                           │  ✩
+      ✩  │ 3:  │  double fresnel_sine(double x) {                               │  ✩
+      ✩  │ 4:  │      double sum = 0.0;                                         │  ✩
+      ✩  │ 5:  │      double term = (M_PI / 2.0) * x * x * x / 3.0;             │  ✩
+      ✩  │ 6:  │      sum = term;                                               │  ✩
+      ✩  │ 7:  │                                                                │  ✩
+      ✩  │ 8:  │      for (int n = 1; n < 25 && fabs(term) > 1e-15; ++n) {      │  ✩
+      ✩  │ 9:  │          term *= -(M_PI * M_PI / 4.0) * (x * x * x * x);       │  ✩
+      ✩  │ 10: │          term /= (2 * n) * (2 * n + 1);                        │  ✩
+      ✩  │ 11: │          term *= (4 * n - 1) / (double)(4 * n + 3);            │  ✩
+      ✩  │ 12: │          sum += term;                                          │  ✩
+      ✩  │ 13: │      }                                                         │  ✩
+      ✩  │ 14: │      return sum;                                               │  ✩
+      ✩  │ 15: │  }                                                             │  ✩
+      ✩  └─────┴────────────────────────────────────────────────────────────────┘  ✩
+      ✩                                                                            ✩
+      ✩  In 𝐻𝑒𝑙𝑖𝑥, for file  extensions other than [.cld], the  standard Cassilda  ✩
+      ✩  formatter command ([:fmt]) cannot be used to render, because, for insta-  ✩
+      ✩  nce, [.c] files will use the C language  formatter, etc.; install.sh re-  ✩
+      ✩  gisters a separate  command  for this  purpose in config.toml:  [<Space-  ✩
+      ✩  >-<TAB>]. If our target file is a [.cld] file,  invoking [:fmt] will re-  ✩
+      ✩  nder all references in it. VSCode doesn’t make a difference in this, and  ✩
+      ✩  will gladly run Cassilda on any file with any  configured extension upon  ✩
+      ✩  saving. The Cassilda binary invocation used by both 𝐻𝑒𝑙𝑖𝑥 and the VSCode  ✩
+      ✩  extension is:                                                             ✩
+      ✩                                                                            ✩
+      ✩  ┌──────────────────────────────────────────────────────────────────────┐  ✩
+      ✩  │ > cassilda --find-config process -                                   │  ✩
+      ✩  └──────────────────────────────────────────────────────────────────────┘  ✩
+      ✩                                                                            ✩
+      ✩  The “-“ instructs Cassilda to run in a pipe mode instead of operating on  ✩
+      ✩  a file, and “process” instructs cassilda to render all references in the  ✩
+      ✩  input in place  and return the  resulting content. (See  “cassilda help”  ✩
+      ✩  for usage.)                                                               ✩
+      ✩                                                                            ✩
+      ✩  The  important part  here is “--find-config”. It switches  Cassilda to a  ✩
+      ✩  “repo”  mode,  where she  doesn’t fail  when the  “fresnel_sine” segment  ✩
+      ✩  isn’t  defined in the  processed file (or stdin), but goes on a quest to  ✩
+      ✩  find it elsewhere. It tries the following:                                ✩
+      ✩                                                                            ✩
+      ✩    ● the current file                                                      ✩
+      ✩    ● .cld files in the current directory                                   ✩
+      ✩    ● walk up the directory structure until                                 ✩
+      ✩      ○ home directory or root or repo root is reached                      ✩
+      ✩      ○ or [.cassilda.json] is found                                        ✩
+      ✩        ○ look in the library specified in there                            ✩
+      ✩                                                                            ✩
+      ✩  In  our case, the  “fresnel_sine” label is stored in one of the  library  ✩
+      ✩  directories that is defined in the found config, so:                      ✩
+      ✩                                                                            ✩
+      ✩  ┌─────┬────────────────────────────────────────────────────────────────┐  ✩
+      ✩  │ 1:  │  /* cassilda: fresnel_sine                                     │  ✩
+      ✩  │ 2:  │   * Fresnel Sine Integral:                                     │  ✩
+      ✩  │ 3:  │   *                                                            │  ✩
+      ✩  │ 4:  │   *         𝑥      ⎛    2  ⎞                                   │  ✩
+      ✩  │ 5:  │   *         ⌠      ⎜  π𝑡   ⎟                                   │  ✩
+      ✩  │ 6:  │   * S(𝑥) =  ⎮  sin ⎜ ───── ⎟ 𝑑𝑡                                │  ✩
+      ✩  │ 7:  │   *         ⌡      ⎜   2   ⎟                                   │  ✩
+      ✩  │ 8:  │   *         0      ⎝       ⎠                                   │  ✩
+      ✩  │ 9:  │   *                                                            │  ✩
+      ✩  │ 10: │   * Taylor expansion:                                          │  ✩
+      ✩  │ 11: │   *                                                            │  ✩
+      ✩  │ 12: │   *          ∞         𝑛       2𝑛 + 1 4𝑛 + 3                   │  ✩
+      ✩  │ 13: │   *         ───    (-1) (π / 2)      𝑥                         │  ✩
+      ✩  │ 14: │   * S(𝑥) =  ╲     ───────────────────────────                  │  ✩
+      ✩  │ 15: │   *         ╱⎽⎽        (4𝑛 + 3)(2𝑛 + 1)!                       │  ✩
+      ✩  │ 16: │   *        𝑛 = 0                                               │  ✩
+      ✩  │ 17: │   *                                                            │  ✩
+      ✩  │ 18: │   */                                                           │  ✩
+      ✩  │ 19: │  double fresnel_sine(double x) {                               │  ✩
+      ✩  │ 20: │      double sum = 0.0;                                         │  ✩
+      ✩  │ 21: │      double term = (M_PI / 2.0) * x * x * x / 3.0;             │  ✩
+      ✩  │ 22: │      sum = term;                                               │  ✩
+      ✩  │ 23: │                                                                │  ✩
+      ✩  │ 24: │      for (int n = 1; n < 25 && fabs(term) > 1e-15; ++n) {      │  ✩
+      ✩  │ 25: │          term *= -(M_PI * M_PI / 4.0) * (x * x * x * x);       │  ✩
+      ✩  │ 26: │          term /= (2 * n) * (2 * n + 1);                        │  ✩
+      ✩  │ 27: │          term *= (4 * n - 1) / (double)(4 * n + 3);            │  ✩
+      ✩  │ 28: │          sum += term;                                          │  ✩
+      ✩  │ 29: │      }                                                         │  ✩
+      ✩  │ 30: │      return sum;                                               │  ✩
+      ✩  │ 31: │  }                                                             │  ✩
+      ✩  └─────┴────────────────────────────────────────────────────────────────┘  ✩
+      ✩                                                                            ✩
+      ✩  Cassilda prefixes the rendered lines with a single NBSP character, which  ✩
+      ✩  allows it to be idempotent to repeated processing, i.e. it will only add  ✩
+      ✩  or update  the output under the  reference – it will never  duplicate or  ✩
+      ✩  corrupt it.                                                               ✩
+      ✩                                                                            ✩
+      ✩  One of the  intended usages of Cassilda  is  to render a .cld  file into  ✩
+      ✩  itself,  making it a sort of a self-executable  notebook (like Jupyter).  ✩
+      ✩  This very file is an example (although not a very good one since it sho-  ✩
+      ✩  ves  the entire  contnet into a single segment  rendered at the  top for  ✩
+      ✩  your convenience – see the math primer for a better example).             ✩
+      ✩                                                                            ✩
+      ✩  The [.cassilda.json] config file may look like this:                      ✩
+      ✩                                                                            ✩
+      ✩  ┌─────┬────────────────────────────────────────────────────────────────┐  ✩
+      ✩  │ 1:  │  {                                                             │  ✩
+      ✩  │ 2:  │    "include_subdirs": true,                                    │  ✩
+      ✩  │ 3:  │    "cache_path": ".cassilda-cache",                            │  ✩
+      ✩  │ 4:  │    "library_dirs": [                                           │  ✩
+      ✩  │ 5:  │      "library_directory",                                      │  ✩
+      ✩  │ 6:  │      "another_one"                                             │  ✩
+      ✩  │ 7:  │    ],                                                          │  ✩
+      ✩  │ 8:  │    "library_files": [                                          │  ✩
+      ✩  │ 9:  │      "lib1.cld", "other.cld"                                   │  ✩
+      ✩  │ 10: │    ]                                                           │  ✩
+      ✩  │ 11: │    "target_prefix": {                                          │  ✩
+      ✩  │ 12: │      ".c": " * ",                                              │  ✩
+      ✩  │ 13: │      ".h": " * ",                                              │  ✩
+      ✩  │ 14: │      ".py": "# ",                                              │  ✩
+      ✩  │ 15: │      ".go": "// "                                              │  ✩
+      ✩  │ 16: │    }                                                           │  ✩
+      ✩  │ 17: │  }                                                             │  ✩
+      ✩  └─────┴────────────────────────────────────────────────────────────────┘  ✩
+      ✩  ┌─────────────────────────┬────────────────────────────────────────────┐  ✩
+      ✩  │  𝑖𝑛𝑐𝑙𝑢𝑑𝑒_𝑠𝑢𝑏𝑑𝑖𝑟𝑒𝑐𝑡𝑜𝑟𝑖𝑒𝑠 │ Also searches the  sub-directiories of the │  ✩
+      ✩  │                         │ directories defined in 𝑙𝑖𝑏𝑟𝑎𝑟𝑦_𝑓𝑖𝑙𝑒𝑠.      │  ✩
+      ✩  ├─────────────────────────┼────────────────────────────────────────────┤  ✩
+      ✩  │              𝑐𝑎𝑐ℎ𝑒_𝑝𝑎𝑡ℎ │ The path to the file where Cassilda should │  ✩
+      ✩  │                         │ store  discovered segments and  their che- │  ✩
+      ✩  │                         │ cksums for better lookup efficiency.       │  ✩
+      ✩  ├─────────────────────────┼────────────────────────────────────────────┤  ✩
+      ✩  │            𝑙𝑖𝑏𝑟𝑎𝑟𝑦_𝑑𝑖𝑟𝑠 │ A list of list directories with .cld files │  ✩
+      ✩  │                         │ which Cassila  searches for labels (segme- │  ✩
+      ✩  │                         │ nts) when rendering.                       │  ✩
+      ✩  ├─────────────────────────┼────────────────────────────────────────────┤  ✩
+      ✩  │           𝑙𝑖𝑏𝑟𝑎𝑟𝑦_𝑓𝑖𝑙𝑒𝑠 │ An explicit  list of .cld files to be sea- │  ✩
+      ✩  │                         │ rched    through    before    looking   in │  ✩
+      ✩  │                         │ 𝑙𝑖𝑏𝑟𝑎𝑟𝑦_𝑑𝑖𝑟𝑠.                              │  ✩
+      ✩  ├─────────────────────────┼────────────────────────────────────────────┤  ✩
+      ✩  │           𝑡𝑎𝑟𝑔𝑒𝑡_𝑝𝑟𝑒𝑓𝑖𝑥 │ A map of file  extensions to prefixes that │  ✩
+      ✩  │                         │ are  prepended to every line of the rende- │  ✩
+      ✩  │                         │ ring output. This is primary meant to spe- │  ✩
+      ✩  │                         │ cify  comment  prefixes.  If these  aren’t │  ✩
+      ✩  │                         │ specifies,  Cassilda uses the  default for │  ✩
+      ✩  │                         │ the extension if she knows it.             │  ✩
+      ✩  └─────────────────────────┴────────────────────────────────────────────┘  ✩
+      ✩                                                                            ✩
+      ✩                 ___ _  _ ___     ___    _ _ _                              ✩
+      ✩                / __| || |_ _|   | __|__| (_) |_ ___ _ _ ___                ✩
+      ✩               | (_ | || || |    | _|/ _` | |  _/ _ | '_(_-<                ✩
+      ✩                \___|\__/|___|   |___\__,_|_|\__\___|_| /__/                ✩
+      ✩                          Help, can’t exit vim :‘(                          ✩
+      ✩  /....................................................................../  ✩
+      ✩                                                                            ✩
+      ✩                                                                            ✩
+      ✩                             VSCode Integration                             ✩
+      ✩                             ──────────────────                             ✩
+      ✩                                                                            ✩
+      ✩  You will want to install the Hyades  extension, and you will need to run  ✩
+      ✩  the install script as well, since it installs  the two binaries  and the  ✩
+      ✩  LSP server to the location where the extension expects to find them.      ✩
+      ✩                                                                            ✩
+      ✩  Alternatively  you can  link the built  extension from the  repo to your  ✩
+      ✩  local VSCode installation:                                                ✩
+      ✩                                                                            ✩
+      ✩  ┌─────┬────────────────────────────────────────────────────────────────┐  ✩
+      ✩  │ 1:  │  ~> cd hyades                                                  │  ✩
+      ✩  │ 2:  │  hyades> cd hyades-vscode-ext                                  │  ✩
+      ✩  │ 3:  │  hyades> ./install.local.sh                                    │  ✩
+      ✩  └─────┴────────────────────────────────────────────────────────────────┘  ✩
+      ✩                                                                            ✩
+      ✩  The extension requires some basic settings in [.vscode/settings.json]:    ✩
+      ✩                                                                            ✩
+      ✩  ┌─────┬────────────────────────────────────────────────────────────────┐  ✩
+      ✩  │ 1:  │  {                                                             │  ✩
+      ✩  │ 2:  │    "files.associations": {                                     │  ✩
+      ✩  │ 3:  │      "*.cld": "cassilda",                                      │  ✩
+      ✩  │ 4:  │      "*.hy": "cassilda"                                        │  ✩
+      ✩  │ 5:  │    },                                                          │  ✩
+      ✩  │ 6:  │    "[cassilda]": {                                             │  ✩
+      ✩  │ 7:  │      "editor.bracketPairColorization.enabled": false           │  ✩
+      ✩  │ 8:  │      // + Font metrics (see below)                             │  ✩
+      ✩  │ 9:  │    },                                                          │  ✩
+      ✩  │ 10: │    "cassilda.processOnSave": true,                             │  ✩
+      ✩  │ 11: │    "cassilda.processExtensions": [                             │  ✩
+      ✩  │ 12: │      ".cld",                                                   │  ✩
+      ✩  │ 13: │      ".c",                                                     │  ✩
+      ✩  │ 14: │      ".cpp",                                                   │  ✩
+      ✩  │ 15: │      ".h",                                                     │  ✩
+      ✩  │ 16: │      ".hpp",                                                   │  ✩
+      ✩  │ 17: │      ".py",                                                    │  ✩
+      ✩  │ 18: │      ".js",                                                    │  ✩
+      ✩  │ 19: │      ".ts"                                                     │  ✩
+      ✩  │ 20: │    ],                                                          │  ✩
+      ✩  │ 21: │    // Optional exclusion:                                      │  ✩
+      ✩  │ 22: │    "cassilda.processOnSaveExclude": [                          │  ✩
+      ✩  │ 23: │      "**/wasm/**"                                              │  ✩
+      ✩  │ 24: │    ],                                                          │  ✩
+      ✩  │ 25: │    // Optional override:                                       │  ✩
+      ✩  │ 26: │    //"cassilda.executablePath": ""                             │  ✩
+      ✩  │ 27: │  }                                                             │  ✩
+      ✩  └─────┴────────────────────────────────────────────────────────────────┘  ✩
+      ✩                                                                            ✩
+      ✩  As  metioned  in  𝐹𝑜𝑛𝑡  𝑆𝑒𝑡𝑢𝑝, a proportional-capable  text editor  like  ✩
+      ✩  VSCode will not align characters to a grid, and will obey the font adva-  ✩
+      ✩  nce  metrics. You will  also have to experiment  with the baseline  skip  ✩
+      ✩  (“lineHeight”) in order to have  connectable characters sit perfectly on  ✩
+      ✩  top of each other. For the font I recommended  I’ve found the  following  ✩
+      ✩  settings to produce acceptable rendering:                                 ✩
+      ✩                                                                            ✩
+      ✩    ┌──────────────┬───────────────────────────────────────────────────┐    ✩
+      ✩    │     𝐹𝑜𝑛𝑡     │                     𝑆𝑒𝑡𝑡𝑖𝑛𝑔𝑠                      │    ✩
+      ✩    ╞══════════════╪═══════╤═══════════════════════════════════════════╡    ✩
+      ✩    │ PragmataPro  │   1:  │  "[cassilda]": {                          │    ✩
+      ✩    │ Mono         │   2:  │    "editor.fontFamily": "PragmataPro Mono │    ✩
+      ✩    │              │   3:  │    "editor.fontWeight": "10",             │    ✩
+      ✩    │              │   4:  │                                           │    ✩
+      ✩    │              │   5:  │    // Use lineHeight 15 for perfect math  │    ✩
+      ✩    │              │   6:  │    // vert. alignment, but worse visual   │    ✩
+      ✩    │              │   7:  │    // effect from prose paragraphs.       │    ✩
+      ✩    │              │   8:  │    "editor.lineHeight": 16,               │    ✩
+      ✩    │              │   9:  │    "editor.fontSize": 14                  │    ✩
+      ✩    │              │   10: │  },                                       │    ✩
+      ✩    ├──────────────┼───────┼───────────────────────────────────────────┤    ✩
+      ✩    │  JuliaMono   │   1:  │  "[cassilda]": {                          │    ✩
+      ✩    │              │   2:  │    "editor.fontFamily": "JuliaMono",      │    ✩
+      ✩    │              │   3:  │    "editor.fontWeight": "300",            │    ✩
+      ✩    │              │   4:  │    "editor.lineHeight": 18,               │    ✩
+      ✩    │              │   5:  │    "editor.fontSize": 13                  │    ✩
+      ✩    │              │   6:  │  },                                       │    ✩
+      ✩    ├──────────────┼───────┼───────────────────────────────────────────┤    ✩
+      ✩    │ Iosevka Term │   1:  │  "[cassilda]": {                          │    ✩
+      ✩    │ Extended     │   2:  │    "editor.fontFamily":                   │    ✩
+      ✩    │              │   3:  │      "Iosevka Term Extended, JuliaMono",  │    ✩
+      ✩    │              │   4:  │    "editor.fontWeight": "200",            │    ✩
+      ✩    │              │   5:  │    "editor.lineHeight": 16,               │    ✩
+      ✩    │              │   6:  │    "editor.fontSize": 13                  │    ✩
+      ✩    │              │   7:  │  },                                       │    ✩
+      ✩    ├──────────────┼───────┴───────────────────────────────────────────┤    ✩
+      ✩    │ Iosevka Term │ Same as above                                     │    ✩
+      ✩    ├──────────────┼───────────────────────────────────────────────────┤    ✩
+      ✩    │ Iosevka Term │ Same as Iosefka Term Extended                     │    ✩
+      ✩    │ Extended     │                                                   │    ✩
+      ✩    │ Slab         │                                                   │    ✩
+      ✩    └──────────────┴───────────────────────────────────────────────────┘    ✩
+      ✩                                                                            ✩
+      ✩   ___          _                   ___                    _                ✩
+      ✩  | __|___ __ _| |_ _  _ _ _ ___   / _ \ __ _____ _ _ __ _(_)___ __ __ __   ✩
+      ✩  | _|/ -_) _` |  _| || | '_/ -_) | (_) |\ V / -_) '_|\ V | / -_)\ V  V /   ✩
+      ✩  |_| \___\__,_|\__|\_,_|_| \___|  \___/  \_/\___|_|   \_/|_\___| \_/\_/    ✩
+      ✩  /....................................................................../  ✩
+      ✩                                                                            ✩
+      ✩                                                                            ✩
+      ✩                                 Components                                 ✩
+      ✩                                 ──────────                                 ✩
+      ✩                                                                            ✩
+      ✩  ● Desktop executables for Mac, Linux, and Windows                         ✩
+      ✩    ○ hyades: typesets pure 𝐻𝑦𝑎δες code                                     ✩
+      ✩      ○ .hy extension                                                       ✩
+      ✩      ○ stdin/file mode                                                     ✩
+      ✩      ○ interactive terminal mode with a main loop                          ✩
+      ✩    ○ cassilda: 𝐻𝑦𝑎δες executor/orchestrator                                ✩
+      ✩      ○ .cld extension                                                      ✩
+      ✩      ○ categorizes meta tages (@labels) from .cld (and other) files, and   ✩
+      ✩        renders them where they are referenced – more on that later         ✩
+      ✩  ● Static library with a header                                            ✩
+      ✩  ● VSCode extension                                                        ✩
+      ✩    ○ uses Cassilda to render @labels directly into source code comments    ✩
+      ✩      files upon saving                                                     ✩
+      ✩    ○ syntax highlighting via built-in LSP                                  ✩
+      ✩    ○ LSP: squiggly lines (diagnostics), hover info, go to definition,      ✩
+      ✩      outline, auto-completion                                              ✩
+      ✩  ● Helix (hx) and Neovim (nvim) integration                                ✩
+      ✩    ○ Automatically set up by the install script                            ✩
+      ✩    ○ Syntax highlighting via a tree-sitter grammar                         ✩
+      ✩    ○ LSP (if Node is installed): Inline diagnostics, hover info, go-to,    ✩
+      ✩      auto-completion                                                       ✩
+      ✩  ● Web Application / WASM module                                           ✩
+      ✩    ○ syntax highlighting via Monaco + built-in LSP                         ✩
+      ✩    ○ cassilda (pure C23) compiled into WASM                                ✩
+      ✩    ○ online rendering of cassilda notebooks (.cld files that render to     ✩
+      ✩      itself, like Jupyter notebooks, for instance)                         ✩
+      ✩  ● (optional) Julia programming language integration                       ✩
+      ✩    ○ When Julia is installed, the desktop 𝐻𝑦𝑎δες enables direct interop    ✩
+      ✩      via \cmd{}, \cmd<>, and other commands.                               ✩
+      ✩                                                                            ✩
+      ✩                                                                            ✩
+      ✩                             Main capabilities                              ✩
+      ✩                             ─────────────────                              ✩
+      ✩                                                                            ✩
+      ✩  ● Robust math typesetting using La/TeX syntax                             ✩
+      ✩    ○ 95% math source compatibility for LaTeX                               ✩
+      ✩    ○ Unicode or ASCII character output                                     ✩
+      ✩    ○ Overridable symbol set                                                ✩
+      ✩    ○ Unicode math alphabets                                                ✩
+      ✩    ○ Big operators, scaling matrices                                       ✩
+      ✩    ○ Aligned equations and \cmd                                            ✩
+      ✩  ● Robust prose typesetting                                                ✩
+      ✩    ○ Inline math                                                           ✩
+      ✩    ○ Column justification with line-breaking                               ✩
+      ✩      ○ Original monospace linebreaker                                      ✩
+      ✩  ● Flex-like box layouting                                                 ✩
+      ✩    ○ Horizontal and vertical stacking                                      ✩
+      ✩    ○ Width inheritance                                                     ✩
+      ✩    ○ Flex-like space distribution                                          ✩
+      ✩    ○ Horizontal and vertical skips (even negative)                         ✩
+      ✩  ● Programmability                                                         ✩
+      ✩    ○ Flexible and powerful user macro system                               ✩
+      ✩      ○ Conditions, registers, content measurement                          ✩
+      ✩      ○ Line post-processing                                                ✩
+      ✩      ○ Most high level 𝐻𝑦𝑎δες commands are written in hyades itself        ✩
+      ✩    ○ CL: A powerful custom programming language and runtime (separate      ✩
+      ✩      from macros)                                                          ✩
+      ✩      ○ Typed                                                               ✩
+      ✩      ○ Compiled into virtual instructions (Subnivean bytecode)             ✩
+      ✩      ○ Executed by a stack-based virtual machine (Subnivean)               ✩
+      ✩      ○ Drives computation for interactive/realtime terminal applications   ✩
+      ✩    ○ Julia programming language interop                                    ✩
+      ✩  ● Table rendering                                                         ✩
+      ✩    ○ Custom border styles                                                  ✩
+      ✩    ○ Custom per-cell alignment                                             ✩
+      ✩    ○ Adaptive to content                                                   ✩
+      ✩  ● Markdown-like lists                                                     ✩
+      ✩    ○ Like this one (check out the source below)                            ✩
+      ✩  ● ANSI escapes (color, cursor, etc.)                                      ✩
+      ✩    ○ For terminal output or interactive terminal applications written in   ✩
+      ✩      CL                                                                    ✩
+      ✩  ● Multi-platform                                                          ✩
+      ✩    ○ As a pure C program, 𝐻𝑦𝑎δες can be compiled anywhere                  ✩
+      ✩      ○ Mac                                                                 ✩
+      ✩      ○ Linux                                                               ✩
+      ✩      ○ Windows                                                             ✩
+      ✩      ○ WASM                                                                ✩
+
+@label overview
+
+% ------------------------------------------INTRO-------------------------------------------------
+
+    % A small output routine to add the starry lines along the sides
+    \macro<\output{content}>{
+        \measure<c,w,h>{${content}}
+
+        \begin[\add{\valueof<\width>,6}]{hbox}
+            \child[1][left]{\vrule[auto]{}{✩}{}} %│
+            \child[2]{}
+            \child[\width]{\recall<c>}
+            \child[2]{}
+            \child[1]{\vrule[auto]{}{✩}{}}
+        \end{hbox}
+    }
+
+    \begin{output} % Remember that any macro can use the LaTeX environment invocation syntax
+
+    \vskip{0}
+    \begin{vbox}
+        \child[center]{\figlet{Hyades}}
+        \xvskip{-1}
+        \child[center]{\hskip{12}A Quick Overview}
+        \child{\hrule{/}{.}{/}}
+    \end{vbox}
+
+    First of all, whether you've made it to this notebook because you need to
+    include pretty math in your code comments/documentation, or you want to
+    send it via e-mail and don't want to install a 5GB TeX distribution, or
+    send PDFs/screenshots, thank you for showing interest in \hyades.
+
+    \macro<\sec{x}>{
+        \vskip{2}
+        \culn{${x}}
+        \vskip{1}
+    }
+
+    \sec{What Is This?}
+
+    A lightweight CLI program that allows you to render TeX into multi-line text, and much more!
+
+    $$ f^{(n)}(a) = \frac{n!}{2\pi i} \oint_\gamma \frac{f(z)}{(z-a)^{n+1}} \, dz $$
+
+    This $\uparrow$ is what you'll get on the standard output if you pipe this piece of
+    LaTeX math into hyades:
+
+\indent[2]{\verb|$$ f^{(n)}(a) = \frac{n!}{2\pi i}
+   \oint_\gamma \frac{f(z)}{(z-a)^{n+1}} \, dz $$|}
+
+    Moreover, you can have it automatically rendered to your source code as a comment using
+    Cassilda (yes, you've correctly recognized the cosmic horror references). We have a VSCode
+    extension, and an installer for Helix and Neovim!
+
+    \vskip{1}
+    \center{\boxed{\center{%
+        --- \textit{What if I don't know TeX?} ---
+
+        \begin{vbox}
+            \child[45]{
+                \hyades{} has both an online MCP server, and an offline
+                MCP binary. You can add either to your AI, which will
+                equip it with the \hyades{} \textit{render} tool.
+
+                \center{\Boxed{https://hyades-mcp.apg.workers.dev/mcp}}
+                
+                You can then tell it to write the math for you, e.g.:
+                \textit{Use Hyades to write a proof of the Gaussian Integral}
+
+                \center{--- or ---}
+
+                \textit{Could you use Hyades to describe the math this code
+                performs, and attach it as documentation headers?}
+            }
+        \end{vbox}
+        }
+    }}
+
+    The rest of this primer will take you through the basic setup and usage, and
+    if you've not had enough by the end of it, there are follow-up guides with in-depth
+    focus on specific areas.
+
+    \vskip{1}
+    \begin{vbox}
+        \child[center]{\figlet{Setup}}
+        \xvskip{-1}
+        \child[left]{\hskip{22}How to Get Started}
+        \child{\hrule{/}{.}{/}}
+    \end{vbox}
+
+    Download the release for your architecture directly from GitHub:
+
+    \center{
+        \Tightframe{https://github.com/apology-is-policy/hyades/releases}
+    }
+
+    The release ships with install scripts for MacOS, Linux, and Windows:
+
+    \center{\tightframe{%
+        \# Unixes:\\
+        editor-configs/install.sh\\
+        \# Windows:\\
+        .\textbackslash{}editor-configs\textbackslash{}install.ps1}
+    }
+
+    This will:
+
+    \indent[2]{\fancylist{
+        - Install the two core executables and add them to your PATH.
+        - If there's a Helix installation, it will register itself with Helix
+        - The same with Neovim
+        - It will typeset something to the console to test the installation.
+    }}
+
+    You are invited to build from source, which is very easy -- after all, \hyades{} has
+    no binary dependencies whatsover.
+
+    
+    \vskip{1}
+    \begin{vbox}
+        \child[center]{\figlet{Running}}
+        \xvskip{-1}
+        \child[left]{\hskip{21}I'm okay to go, okay to go!}
+        \child{\hrule{/}{.}{/}}
+    \end{vbox}
+
+    Let's use \textit{Helix} for our "Hello World", since it works out of the box and VSCode
+    requires an extension and some tinkering with the settings. \textit{Helix} is a modal editor that
+    you can download here:
+
+    \center{\tightframe{https://helix-editor.com}}
+
+    Re-run the install script -- now that you actualy have \textit{Helix}, \hyades{} will install itself
+    into it. Now create a new Cassilda file:
+
+    \frame{{} \> hx hello.cld}
+
+    Once in \textit{Helix}, switch to some normal theme that supports syntax highlighting:
+    \[:theme dark_plus\], and we're ready for our program:
+
+    \listing{
+    \@{}hello\vskip{1}
+\verb|
+The \textbf{Riemann curvature tensor} is a central
+mathematical tool in the theory of general relativity.
+
+\subtitle[\textit{Riemann Curvature Tensor}]{$$
+    R^\rho{}_{\sigma\mu\nu} =
+    \partial_\mu\Gamma^\rho_{\nu\sigma} -
+    \partial_\nu\Gamma^\rho_{\mu\sigma} +
+    \Gamma^\rho_{\mu\lambda}\Gamma^\lambda_{\nu\sigma} -
+    \Gamma^\rho_{\nu\lambda}\Gamma^\lambda_{\mu\sigma}
+$$}
+|\vskip{1}
+\@{}end\\
+\@{}cassilda: hello
+}\vskip{1}
+
+    \begin{hbox}
+        \child[center]{↓↓↓}
+        \child[center]{↓↓↓}
+        \child[center]{↓↓↓}
+        \child[center]{↓↓↓}
+        \child[center]{↓↓↓}
+    \end{hbox}
+    \frame{
+    The \textbf{Riemann curvature tensor} is a central mathematical tool in the theory of
+    general relativity.
+    
+    \subtitle[\textit{Riemann Curvature Tensor}]{$$
+        R^\rho{}_{\sigma\mu\nu} =
+        \partial_\mu\Gamma^\rho_{\nu\sigma} -
+        \partial_\nu\Gamma^\rho_{\mu\sigma} +
+        \Gamma^\rho_{\mu\lambda}\Gamma^\lambda_{\nu\sigma} -
+        \Gamma^\rho_{\nu\lambda}\Gamma^\lambda_{\mu\sigma}
+    $$}}
+
+    \center{\Tightframe{In order to typeset,
+    invoke [:fmt]}}
+
+    Note that you can make use of the Language Server features in Helix:
+
+    \indent[2]{\fancylist{
+        - Syntax errors will show inline diagnostics
+        - [space+k] will give you a box with an info about the command under the caret
+          (or the docuheader if it's a user macro/lambda)
+        - [gd] will jump to definition
+        - "Intellisense" works
+    }}
+
+    Helix uses the compiled \hyades{} tree-sitter grammar for syntax highlighting,
+    and the LSP server for the rest, which is in contrast with VScode, which uses the LSP server
+    for everything, including highlighting via semantic tokens). The tree-sitter-based
+    highlighting is faster (and doesn't need Node), but the LSP highlighting is more complete.
+
+% ----------------------------------------------FONTS---------------------------------------------
+
+    \vskip{1}
+    \begin{vbox}
+        \child[center]{\figlet{Font Setup}}
+        \xvskip{-1}
+        \child[left]{\hskip{21}For perfect visual experience}
+        \child{\hrule{/}{.}{/}}
+    \end{vbox}
+
+    Not all monospaced fonts were created equal -- some are better for general coding, some
+    for math and box drawing, some are just horrible, and some are flawless. The crucial
+    font qualities for \hyades{} are:
+
+    \indent[2]{\fancylist{
+        - Unicode coverage
+          - Math symbols, greek, math alphabets -- italic, bold, italic, blackboard
+          - Box drawing properly descending from VT100 (continuous scanlines)
+            - Some multi-line operators use the 9th scanline glyph in the unicode mode,
+              but this can be overriden with \cmd{setsym}.
+          - You can increase the coverage of any font by specifing fallback fonts (more on
+            that we talk about settping up VSCode)
+        - True monospace advance metrics
+          - Usually the "Term" version of the typeface
+          - Terminal emulators don't use advance metrics (they align characters to
+            a grid), but it is very important for graphical editors such as VSCode,
+            which are capable of rendering proportional fonts. If you only work in the
+            terminal, this doesn't need to concern you.
+    }}
+
+    Here are the fonts that are fully compatible with \hyades{} and work without any
+    fallbacks (meaning they themselves make good fallbacks for your preferred font):
+
+
+    \hcenter[\sub{\width, 4}]{
+    \table[pad:{l:1,r:1}]{
+        \row[frame:{b:double}]{
+            \col[width:14][align:c]{Font}
+            \col[align:l]{Comment}
+        }
+        \row[frame:{b:single}]{
+            \col{PragmataPro Mono}
+            \col{This is a paid font, but by far the most complete, legible, and correct monospaced
+                 font available. Despite being a condensed font, it is more legible than most wide fonts,
+                 and is also visually very pretty.
+            
+                 Fortunately there are free alternatives listed below.
+            }    
+        }
+        \row[frame:{b:single}]{
+            \col{JuliaMono}
+            \col[align:l]{
+                A very pretty, warm font that was designed for the Julia programming language. The
+                Julia language uses unicode math symbols as syntax, hence the font's unicode coverage
+                is at the same level as that of PragramataPro.
+
+                The typeface is less analytical than Pragmata or Iosefka, and will make a good
+                fallback for font with a similar feel.
+
+                One unsatisfying thing about JuliaMono is that its scanline characters are not
+                fully continous (don't form a clear uninterrupted line when next to each other).
+                In fact the glyphs that is uses look like stubs and are visually inconsistent with
+                other similar characters. Because of this there's a \cmd{hint_font}\{julia\} macro
+                that replaces the scanline with an underscore (also not continuous, but more similar
+                to the rest of the font).
+            } 
+        }
+        \row[frame:{b:single}]{
+            \col{Iosevka Term Extended}
+            \col{Iosevka Term Extended is basically an open-source alternative to PragmataPro.
+                 It has an extensive Unicode coverage, and its metrics are meticulously monospaced.
+                 It also has both a condensed and regular ("Extended") family.
+
+                 A tiny ommission in Iosefka -- it doesn't have the math calligraphy alphabet,
+                 so I recommend you use Julia Mono as a fallback in case you need it.
+            }
+        }
+        \row[frame:{b:single}]{
+            \col{Iosevka Term}
+            \col{Same as above, but condensed.} 
+        }
+
+        \row[frame:{b:single}]{
+            \col{Iosevka Term Extended Slab}
+            \col{Same as Iosefka Term Extended, but the glyphs have serifs (think of Courier).} 
+        }
+
+        \row[frame:{b:single}]{
+            \col{Iosevka Term Slab}
+            \col{You guessed it!} 
+        }
+     }
+    }
+
+
+% --------------------------------------------CASSILDA-------------------------------------------
+
+ 
+    \vskip{1}
+    \begin{vbox}
+        \child[center]{\figlet{Cassilda}}
+        \xvskip{-1}
+        \child[center]{Strange is the night where black stars rise...}
+        \child{\hrule{/}{.}{/}}
+    \end{vbox}
+
+    Cassilda is a \hyades{} orchestrator -- it allows you to specify where to render the
+    output of what piece of source code. It extends the \hyades{} syntax with two types
+    of directives:
+
+    \supertitle[\textit{label} -- labels segments of code]{%
+    \fancylisting{%
+\@{}label~fresnel_sine\vskip{1}
+\verb|
+    Fresnel Sine Integral:
+
+    $ \fn{S}(x) = \int_0^x
+      \sin\left(\frac{\pi t^2}{2}\right) dt $
+
+    Taylor expansion:
+
+    $ \fn{S}(x) = \sum_{n=0}^\infty
+      \frac{(-1)^n \left(\pi / 2\right)^{2n+1} x^{4n+3}}
+      {(4n+3)(2n+1)!} $|\vskip{1}
+\@{}end}}
+    \vskip{1}
+    \supertitle[\textit{reference} -- marks where a label will render]{%
+    \fancylisting{
+
+/*~\@{}cassilda:~fresnel_sine
+\verb| */
+double fresnel_sine(double x) {
+    double sum = 0.0;
+    double term = (M_PI / 2.0) * x * x * x / 3.0;
+    sum = term;
+
+    for (int n = 1; n < 25 && fabs(term) > 1e-15; ++n) {
+        term *= -(M_PI * M_PI / 4.0) * (x * x * x * x);
+        term /= (2 * n) * (2 * n + 1);
+        term *= (4 * n - 1) / (double)(4 * n + 3);
+        sum += term;
+    }
+    return sum;
+}|}}
+
+In \textit{Helix}, for file extensions other than [.cld], the standard Cassilda
+formatter command ([:fmt]) cannot be used to render, because, for instance, [.c] files
+will use the C language formatter, etc.; install.sh registers a separate command
+for this purpose in config.toml: [<Space>-<TAB>]. If our target file is a [.cld] file,
+invoking [:fmt] will render all references in it. VSCode doesn't make a difference in
+this, and will gladly run Cassilda on any file with any configured extension upon
+saving. The Cassilda binary invocation used by both \textit{Helix} and the VSCode extension is:
+
+\macro<\dd>{\verb|--|}
+
+\frame{{} \> cassilda \dd find-config process -}
+
+The "-" instructs Cassilda to run in a pipe mode instead of operating on a file,
+and "process" instructs cassilda to render all references in the input in place
+and return the resulting content. (See "cassilda help" for usage.)
+
+The important part here is "\dd find-config". It switches Cassilda to a "repo"
+mode, where she doesn't fail when the "fresnel_sine" segment isn't defined in
+the processed file (or stdin), but goes on a quest to find it elsewhere. It
+tries the following:
+
+\indent[2]{\fancylist{
+    - the current file
+    - .cld files in the current directory
+    - walk up the directory structure until
+      - home directory or root or repo root is reached
+      - or [.cassilda.json] is found
+        - look in the library specified in there
+}}
+
+In our case, the "fresnel_sine" label is stored in one of the library directories
+that is defined in the found config, so:
+
+    \fancylisting{
+/*~\@cassilda:~fresnel_sine
+    \verb|
+ * Fresnel Sine Integral:
+ * 
+ *         𝑥      ⎛    2  ⎞
+ *         ⌠      ⎜  π𝑡   ⎟
+ * S(𝑥) =  ⎮  sin ⎜ ───── ⎟ 𝑑𝑡
+ *         ⌡      ⎜   2   ⎟
+ *         0      ⎝       ⎠
+ * 
+ * Taylor expansion:
+ * 
+ *          ∞         𝑛       2𝑛 + 1 4𝑛 + 3
+ *         ───    (-1) (π / 2)      𝑥
+ * S(𝑥) =  ╲     ───────────────────────────
+ *         ╱⎽⎽        (4𝑛 + 3)(2𝑛 + 1)!
+ *        𝑛 = 0
+ * 
+ */
+double fresnel_sine(double x) {
+    double sum = 0.0;
+    double term = (M_PI / 2.0) * x * x * x / 3.0;
+    sum = term;
+
+    for (int n = 1; n < 25 && fabs(term) > 1e-15; ++n) {
+        term *= -(M_PI * M_PI / 4.0) * (x * x * x * x);
+        term /= (2 * n) * (2 * n + 1);
+        term *= (4 * n - 1) / (double)(4 * n + 3);
+        sum += term;
+    }
+    return sum;
+}|}
+
+Cassilda prefixes the rendered lines with a single NBSP character, which allows it to be
+idempotent to repeated processing, i.e. it will only add or update the output under the
+reference -- it will never duplicate or corrupt it.
+
+One of the intended usages of Cassilda is to render a .cld file into itself, making it
+a sort of a self-executable notebook (like Jupyter). This very file is an example
+(although not a very good one since it shoves the entire contnet into a single segment
+rendered at the top for your convenience -- see the math primer for a better example).
+
+The [.cassilda.json] config file may look like this:
+
+\fancylisting{\verb|
+{
+  "include_subdirs": true,
+  "cache_path": ".cassilda-cache",
+  "library_dirs": [
+    "library_directory",
+    "another_one"
+  ],
+  "library_files": [
+    "lib1.cld", "other.cld"
+  ]
+  "target_prefix": {
+    ".c": " * ",
+    ".h": " * ",
+    ".py": "# ",
+    ".go": "// "
+  }
+}
+|}
+
+\table[frame:single,pad:{l:1,r:1}]{
+    \row[frame:single]{
+        \col[width:25][align:r]{\textit{include_subdirectories}}
+        \col{Also searches the sub-directiories of the directories defined in
+             \textit{library_files}.}
+    }
+    \row{
+        \col{\textit{cache_path}}
+        \col{The path to the file where Cassilda should store discovered segments
+             and their checksums for better lookup efficiency.}
+    }
+    \row{
+        \col{\textit{library_dirs}}
+        \col{A list of list directories with .cld files which Cassila searches
+             for labels (segments) when rendering.}
+    }
+    \row{
+        \col{\textit{library_files}}
+        \col{An explicit list of .cld files to be searched through before looking
+             in \textit{library_dirs}.}
+    }
+    \row{
+        \col{\textit{target_prefix}}
+        \col{A map of file extensions to prefixes that are prepended to every line
+             of the rendering output. This is primary meant to specify comment prefixes.
+             If these aren't specifies, Cassilda uses the default for the extension
+             if she knows it.}
+    }}
+
+
+% ------------------------------------------EDITORS----------------------------------------------
+
+
+    \vskip{1}
+    \begin{vbox}
+        \child[center]{\figlet{GUI~~Editors}}
+        \xvskip{-1}
+        \child[center]{Help, can't exit vim :'(}
+        \child{\hrule{/}{.}{/}}
+    \end{vbox}
+
+    \sec{VSCode Integration}
+
+    You will want to install the Hyades extension, and you will need to run the install
+    script as well, since it installs the two binaries and the LSP server to the
+    location where the extension expects to find them.
+
+    Alternatively you can link the built extension from the repo to your local VSCode
+    installation:
+    
+    \fancylisting{\verb|~> cd hyades
+hyades> cd hyades-vscode-ext
+hyades> ./install.local.sh
+|}
+
+    The extension requires some basic settings in [.vscode/settings.json]:
+
+    \fancylisting{
+    \verb|
+{
+  "files.associations": {
+    "*.cld": "cassilda",
+    "*.hy": "cassilda"
+  },
+  "[cassilda]": {
+    "editor.bracketPairColorization.enabled": false
+    // + Font metrics (see below)
+  },
+  "cassilda.processOnSave": true,
+  "cassilda.processExtensions": [
+    ".cld",
+    ".c",
+    ".cpp",
+    ".h",
+    ".hpp",
+    ".py",
+    ".js",
+    ".ts"
+  ],
+  // Optional exclusion:
+  "cassilda.processOnSaveExclude": [
+    "**/wasm/**"
+  ],
+  // Optional override:
+  //"cassilda.executablePath": ""
+}|
+}
+
+As metioned in \textit{Font Setup}, a proportional-capable text editor like VSCode
+will not align characters to a grid, and will obey the font advance metrics. You will
+also have to experiment with the baseline skip ("lineHeight") in order to have
+connectable characters sit perfectly on top of each other. For the font I recommended
+I've found the following settings to produce acceptable rendering:
+
+    \hcenter[\sub{\width, 4}]{
+    \table[pad:{l:1,r:1}]{
+        \row[frame:{b:double}]{
+            \col[width:14][align:c]{\textit{Font}}
+            \col[align:c]{\textit{Settings}}
+        }
+        \row[frame:{b:single}]{
+            \col{PragmataPro Mono}
+            \col[align:l]{
+
+            \listing{\verb|
+"[cassilda]": {
+  "editor.fontFamily": "PragmataPro Mono",
+  "editor.fontWeight": "10",
+
+  // Use lineHeight 15 for perfect math
+  // vert. alignment, but worse visual
+  // effect from prose paragraphs.
+  "editor.lineHeight": 16,
+  "editor.fontSize": 14
+},
+|}
+            }    
+        }
+        \row[frame:{b:single}]{
+            \col{JuliaMono}
+            \col[align:l]{
+                \listing{\verb|
+"[cassilda]": {
+  "editor.fontFamily": "JuliaMono",
+  "editor.fontWeight": "300",
+  "editor.lineHeight": 18,
+  "editor.fontSize": 13
+},
+|}
+            } 
+        }
+        \row[frame:{b:single}]{
+            \col{Iosevka Term Extended}
+            \col{
+
+                \listing{\verb|
+"[cassilda]": {
+  "editor.fontFamily":
+    "Iosevka Term Extended, JuliaMono",
+  "editor.fontWeight": "200",
+  "editor.lineHeight": 16,
+  "editor.fontSize": 13
+},
+|}
+            }
+        }
+        \row[frame:{b:single}]{
+            \col{Iosevka Term}
+            \col{Same as above} 
+        }
+
+        \row[frame:{b:single}]{
+            \col{Iosevka Term Extended Slab}
+            \col{Same as Iosefka Term Extended} 
+        }
+     }
+    }
+
+    
+
+
+% --------------------------------------------FEATURES-------------------------------------------
+
+ 
+    \vskip{1}
+    \begin{vbox}
+        \child[center]{\figlet{Feature Overview}}
+        \xvskip{-1}
+        \child{\hrule{/}{.}{/}}
+    \end{vbox}
+
+    \sec{Components}
+    
+    \fancylist{
+        - Desktop executables for Mac, Linux, and Windows
+          - hyades: typesets pure \hyades{} code
+            - .hy extension
+            - stdin/file mode
+            - interactive terminal mode with a main loop
+          - cassilda: \hyades{} executor/orchestrator
+            - .cld extension
+            - categorizes meta tages (@labels) from .cld (and other) files, and renders them where they are
+              referenced -- more on that later
+        - Static library with a header
+        - VSCode extension
+          - uses Cassilda to render @labels directly into source code comments files upon saving
+          - syntax highlighting via built-in LSP
+          - LSP: squiggly lines (diagnostics), hover info, go to definition, outline, auto-completion
+        - Helix (hx) and Neovim (nvim) integration
+          - Automatically set up by the install script
+          - Syntax highlighting via a tree-sitter grammar
+          - LSP (if Node is installed): Inline diagnostics, hover info, go-to, auto-completion
+        - Web Application / WASM module
+          - syntax highlighting via Monaco + built-in LSP
+          - cassilda (pure C23) compiled into WASM
+          - online rendering of cassilda notebooks (.cld files that render to itself, like
+            Jupyter notebooks, for instance)
+        - (optional) Julia programming language integration
+          - When Julia is installed, the desktop \hyades{} enables direct interop
+          via \cmd{julia}\{\}, \cmd{call}\<\>, and other commands.
+    }
+
+    \sec{Main capabilities}
+
+    \fancylist{
+        - Robust math typesetting using La/TeX syntax
+          - 95\textpercent math source compatibility for LaTeX
+          - Unicode or ASCII character output
+          - Overridable symbol set
+          - Unicode math alphabets
+          - Big operators, scaling matrices
+          - Aligned equations and \cmd{cases}
+        - Robust prose typesetting
+          - Inline math
+          - Column justification with line-breaking
+            - Original monospace linebreaker
+        - Flex-like box layouting
+          - Horizontal and vertical stacking
+          - Width inheritance
+          - Flex-like space distribution
+          - Horizontal and vertical skips (even negative)
+        - Programmability
+          - Flexible and powerful user macro system
+            - Conditions, registers, content measurement
+            - Line post-processing
+            - Most high level \hyades{} commands are written in hyades itself
+          - CL: A powerful custom programming language and runtime (separate from macros)
+            - Typed
+            - Compiled into virtual instructions (Subnivean bytecode)
+            - Executed by a stack-based virtual machine (Subnivean)
+            - Drives computation for interactive/realtime terminal applications
+          - Julia programming language interop
+        - Table rendering
+          - Custom border styles
+          - Custom per-cell alignment
+          - Adaptive to content
+        - Markdown-like lists
+          - Like this one (check out the source below)
+        - ANSI escapes (color, cursor, etc.)
+          - For terminal output or interactive terminal applications written in CL
+        - Multi-platform
+          - As a pure C program, \hyades{} can be compiled anywhere
+            - Mac
+            - Linux
+            - Windows
+            - WASM
+    }
+
+
+    \end{output}
+@end
+
+#before_each
+    %\diagnostics{all}
+    \linebreaker{greedy}
+    \setwidth{72}
+    \setunicode{true}
+    \setmathitalic{true}
+#end
+
+#output_prefix "     "

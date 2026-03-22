@@ -1,0 +1,338 @@
+% @category: Math Typesetting
+% @name: Math Example Gallery (3)
+% @description: More Complex Proofs
+@cassilda: bekenstein-hawking-entropy
+@label bekenstein-hawking-entropy
+    \textbf{Theorem} (Bekenstein-Hawking Entropy).
+    \textit{The thermodynamic entropy of a black hole with event horizon area $A$
+    is}
+
+    $$\boxed{S_{\text{BH}} = \frac{A}{4G_N\hbar}} \tag{BH}$$
+
+    \textit{where $G_N$ is Newton's constant. In units $\hbar = c = k_B = 1$ this
+    reads $S = A/4G_N$.}
+
+    \textbf{Derivation.} (Via Euclidean path integral and the conical deficit.)
+
+    \textbf{Step 1: Euclidean path integral and thermodynamics.}
+    The partition function of quantum gravity at inverse temperature $\beta$ is
+    defined by the Euclidean path integral:
+
+    $$Z(\beta) = \int \mathcal{D}g_{\mu\nu}\; e^{-I_E[g]} \tag{1}$$
+
+    where $I_E$ is the Euclidean gravitational action and the integral is over
+    all metrics with Euclidean time periodicity $\tau \sim \tau + \beta$.
+    In the saddle-point approximation, $Z \approx e^{-I_E[\bar{g}]}$ where
+    $\bar{g}$ is the dominant classical solution. The free energy and entropy
+    follow from standard thermodynamic relations:
+
+    $$F = -\frac{1}{\beta}\log Z \approx \frac{I_E[\bar{g}]}{\beta},
+    \qquad S = \beta^2 \frac{\partial F}{\partial \beta}
+    = \beta \frac{\partial I_E}{\partial \beta} - I_E \tag{2}$$
+
+    \textbf{Step 2: Euclidean Schwarzschild geometry.}
+    The Lorentzian Schwarzschild metric for a black hole of mass $M$ is
+
+    $$ds^2 = -\left(1 - \frac{2G_N M}{r}\right)dt^2
+    + \left(1 - \frac{2G_N M}{r}\right)^{-1}dr^2
+    + r^2\, d\Omega^2 \tag{3}$$
+
+    Wick-rotating $t \to -i\tau$ yields the Euclidean metric:
+
+    $$ds^2_E = \left(1 - \frac{r_s}{r}\right)d\tau^2
+    + \left(1 - \frac{r_s}{r}\right)^{-1}dr^2
+    + r^2\, d\Omega^2 \tag{4}$$
+
+    where $r_s \coloneqq 2G_N M$ is the Schwarzschild radius.
+
+    \textbf{Step 3: Regularity fixes the temperature.}
+    Near the horizon $r = r_s$, set $r = r_s + \rho^2/(4r_s)$. The metric (4)
+    becomes:
+
+    $$ds^2_E \approx \rho^2 \cdot \frac{d\tau^2}{4r_s^2} + d\rho^2 + r_s^2\, d\Omega^2
+    \tag{5}$$
+
+    This is the metric on $\mathbb{R}^2 \times S^2$ in polar coordinates
+    $(\rho, \theta)$ with $\theta = \tau/(2r_s)$, plus the sphere. For the
+    geometry to be smooth — \textit{free of a conical deficit at $\rho = 0$}
+    — the angular coordinate must have period $2\pi$:
+
+    $$\frac{\Delta\tau}{2r_s} = 2\pi \implies \Delta\tau = 4\pi r_s = \beta
+    \tag{6}$$
+
+    This fixes the Hawking temperature:
+
+    $$T_H = \frac{1}{\beta} = \frac{1}{4\pi r_s} = \frac{1}{8\pi G_N M}
+    = \frac{\hbar\, c^3}{8\pi G_N M k_B} \tag{7}$$
+
+    \textbf{Step 4: The Euclidean action.}
+    The Euclidean gravitational action (Einstein-Hilbert plus
+    Gibbons-Hawking boundary term) evaluated on the Schwarzschild saddle is:
+
+    $$I_E[\bar{g}] = -\frac{1}{16\pi G_N}\int d^4x\,\sqrt{g}\, R
+    + \frac{1}{8\pi G_N}\oint_{\partial\mathcal{M}} d^3x\,\sqrt{h}\, K
+    \tag{8}$$
+
+    The bulk term vanishes on-shell ($R = 0$ for Schwarzschild). The boundary
+    term, evaluated with a large-radius cutoff and renormalised by subtracting
+    the flat-space reference, yields:
+
+    $$I_E[\bar{g}] = \frac{\beta^2}{16\pi G_N} = \frac{\beta r_s}{4G_N}
+    = 4\pi G_N M^2 \tag{9}$$
+
+    \textbf{Step 5: Entropy from the action.}
+    Substituting (9) into the thermodynamic formula (2):
+
+    $$\aligned{
+    S &= \beta \frac{\partial I_E}{\partial \beta} - I_E \\
+    \intertext{Using $\beta = 4\pi r_s$ and $I_E = \beta r_s / 4G_N$, so
+    $\partial I_E / \partial \beta = r_s / 4G_N + \beta/(4G_N) \cdot
+    \partial r_s/\partial \beta$. Since $\beta \propto r_s$ we have
+    $r_s \partial/\partial r_s = \beta \partial/\partial\beta$, giving
+    $\partial I_E/\partial\beta = r_s/2G_N$:}
+      &= \beta \cdot \frac{r_s}{2G_N} - \frac{\beta r_s}{4G_N}
+       = \frac{\beta r_s}{4G_N}
+       = \frac{4\pi r_s^2}{4G_N}
+       = \frac{\pi r_s^2}{G_N}
+    } \tag{10}$$
+
+    The horizon area is $A = 4\pi r_s^2$, so:
+
+    $$\boxed{S = \frac{A}{4G_N}} \tag{11}$$
+
+    This is the Bekenstein-Hawking entropy. $\square$
+
+    \vskip{1}
+
+    \textbf{Remark 1} (The conical deficit interpretation).
+    The key step is that the \textit{smoothness condition} at the horizon —
+    demanding that Euclidean time has the unique periodicity $\beta = 4\pi r_s$
+    — is not a choice but a geometric requirement. Any other periodicity
+    produces a conical singularity (deficit angle $2\pi - \beta/2r_s$) at the
+    horizon. The Hawking temperature is therefore fixed by the local geometry,
+    not by a boundary condition at infinity.
+
+    \textbf{Remark 2} (Bekenstein's original argument).
+    \textit{Bekenstein (1972) argued for $S \propto A$ on purely thermodynamic
+    grounds: the second law requires that the entropy of the exterior universe
+    never decrease when matter falls into a black hole, so some entropy must be
+    attributed to the hole. The area $A$ is the only extensive quantity that
+    never decreases classically (Hawking area theorem), so $S \propto A$.
+    The coefficient $1/4G_N$ was not fixed until Hawking's derivation of the
+    temperature.}
+
+    \textbf{Remark 3} (Generalised entropy and holography).
+    The total entropy in the presence of a black hole is:
+
+    $$S_{\text{gen}} = \frac{A}{4G_N} + S_{\text{matter outside}} \tag{12}$$
+
+    The \textbf{generalised second law} (Bekenstein, Wall) states
+    $\Delta S_{\text{gen}} \geq 0$ in any physical process. The
+    Bekenstein-Hawking entropy is thus the holographic data of the boundary
+    surface: $S \sim A$ encodes the maximum information storable in the
+    region bounded by the horizon, at a density of one bit per Planck area
+    $\ell_P^2 = G_N\hbar/c^3 \approx (1.6 \times 10^{-35}\,\text{m})^2$.
+
+    \textbf{Remark 4} (Ryu-Takayanagi formula).
+    In AdS/CFT, the Bekenstein-Hawking formula generalises to the
+    \textbf{Ryu-Takayanagi formula} for the entanglement entropy of a
+    boundary region $A$:
+
+    $$S_A = \frac{\operatorname{Area}(\gamma_A)}{4G_N} \tag{RT}$$
+
+    where $\gamma_A$ is the minimal area surface in the bulk homologous to
+    $\partial A$. This is a direct descendant of (BH), with the horizon
+    replaced by the minimal surface, and it shows that geometry itself
+    encodes entanglement.
+@end
+
+@cassilda: unruh-effect
+@label unruh-effect
+    \textbf{Theorem} (Unruh Effect).
+    \textit{A uniformly accelerating observer (Rindler observer) with proper
+    acceleration $a$ in Minkowski spacetime, moving through the Minkowski
+    vacuum $|0_M\rangle$, perceives a thermal bath of particles at temperature}
+
+    $$\boxed{T_U = \frac{\hbar\, a}{2\pi c\, k_B}} \tag{U}$$
+
+    \textit{This is the Unruh temperature. In natural units $\hbar = c = k_B = 1$:
+    $T_U = a/2\pi$.}
+
+    \textbf{Derivation.} (Via Rindler coordinates and Bogoliubov transformations.)
+
+    \textbf{Step 1: Rindler coordinates.}
+    Consider a massless scalar field $\phi$ in 1+1-dimensional Minkowski
+    spacetime with coordinates $(t, x)$. A uniformly accelerating observer
+    with acceleration $a > 0$ follows the worldline
+
+    $$t(\tau) = \frac{1}{a}\sinh(a\tau), \qquad
+    x(\tau) = \frac{1}{a}\cosh(a\tau) \tag{1}$$
+
+    where $\tau$ is proper time. This trajectory is confined to the \textit{right
+    Rindler wedge} $\mathcal{R}: x > |t|$. Introducing Rindler coordinates
+    $(\eta, \xi)$ by
+
+    $$t = \frac{e^{a\xi}}{a}\sinh(a\eta), \qquad
+    x = \frac{e^{a\xi}}{a}\cosh(a\eta) \tag{2}$$
+
+    the Minkowski metric $ds^2 = -dt^2 + dx^2$ becomes:
+
+    $$ds^2 = e^{2a\xi}\left(-d\eta^2 + d\xi^2\right) \tag{3}$$
+
+    The Rindler observer sits at $\xi = 0$, and $\eta$ is their proper time.
+
+    \textbf{Step 2: Mode expansions in each frame.}
+    A massless scalar satisfies $\Box\phi = 0$. In Minkowski coordinates,
+    the positive-frequency modes are $e^{-i\omega(t - x)}$ and
+    $e^{-i\omega(t + x)}$ with $\omega > 0$, and the field expands as
+
+    $$\phi = \int_0^\infty \frac{d\omega}{\sqrt{4\pi\omega}}
+    \left[\hat{a}_\omega\, e^{-i\omega(t-x)}
+    + \hat{a}_\omega^\dagger\, e^{+i\omega(t-x)}
+    + (\text{left-movers})\right] \tag{4}$$
+
+    The Minkowski vacuum is defined by $\hat{a}_\omega|0_M\rangle = 0$ for
+    all $\omega > 0$.
+
+    In Rindler coordinates, the positive-frequency right-mover modes are
+    $e^{-i\Omega\eta}$ (positive with respect to Rindler time $\eta$), and
+    the field in $\mathcal{R}$ expands as
+
+    $$\phi\bigr|_{\mathcal{R}} = \int_0^\infty \frac{d\Omega}{\sqrt{4\pi\Omega}}
+    \left[\hat{b}_\Omega\, e^{-i\Omega(\eta - \xi)}
+    + \hat{b}_\Omega^\dagger\, e^{+i\Omega(\eta - \xi)}\right] \tag{5}$$
+
+    The Rindler vacuum would be $\hat{b}_\Omega|0_R\rangle = 0$, but this is
+    \textit{not} the same as $|0_M\rangle$.
+
+    \textbf{Step 3: Bogoliubov transformation.}
+    The Minkowski and Rindler modes are related by a Bogoliubov transformation.
+    The key calculation is to express a Minkowski mode $e^{-i\omega(t-x)}$ in
+    terms of Rindler modes. Using the coordinate relation (2), for $x > |t|$:
+
+    $$e^{-i\omega(t-x)} = e^{-i\omega e^{a\xi} e^{-a\eta}/a}
+    = e^{-i\omega e^{a(\xi - \eta)}/a} \tag{6}$$
+
+    Expanding this in terms of Rindler modes requires analytic continuation
+    into the left wedge $\mathcal{L}: x < -|t|$. The result is the
+    Bogoliubov relation:
+
+    $$\hat{a}_\omega = \int_0^\infty d\Omega\left(
+    \alpha_{\omega\Omega}\, \hat{b}_\Omega
+    + \beta_{\omega\Omega}\, \hat{b}_\Omega^\dagger\right) \tag{7}$$
+
+    The Bogoliubov coefficients are computed by a contour integral. The
+    right-mover contribution gives:
+
+    $$\alpha_{\omega\Omega} = \frac{1}{2\pi a}
+    \sqrt{\frac{\Omega}{\omega}}\,
+    e^{\pi\Omega/2a}\,
+    \Gamma\!\left(\frac{i\Omega}{a}\right)
+    \left(\frac{\omega}{a}\right)^{-i\Omega/a} \tag{8}$$
+
+    $$\beta_{\omega\Omega} = -\frac{1}{2\pi a}
+    \sqrt{\frac{\Omega}{\omega}}\,
+    e^{-\pi\Omega/2a}\,
+    \Gamma\!\left(\frac{i\Omega}{a}\right)
+    \left(\frac{\omega}{a}\right)^{-i\Omega/a} \tag{9}$$
+
+    The key ratio is:
+
+    $$\frac{|\beta_{\omega\Omega}|^2}{|\alpha_{\omega\Omega}|^2}
+    = e^{-2\pi\Omega/a} \tag{10}$$
+
+    \textbf{Step 4: Particle number in the Minkowski vacuum.}
+    The expectation value of the Rindler number operator
+    $\hat{N}_\Omega \coloneqq \hat{b}_\Omega^\dagger \hat{b}_\Omega$ in the
+    Minkowski vacuum follows from (7) and the condition
+    $\hat{a}_\omega|0_M\rangle = 0$. A standard Bogoliubov identity gives:
+
+    $$\langle 0_M|\,\hat{N}_\Omega\,|0_M\rangle
+    = \int_0^\infty d\omega\; |\beta_{\omega\Omega}|^2 \tag{11}$$
+
+    Using the normalisation of Bogoliubov coefficients
+    $|\alpha_{\omega\Omega}|^2 - |\beta_{\omega\Omega}|^2 = \delta(\omega - \Omega)$
+    (schematically) and the ratio (10):
+
+    $$\langle 0_M|\,\hat{N}_\Omega\,|0_M\rangle
+    = \frac{1}{e^{2\pi\Omega/a} - 1} \tag{12}$$
+
+    \textbf{Step 5: Thermal interpretation.}
+    Equation (12) is the Planck distribution for a bosonic field at
+    temperature $T$:
+
+    $$\langle\hat{N}_\Omega\rangle_{\text{thermal}}
+    = \frac{1}{e^{\Omega/T} - 1} \tag{13}$$
+
+    Comparing (12) and (13):
+
+    $$\frac{\Omega}{T} = \frac{2\pi\Omega}{a}
+    \implies T = \frac{a}{2\pi} \tag{14}$$
+
+    Restoring $\hbar$, $c$, $k_B$:
+
+    $$T_U = \frac{\hbar\, a}{2\pi c\, k_B} \tag{15}$$
+
+    This is the Unruh temperature. The Minkowski vacuum is a thermal state
+    at temperature $T_U$ from the perspective of the accelerated observer.
+    $\square$
+
+    \vskip{1}
+
+    \textbf{Remark 1} (KMS condition).
+    \textit{The thermal nature of the Minkowski vacuum for Rindler observers
+    can be stated more elegantly via the Kubo-Martin-Schwinger (KMS) condition:
+    a state $\rho$ is thermal at inverse temperature $\beta$ if and only if
+    the two-point function satisfies}
+
+    $$\langle\phi(t)\,\phi(t')\rangle_\rho
+    = \langle\phi(t' + i\beta)\,\phi(t)\rangle_\rho \tag{16}$$
+
+    \textit{The Minkowski Wightman function $\langle 0_M|\phi(x)\phi(x')|0_M\rangle$,
+    when evaluated along the Rindler trajectory and analytically continued,
+    satisfies (16) with $\beta = 2\pi/a$. This is the cleanest proof that the
+    state is exactly thermal — no approximation is involved.}
+
+    \textbf{Remark 2} (Relation to Hawking radiation).
+    The Unruh effect and Hawking radiation are deeply related. Near a black
+    hole horizon, the equivalence principle implies that a freely-falling
+    observer sees the Minkowski vacuum, while a static observer (hovering
+    at fixed $r$) must accelerate to maintain position with proper
+    acceleration $a = (r_s/2r^2)(1 - r_s/r)^{-1/2}$. At the horizon
+    $a \to \infty$, but the Unruh temperature as measured at infinity
+    is redshifted by the factor $(1 - r_s/r)^{1/2}$:
+
+    $$T_\infty = \lim_{r \to r_s}
+    \frac{a}{2\pi} \cdot \left(1 - \frac{r_s}{r}\right)^{1/2}
+    = \frac{1}{4\pi r_s} = T_H \tag{17}$$
+
+    recovering the Hawking temperature (7) of the Bekenstein-Hawking
+    derivation. The two effects are the same physical phenomenon viewed
+    from different coordinate frames.
+
+    \textbf{Remark 3} (Detectability).
+    For $a \sim 10^{20}\,\text{m/s}^2$ (approximately the largest achievable
+    in particle accelerators), $T_U \sim 10^{-6}\,\text{K}$ — far below any
+    experimental reach. The Unruh effect has never been directly observed,
+    but is universally accepted on theoretical grounds: it is a robust
+    consequence of the canonical commutation relations and the geometry of
+    Rindler spacetime, requiring no additional assumptions beyond free QFT
+    in flat space.
+@end
+
+% ─── SYSTEM SETUP
+
+#target_prefix "│ " % <- what gets prepended to each line of output
+
+#before_each
+    \setunicode{true}
+    \setmathitalic{true}
+    \setwidth{78}
+    \setparskip{1} % implicit spacing around paragraphs
+    \setmathabove{1} % implicit spacing around display math
+    \setmathbelow{1}
+    \linebreaker{greedy} % greedy for smart column alignment, raggedright for left aligned
+
+    \macro<\indented{content}>{\indent[2]{${content}}}
+    \macro<\cmd{x}>{\textbackslash{}\textit{${x}}}
+#end

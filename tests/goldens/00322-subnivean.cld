@@ -1,0 +1,3293 @@
+% @category: Advanced Programmability & Terminal
+% @name: Subnivean VM / Bytecode Assembly
+% @description: A guide to the Subnivean stack machine
+@cassilda: subnivean_guide
+  The CL guide  teaches  how to write  Computational Lambdas – the  high-level la-
+  nguage compiled by Hyades. This  companion guide goes one level deeper. Here you
+  will learn what CL compiles 𝑑𝑜𝑤𝑛 𝑡𝑜: the raw bytecode executed by the  Subnivean
+  virtual machine.
+  
+  Every example in this guide is 𝑙𝑖𝑣𝑒. The boxed assembly listings are not pseudo-
+  code; they are real programs executed by \𝑠𝑛{…}, Hyades‘ inline  assembler. Each
+  one runs inside the  typesetting engine and  produces the output  you see beside
+  it.
+  
+  Subnivean  is  a 𝑠𝑡𝑎𝑐𝑘  𝑚𝑎𝑐ℎ𝑖𝑛𝑒. There are no registers.  Every value lives on a
+  stack;  instructions pop their operands and push their results. If you have ever
+  used an HP calculator in RPN  mode, or written  Forth, the model will feel fami-
+  liar. If not, the first few sections will build the intuition from scratch.
+  
+  Why does Subnivean exist? Speed. The text-based macro  interpreter expands stri-
+  ngs  character by character – fine for  formatting, but far too slow for Game of
+  Life or Matrix  Digital Rain at interactive  frame rates. Subnivean  compiles to
+  bytecode  and executes it in a tight C loop,  achieving a 65x speedup over inte-
+  rpreted CL.
+  
+  The \𝑠𝑛{…} command feeds source text to a two-pass  assembler. Pass one collects
+  labels and  constant-pool directives. Pass two emits instructions. The resulting
+  bytecode is handed to the VM, which executes it and returns whatever was sent to
+  OUTPUT as a string.
+  
+  The  sections build on each  other. By the end you will have  written a complete
+  GCD  algorithm and an iterative  Fibonacci generator at the bytecode level – and
+  you will know exactly what every instruction does.
+  
+  𝐓𝐡𝐞 𝐒𝐭𝐚𝐜𝐤
+  ────────────────────────────────────────────────────────────────────────────────
+  Everything in Subnivean  begins with  the stack.  PUSH_INT places an integer  on
+  top;  OUTPUT pops  the top  value and sends it to the output  stream. HALT stops
+  execution.
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  PUSH_INT 42                                                           │
+  │ 2:  │  OUTPUT                                                                │
+  │ 3:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   42                                                                   ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  That is a complete  program. PUSH_INT 42 pushes the  integer 42 onto the  stack.
+  OUTPUT pops it, converts it to its string  representation, and appends it to the
+  output buffer. HALT stops the VM.
+  
+  Instructions consume their operands by popping. After OUTPUT, the stack is empty
+  again. Let us try arithmetic:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  PUSH_INT 5                                                            │
+  │ 2:  │  PUSH_INT 3                                                            │
+  │ 3:  │  ADD                                                                   │
+  │ 4:  │  OUTPUT                                                                │
+  │ 5:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   8                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  PUSH_INT 5 pushes 5. PUSH_INT 3 pushes 3. Now the stack holds [5, 3] (3 on top).
+  ADD pops both and pushes their sum: [8]. OUTPUT pops 8 and prints it.
+  
+                                    DUP and POP
+                                  o═════════════o
+  
+  DUP duplicates the top of stack. POP discards it.
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  PUSH_INT 10                                                           │
+  │ 2:  │  DUP                                                                   │
+  │ 3:  │  ADD                                                                   │
+  │ 4:  │  OUTPUT                                                                │
+  │ 5:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   20                                                                   ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  DUP copies 10, giving [10, 10]. ADD produces [20].
+  
+                                    SWAP and ROT
+                                  o══════════════o
+  
+  SWAP  exchanges the top two elements. ROT rotates the top three: [a, b, c] beco-
+  mes [b, c, a].
+  
+  Order matters for  non-commutative operations. SUB pops [b, a] and  computes a -
+  b. If you push 10 then 3, you get 10 - 3 = 7:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  PUSH_INT 10                                                           │
+  │ 2:  │  PUSH_INT 3                                                            │
+  │ 3:  │  SUB                                                                   │
+  │ 4:  │  OUTPUT                                                                │
+  │ 5:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   7                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  But if you need 3 - 10, push them in the  opposite order – or use SWAP after pu-
+  shing:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  PUSH_INT 10                                                           │
+  │ 2:  │  PUSH_INT 3                                                            │
+  │ 3:  │  SWAP                                                                  │
+  │ 4:  │  SUB                                                                   │
+  │ 5:  │  OUTPUT                                                                │
+  │ 6:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   -7                                                                   ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+                                   Special Values
+                                 o════════════════o
+  
+  PUSH_NIL pushes a nil value. PUSH_TRUE pushes integer 1. PUSH_FALSE pushes inte-
+  ger 0. Booleans in Subnivean  are  just integers:  any nonzero  value is truthy,
+  zero is falsy.
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  PUSH_TRUE                                                             │
+  │ 2:  │  PUSH_FALSE                                                            │
+  │ 3:  │  ADD                                                                   │
+  │ 4:  │  OUTPUT                                                                │
+  │ 5:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   1                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  True (1) plus false (0) equals 1.
+  
+            ............................................................
+                                    STACK DEPTH
+  
+            The  Subnivean stack is 4096 entries deep – more than enough
+            for any  computation. A stack  overflow halts the VM with an
+            error.
+            ............................................................
+  
+  
+  𝐀𝐫𝐢𝐭𝐡𝐦𝐞𝐭𝐢𝐜
+  ────────────────────────────────────────────────────────────────────────────────
+  Subnivean  provides six arithmetic  operations. All binary operators pop two va-
+  lues [b, a] and push the result. The 𝑓𝑖𝑟𝑠𝑡 value pushed is the left operand:
+  
+    ● 𝐀𝐃𝐃: a + b
+    ● 𝐒𝐔𝐁: a - b
+    ● 𝐌𝐔𝐋: a * b
+    ● 𝐃𝐈𝐕: a / b (integer, truncates toward zero)
+    ● 𝐌𝐎𝐃: a mod b (remainder)
+    ● 𝐍𝐄𝐆: unary negation (one operand)
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; Multiplication: 6 * 7 = 42                                          │
+  │ 2:  │  PUSH_INT 6                                                            │
+  │ 3:  │  PUSH_INT 7                                                            │
+  │ 4:  │  MUL                                                                   │
+  │ 5:  │  OUTPUT                                                                │
+  │ 6:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   42                                                                   ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; Division: 20 / 3 = 6 (truncated)                                    │
+  │ 2:  │  PUSH_INT 20                                                           │
+  │ 3:  │  PUSH_INT 3                                                            │
+  │ 4:  │  DIV                                                                   │
+  │ 5:  │  OUTPUT                                                                │
+  │ 6:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   6                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; Modulo: 17 mod 5 = 2                                                │
+  │ 2:  │  PUSH_INT 17                                                           │
+  │ 3:  │  PUSH_INT 5                                                            │
+  │ 4:  │  MOD                                                                   │
+  │ 5:  │  OUTPUT                                                                │
+  │ 6:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   2                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  NEG takes a single operand and negates it:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  PUSH_INT 42                                                           │
+  │ 2:  │  NEG                                                                   │
+  │ 3:  │  OUTPUT                                                                │
+  │ 4:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   -42                                                                  ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+            ............................................................
+                                 INTEGER PRECISION
+  
+            All values are 64-bit signed integers. Integer division tru-
+            ncates  toward zero. There are no floating-point  numbers in
+            Subnivean.
+            ............................................................
+  
+  
+  𝐂𝐨𝐧𝐬𝐭𝐚𝐧𝐭𝐬 𝐚𝐧𝐝 𝐒𝐭𝐫𝐢𝐧𝐠𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Integers  are pushed with  PUSH_INT. But what about strings? Strings live in the
+  𝑐𝑜𝑛𝑠𝑡𝑎𝑛𝑡 𝑝𝑜𝑜𝑙 – a per-function  array of compile- time values. The assembler di-
+  rective .𝐜𝐨𝐧𝐬𝐭 adds a string:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .const "hello"       ; index 0                                        │
+  │ 2:  │  .const "world"       ; index 1                                        │
+  │ 3:  │  PUSH_CONST 0         ; push "hello"                                   │
+  │ 4:  │  PUSH_CONST 1         ; push "world"                                   │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  The first  .const gets index 0, the  second gets index 1, and so on.  PUSH_CONST
+  loads from the constant pool by index.
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .const "hello"                                                        │
+  │ 2:  │  PUSH_CONST 0                                                          │
+  │ 3:  │  OUTPUT                                                                │
+  │ 4:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   hello                                                                ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+                                String Concatenation
+                              o══════════════════════o
+  
+  CONCAT pops two strings [b, a] and pushes their concatenation a+b:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .const "hello "                                                       │
+  │ 2:  │  .const "world"                                                        │
+  │ 3:  │  PUSH_CONST 0                                                          │
+  │ 4:  │  PUSH_CONST 1                                                          │
+  │ 5:  │  CONCAT                                                                │
+  │ 6:  │  OUTPUT                                                                │
+  │ 7:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   hello world                                                          ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+                                     STRINGIFY
+                                   o═══════════o
+  
+  STRINGIFY  converts any value to its string  representation. This is how you mix
+  integers and strings:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .const " is the answer"                                               │
+  │ 2:  │  PUSH_INT 42                                                           │
+  │ 3:  │  STRINGIFY                                                             │
+  │ 4:  │  PUSH_CONST 0                                                          │
+  │ 5:  │  CONCAT                                                                │
+  │ 6:  │  OUTPUT                                                                │
+  │ 7:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   42 is the answer                                                     ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+                                  Escape Sequences
+                                o══════════════════o
+  
+  Strings in .const support standard escape sequences:
+  
+    ● \\n – newline
+    ● \\t – tab
+    ● \\\\ – literal backslash
+    ● \\" – literal double quote
+                               Constant Pool Indexing
+                             o════════════════════════o
+  
+  Pool  indices  are assigned  sequentially. Both  .const and .sym  (covered next)
+  share the same pool. The first  directive is index 0, the second is index 1, re-
+  gardless of whether it is .const or .sym. Plan your indices accordingly.
+  
+            ............................................................
+                              OUTPUT ACCEPTS ANYTHING
+  
+            OUTPUT calls STRINGIFY internally. You can OUTPUT an integer
+            directly  without explicit  STRINGIFY – it will be converted
+            automatically.  STRINGIFY is needed  when you want to CONCAT
+            an integer with a string.
+            ............................................................
+  
+  
+  𝐒𝐲𝐦𝐛𝐨𝐥𝐬 𝐚𝐧𝐝 𝐁𝐢𝐧𝐝𝐢𝐧𝐠𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Variables in Subnivean are 𝑏𝑖𝑛𝑑𝑖𝑛𝑔𝑠: a symbol (the name) associated with a value
+  in a 𝑠𝑐𝑜𝑝𝑒. The assembler provides the .sym directive to intern a symbol:
+  
+  ┌────────────────┬─────────────────────────────────────────────────────────────┐
+  │            1:  │  .sym x ; intern symbol "x", add to constant pool           │
+  └────────────────┴─────────────────────────────────────────────────────────────┘
+  
+  Like .const, .sym  occupies a constant  pool slot. The  difference is that  .sym
+  creates an interned 𝑠𝑦𝑚𝑏𝑜𝑙 – a unique identity used for fast variable lookup.
+  
+  Three instructions work with bindings:
+  
+    ● 𝐁𝐈𝐍𝐃: [value, sym] → [] – bind value to symbol in current scope
+    ● 𝐋𝐎𝐎𝐊𝐔𝐏: [sym] → [value] – search scope chain for symbol
+    ● 𝐒𝐄𝐓: [value, sym] → [] – update existing binding in chain
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym x                                                                │
+  │ 2:  │  PUSH_INT 42                                                           │
+  │ 3:  │  PUSH_CONST 0                                                          │
+  │ 4:  │  BIND                                                                  │
+  │ 5:  │  PUSH_CONST 0                                                          │
+  │ 6:  │  LOOKUP                                                                │
+  │ 7:  │  OUTPUT                                                                │
+  │ 8:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   42                                                                   ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Step by step: .sym x interns  “x” at pool index 0. PUSH_INT 42 pushes the value.
+  PUSH_CONST 0 pushes the  symbol. BIND pops  both and stores the  binding x=42 in
+  the  current scope. Then  PUSH_CONST 0 pushes the symbol again, LOOKUP finds it,
+  and OUTPUT prints 42.
+  
+  SET updates an existing binding without creating a new one:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym x                                                                │
+  │ 2:  │  PUSH_INT 10                                                           │
+  │ 3:  │  PUSH_CONST 0                                                          │
+  │ 4:  │  BIND                                                                  │
+  │ 5:  │  PUSH_INT 99                                                           │
+  │ 6:  │  PUSH_CONST 0                                                          │
+  │ 7:  │  SET                                                                   │
+  │ 8:  │  PUSH_CONST 0                                                          │
+  │ 9:  │  LOOKUP                                                                │
+  │ 10: │  OUTPUT                                                                │
+  │ 11: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   99                                                                   ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  First x is bound to 10, then SET overwrites it with 99.
+  
+            ............................................................
+                                    WHY SYMBOLS?
+  
+            Symbols are  𝑖𝑛𝑡𝑒𝑟𝑛𝑒𝑑 – each unique name exists exactly once
+            in  memory.  Comparing two  symbols is a pointer  comparison
+            (O(1)), not a string comparison (O(n)). This is why variable
+            lookup is fast.
+            ............................................................
+  
+  
+  𝐂𝐞𝐥𝐥𝐬 – 𝐌𝐮𝐭𝐚𝐛𝐥𝐞 𝐁𝐨𝐱𝐞𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Subnivean values are  immutable. An integer on the  stack is just a number – you
+  cannot  increment it in place. But  programs need mutable state. The solution is
+  𝑐𝑒𝑙𝑙𝑠: mutable boxes that wrap a value.
+  
+    ● 𝐂𝐄𝐋𝐋_𝐍𝐄𝐖: [value] → [cell] – box the value
+    ● 𝐂𝐄𝐋𝐋_𝐆𝐄𝐓: [cell] → [value] – unbox (copy the contents)
+    ● 𝐂𝐄𝐋𝐋_𝐒𝐄𝐓: [value, cell] → [] – mutate the contents
+    ● 𝐂𝐄𝐋𝐋_𝐈𝐍𝐂: [cell] → [new_val] – increment integer in cell, push new value
+    ● 𝐂𝐄𝐋𝐋_𝐃𝐄𝐂: [cell] → [new_val] – decrement integer in cell, push new value
+  
+  The canonical pattern for a mutable variable:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; Create mutable variable x = 5                                       │
+  │ 2:  │  .sym x                                                                │
+  │ 3:  │  PUSH_INT 5          ; value                                           │
+  │ 4:  │  CELL_NEW            ; wrap in cell                                    │
+  │ 5:  │  PUSH_CONST 0        ; symbol                                          │
+  │ 6:  │  BIND                ; bind cell to symbol                             │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  To read the variable, look up the cell, then CELL_GET. To mutate it, look up the
+  cell, then CELL_SET (or CELL_INC/CELL_DEC):
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym x                                                                │
+  │ 2:  │  PUSH_INT 5                                                            │
+  │ 3:  │  CELL_NEW                                                              │
+  │ 4:  │  PUSH_CONST 0                                                          │
+  │ 5:  │  BIND                                                                  │
+  │ 6:  │  ; read x                                                              │
+  │ 7:  │  PUSH_CONST 0                                                          │
+  │ 8:  │  LOOKUP                                                                │
+  │ 9:  │  CELL_GET                                                              │
+  │ 10: │  OUTPUT                                                                │
+  │ 11: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   5                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  CELL_INC  increments the integer inside a cell and pushes the new value. Here we
+  increment x five times:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym x                                                                │
+  │ 2:  │  PUSH_INT 0                                                            │
+  │ 3:  │  CELL_NEW                                                              │
+  │ 4:  │  PUSH_CONST 0                                                          │
+  │ 5:  │  BIND                                                                  │
+  │ 6:  │  ; increment 5 times                                                   │
+  │ 7:  │  PUSH_CONST 0                                                          │
+  │ 8:  │  LOOKUP                                                                │
+  │ 9:  │  CELL_INC                                                              │
+  │ 10: │  POP                                                                   │
+  │ 11: │  PUSH_CONST 0                                                          │
+  │ 12: │  LOOKUP                                                                │
+  │ 13: │  CELL_INC                                                              │
+  │ 14: │  POP                                                                   │
+  │ 15: │  PUSH_CONST 0                                                          │
+  │ 16: │  LOOKUP                                                                │
+  │ 17: │  CELL_INC                                                              │
+  │ 18: │  POP                                                                   │
+  │ 19: │  PUSH_CONST 0                                                          │
+  │ 20: │  LOOKUP                                                                │
+  │ 21: │  CELL_INC                                                              │
+  │ 22: │  POP                                                                   │
+  │ 23: │  PUSH_CONST 0                                                          │
+  │ 24: │  LOOKUP                                                                │
+  │ 25: │  CELL_INC                                                              │
+  │ 26: │  OUTPUT                                                                │
+  │ 27: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   5                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  We  start at 0 and  increment five  times; the final  CELL_INC pushes  5,  which
+  OUTPUT prints. Each intermediate CELL_INC result is discarded with POP.
+  
+            ............................................................
+                                    CELLS AND CL
+  
+            In  CL,  \𝑙𝑒𝑡<x:int>{5} compiles  to  exactly:  PUSH_INT 5 /
+            CELL_NEW / PUSH_CONST <sym_x> / BIND. Every mutable variable
+            is a cell. Reading {x} compiles to LOOKUP / CELL_GET.
+            ............................................................
+  
+  
+  𝐂𝐨𝐦𝐩𝐚𝐫𝐢𝐬𝐨𝐧 𝐚𝐧𝐝 𝐋𝐨𝐠𝐢𝐜
+  ────────────────────────────────────────────────────────────────────────────────
+  Subnivean provides six  comparison operators and three logic  operators. All co-
+  mparisons pop [b, a] and push 1 (true) or 0 (false):
+  
+    ● 𝐄𝐐: a == b
+    ● 𝐍𝐄: a != b
+    ● 𝐋𝐓: a < b
+    ● 𝐆𝐓: a > b
+    ● 𝐋𝐄: a <= b
+    ● 𝐆𝐄: a >= b
+  
+  Logic operators:
+  
+    ● 𝐀𝐍𝐃: a && b (non-short-circuit)
+    ● 𝐎𝐑: a || b
+    ● 𝐍𝐎𝐓: !a (unary)
+  
+  Results are plain integers. 1 is true, 0 is false:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; 10 < 20?                                                            │
+  │ 2:  │  PUSH_INT 10                                                           │
+  │ 3:  │  PUSH_INT 20                                                           │
+  │ 4:  │  LT                                                                    │
+  │ 5:  │  OUTPUT                                                                │
+  │ 6:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   1                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; 5 == 5?                                                             │
+  │ 2:  │  PUSH_INT 5                                                            │
+  │ 3:  │  PUSH_INT 5                                                            │
+  │ 4:  │  EQ                                                                    │
+  │ 5:  │  OUTPUT                                                                │
+  │ 6:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   1                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; NOT 0 = 1                                                           │
+  │ 2:  │  PUSH_FALSE                                                            │
+  │ 3:  │  NOT                                                                   │
+  │ 4:  │  OUTPUT                                                                │
+  │ 5:  │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   1                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  These are the building blocks for control flow, which follows next.
+  
+  
+  𝐂𝐨𝐧𝐭𝐫𝐨𝐥 𝐅𝐥𝐨𝐰
+  ────────────────────────────────────────────────────────────────────────────────
+  Without jumps, programs execute top to bottom. Labels and jump  instructions add
+  branching and loops.
+  
+                                       Labels
+                                     o════════o
+  
+  A label is an identifier followed by a colon. It marks a position in the instru-
+  ction stream:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  start:                ; defines label "start"                         │
+  │ 2:  │      PUSH_INT 1                                                        │
+  │ 3:  │  done:                 ; defines label "done"                          │
+  │ 4:  │      HALT                                                              │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  Labels do not emit  instructions – they are resolved by the assembler and conve-
+  rted to relative offsets.
+  
+                                 Jump Instructions
+                               o═══════════════════o
+    ● 𝐉𝐔𝐌𝐏 𝐥𝐚𝐛𝐞𝐥: unconditional jump
+    ● 𝐉𝐔𝐌𝐏_𝐈𝐅 𝐥𝐚𝐛𝐞𝐥: [cond] → [] – jump if truthy (nonzero)
+    ● 𝐉𝐔𝐌𝐏_𝐔𝐍𝐋𝐄𝐒𝐒 𝐥𝐚𝐛𝐞𝐥: [cond] → [] – jump if falsy (zero)
+    ● 𝐋𝐎𝐎𝐏 𝐥𝐚𝐛𝐞𝐥: backward jump (for loops)
+                                  If/Else Pattern
+                                o═════════════════o
+  
+  The classic conditional: test a condition, jump to one branch or the other.
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .const "yes"                                                          │
+  │ 2:  │  .const "no"                                                           │
+  │ 3:  │  ; Is 10 > 5?                                                          │
+  │ 4:  │  PUSH_INT 10                                                           │
+  │ 5:  │  PUSH_INT 5                                                            │
+  │ 6:  │  GT                                                                    │
+  │ 7:  │  JUMP_IF yes                                                           │
+  │ 8:  │  ; false branch                                                        │
+  │ 9:  │  PUSH_CONST 1                                                          │
+  │ 10: │  JUMP end                                                              │
+  │ 11: │  yes:                                                                  │
+  │ 12: │  PUSH_CONST 0                                                          │
+  │ 13: │  end:                                                                  │
+  │ 14: │  OUTPUT                                                                │
+  │ 15: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   yes                                                                  ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  GT pushes 1 (10 > 5 is true). JUMP_IF pops it and jumps to 𝑦𝑒𝑠. The string “yes”
+  is pushed and printed.
+  
+                              A Simple Countdown Loop
+                            o═════════════════════════o
+  
+  Loops use LOOP for backward jumps. Here is a countdown from 5 to 1:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym n                                                                │
+  │ 2:  │  .const " "                                                            │
+  │ 3:  │  ; n = 5 (as cell)                                                     │
+  │ 4:  │  PUSH_INT 5                                                            │
+  │ 5:  │  CELL_NEW                                                              │
+  │ 6:  │  PUSH_CONST 0                                                          │
+  │ 7:  │  BIND                                                                  │
+  │ 8:  │  loop:                                                                 │
+  │ 9:  │    ; output n                                                          │
+  │ 10: │    PUSH_CONST 0                                                        │
+  │ 11: │    LOOKUP                                                              │
+  │ 12: │    CELL_GET                                                            │
+  │ 13: │    OUTPUT                                                              │
+  │ 14: │    ; output space                                                      │
+  │ 15: │    PUSH_CONST 1                                                        │
+  │ 16: │    OUTPUT                                                              │
+  │ 17: │    ; decrement n                                                       │
+  │ 18: │    PUSH_CONST 0                                                        │
+  │ 19: │    LOOKUP                                                              │
+  │ 20: │    CELL_DEC                                                            │
+  │ 21: │    ; if n > 0, continue                                                │
+  │ 22: │    PUSH_INT 0                                                          │
+  │ 23: │    GT                                                                  │
+  │ 24: │    JUMP_IF loop                                                        │
+  │ 25: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   5 4 3 2 1                                                            ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  CELL_DEC  decrements the cell and  pushes the new value. We compare  that with 0
+  using GT. If still positive, JUMP_IF loops back.
+  
+                                    Sum 1 to 10
+                                  o═════════════o
+  
+  A slightly more involved loop that computes 1+2+…+10 = 55:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym sum                                                              │
+  │ 2:  │  .sym i                                                                │
+  │ 3:  │  ; sum = 0                                                             │
+  │ 4:  │  PUSH_INT 0                                                            │
+  │ 5:  │  CELL_NEW                                                              │
+  │ 6:  │  PUSH_CONST 0                                                          │
+  │ 7:  │  BIND                                                                  │
+  │ 8:  │  ; i = 1                                                               │
+  │ 9:  │  PUSH_INT 1                                                            │
+  │ 10: │  CELL_NEW                                                              │
+  │ 11: │  PUSH_CONST 1                                                          │
+  │ 12: │  BIND                                                                  │
+  │ 13: │  loop:                                                                 │
+  │ 14: │    ; sum += i                                                          │
+  │ 15: │    PUSH_CONST 1                                                        │
+  │ 16: │    LOOKUP                                                              │
+  │ 17: │    CELL_GET                                                            │
+  │ 18: │    PUSH_CONST 0                                                        │
+  │ 19: │    LOOKUP                                                              │
+  │ 20: │    CELL_GET                                                            │
+  │ 21: │    ADD                                                                 │
+  │ 22: │    PUSH_CONST 0                                                        │
+  │ 23: │    LOOKUP                                                              │
+  │ 24: │    CELL_SET                                                            │
+  │ 25: │    ; i++                                                               │
+  │ 26: │    PUSH_CONST 1                                                        │
+  │ 27: │    LOOKUP                                                              │
+  │ 28: │    CELL_INC                                                            │
+  │ 29: │    ; if i <= 10, loop                                                  │
+  │ 30: │    PUSH_INT 10                                                         │
+  │ 31: │    LE                                                                  │
+  │ 32: │    JUMP_IF loop                                                        │
+  │ 33: │  ; output sum                                                          │
+  │ 34: │  PUSH_CONST 0                                                          │
+  │ 35: │  LOOKUP                                                                │
+  │ 36: │  CELL_GET                                                              │
+  │ 37: │  OUTPUT                                                                │
+  │ 38: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   55                                                                   ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+                               The Two Loop Patterns
+                             o═══════════════════════o
+  
+  𝐵𝑜𝑡𝑡𝑜𝑚-𝑡𝑒𝑠𝑡𝑒𝑑  (do-while): the body always executes at least once. The condition
+  comes after the body:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  loop:                                                                 │
+  │ 2:  │      ; ... body ...                                                    │
+  │ 3:  │      ; ... condition ...                                               │
+  │ 4:  │      JUMP_IF loop         ; repeat while true                          │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  𝑇𝑜𝑝-𝑡𝑒𝑠𝑡𝑒𝑑  (while): the condition is checked  before the body. If false initia-
+  lly, the body never executes:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  loop:                                                                 │
+  │ 2:  │      ; ... condition ...                                               │
+  │ 3:  │      JUMP_UNLESS done     ; exit if false                              │
+  │ 4:  │      ; ... body ...                                                    │
+  │ 5:  │      JUMP loop                                                         │
+  │ 6:  │  done:                                                                 │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+            ............................................................
+                                 LABELS AND OFFSETS
+  
+            JUMP, JUMP_IF, and JUMP_UNLESS use 𝑟𝑒𝑙𝑎𝑡𝑖𝑣𝑒 offsets interna-
+            lly, but the  assembler computes them from label  names. You
+            never need to count instructions by hand. Forward references
+            work – you can JUMP_IF done before done: is defined.
+            ............................................................
+  
+  
+  𝐒𝐜𝐨𝐩𝐞𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Subnivean organizes bindings into a 𝑠𝑐𝑜𝑝𝑒 𝑐ℎ𝑎𝑖𝑛. Each scope has a parent; LOOKUP
+  searches up the chain.
+  
+    ● 𝐒𝐂𝐎𝐏𝐄_𝐍𝐄𝐖: create a child scope of the current one, enter it
+    ● 𝐒𝐂𝐎𝐏𝐄_𝐏𝐎𝐏: exit to parent (child freed if no references remain)
+    ● 𝐒𝐂𝐎𝐏𝐄_𝐂𝐀𝐏𝐓𝐔𝐑𝐄: push the current scope as a value
+    ● 𝐒𝐂𝐎𝐏𝐄_𝐑𝐄𝐒𝐓𝐎𝐑𝐄: pop a scope value, make it current
+  
+  Scopes let you shadow variables without losing the outer binding:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym x                                                                │
+  │ 2:  │  .const " "                                                            │
+  │ 3:  │  ; x = 10 in outer scope                                               │
+  │ 4:  │  PUSH_INT 10                                                           │
+  │ 5:  │  PUSH_CONST 0                                                          │
+  │ 6:  │  BIND                                                                  │
+  │ 7:  │  ; enter new scope                                                     │
+  │ 8:  │  SCOPE_NEW                                                             │
+  │ 9:  │  ; x = 99 in inner scope (shadows outer)                               │
+  │ 10: │  PUSH_INT 99                                                           │
+  │ 11: │  PUSH_CONST 0                                                          │
+  │ 12: │  BIND                                                                  │
+  │ 13: │  ; read inner x                                                        │
+  │ 14: │  PUSH_CONST 0                                                          │
+  │ 15: │  LOOKUP                                                                │
+  │ 16: │  OUTPUT                                                                │
+  │ 17: │  PUSH_CONST 1                                                          │
+  │ 18: │  OUTPUT                                                                │
+  │ 19: │  ; exit inner scope                                                    │
+  │ 20: │  SCOPE_POP                                                             │
+  │ 21: │  ; read outer x (still 10)                                             │
+  │ 22: │  PUSH_CONST 0                                                          │
+  │ 23: │  LOOKUP                                                                │
+  │ 24: │  OUTPUT                                                                │
+  │ 25: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   99 10                                                                ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  The inner scope binds x=99, which  shadows the outer x=10. After  SCOPE_POP, the
+  inner scope is destroyed and x resolves to 10 again.
+  
+            ............................................................
+                                 WHY SCOPES MATTER
+  
+            Closures  capture scopes. In CL loops,  per-iteration scopes
+            give each closure its own variables – the “JavaScript let in
+            for-loop”  semantics that prevent the classic “all  closures
+            share one counter” bug.
+            ............................................................
+  
+  
+  𝐅𝐮𝐧𝐜𝐭𝐢𝐨𝐧𝐬 𝐚𝐧𝐝 𝐂𝐥𝐨𝐬𝐮𝐫𝐞𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Subnivean  supports  first-class closures: a function  paired with the  scope in
+  which it was created.
+  
+    ● 𝐂𝐋𝐎𝐒𝐔𝐑𝐄: [scope] → [closure] – wraps a function (by constant pool index)
+      with a captured scope
+    ● 𝐂𝐀𝐋𝐋: [args…, closure] → [result] – call with operand = argc
+    ● 𝐑𝐄𝐓𝐔𝐑𝐍: return nil from current function
+    ● 𝐑𝐄𝐓𝐔𝐑𝐍_𝐕𝐀𝐋: [value] → ; return TOS
+    ● 𝐓𝐀𝐈𝐋_𝐂𝐀𝐋𝐋: like CALL but reuses the stack frame (optimization)
+  
+  Creating a closure requires a compiled sub-function stored in the constant pool.
+  The \𝑠𝑛{} assembler compiles a single flat function, so closures cannot be demo-
+  nstrated in raw assembly. However, the mechanism is straightforward:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; How CL compiles a closure:                                          │
+  │ 2:  │  ; 1. The lambda body is compiled to a Function                        │
+  │ 3:  │  ;    and stored in the constant pool at some index N                  │
+  │ 4:  │  ; 2. At the call site:                                                │
+  │ 5:  │  SCOPE_CAPTURE        ; push current scope                             │
+  │ 6:  │  CLOSURE N            ; wrap function N with scope -> closure          │
+  │ 7:  │  CALL 0               ; call with 0 arguments                          │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  When  CALL  executes, the VM creates a new  call frame, pushes  arguments into a
+  child  scope of the  captured scope, and transfers control.  RETURN_VAL pops the
+  result and passes it back to the caller.
+  
+            ............................................................
+                                COMPILATION PATTERN
+  
+            Every #{…} lambda body  compiles to a Function stored in the
+            parent’s  constant  pool.  \𝑖𝑛𝑣𝑜𝑘𝑒  emits   SCOPE_CAPTURE  /
+            PUSH_CONST / CLOSURE / CALL. Arguments are pushed before the
+            closure, and the CALL operand indicates how many there are.
+            ............................................................
+  
+  
+  𝐀𝐫𝐫𝐚𝐲𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Subnivean arrays live in a persistent store and are accessed by address.
+  
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐍𝐄𝐖: [elems…] → [array] – operand = element count
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐆𝐄𝐓: [idx, arr] → [elem]
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐒𝐄𝐓: [val, idx, arr] → []
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐋𝐄𝐍: [arr] → [len]
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐏𝐔𝐒𝐇: [val, arr] → []
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐏𝐎𝐏: [arr] → [val]
+  
+  Create an array with three elements and read the second one (index 1):
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; Create array [10, 20, 30]                                           │
+  │ 2:  │  PUSH_INT 10                                                           │
+  │ 3:  │  PUSH_INT 20                                                           │
+  │ 4:  │  PUSH_INT 30                                                           │
+  │ 5:  │  ARRAY_NEW 3                                                           │
+  │ 6:  │  ; Read element at index 1                                             │
+  │ 7:  │  DUP                                                                   │
+  │ 8:  │  PUSH_INT 1                                                            │
+  │ 9:  │  ARRAY_GET                                                             │
+  │ 10: │  OUTPUT                                                                │
+  │ 11: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   20                                                                   ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  ARRAY_NEW 3 pops  three values and  creates an array  [10, 20, 30],  pushing its
+  address. We DUP the address (we will need it), push index 1, and  ARRAY_GET pops
+  idx then arr, producing 20.
+  
+                                    Push and Pop
+                                  o══════════════o
+  
+  ARRAY_PUSH appends a value; ARRAY_POP removes and returns the last:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; Create empty array                                                  │
+  │ 2:  │  ARRAY_NEW 0                                                           │
+  │ 3:  │  ; Push 100, 200, 300                                                  │
+  │ 4:  │  DUP                                                                   │
+  │ 5:  │  PUSH_INT 100                                                          │
+  │ 6:  │  ARRAY_PUSH                                                            │
+  │ 7:  │  DUP                                                                   │
+  │ 8:  │  PUSH_INT 200                                                          │
+  │ 9:  │  ARRAY_PUSH                                                            │
+  │ 10: │  DUP                                                                   │
+  │ 11: │  PUSH_INT 300                                                          │
+  │ 12: │  ARRAY_PUSH                                                            │
+  │ 13: │  ; Get length                                                          │
+  │ 14: │  DUP                                                                   │
+  │ 15: │  ARRAY_LEN                                                             │
+  │ 16: │  OUTPUT                                                                │
+  │ 17: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   3                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  We push three  elements onto an initially  empty array, then  ARRAY_LEN confirms
+  the count is 3.
+  
+  Note the pattern:  ARRAY_PUSH pops val  (top) then arr  (second), so we DUP  the
+  array address, push the value, and call ARRAY_PUSH.
+  
+  
+  𝐌𝐚𝐩𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Maps are  Robin Hood hash  tables in the  persistent store. Keys and  values are
+  integers.
+  
+    ● 𝐌𝐀𝐏_𝐍𝐄𝐖: [] → [addr] – create empty map
+    ● 𝐌𝐀𝐏_𝐒𝐄𝐓: [val, key, addr] → [] – set map[key] = val
+    ● 𝐌𝐀𝐏_𝐆𝐄𝐓: [key, addr] → [value] – get map[key] (0 if missing)
+    ● 𝐌𝐀𝐏_𝐇𝐀𝐒: [key, addr] → [0/1] – check if key exists
+    ● 𝐌𝐀𝐏_𝐃𝐄𝐋: [key, addr] → [0/1] – delete key
+    ● 𝐌𝐀𝐏_𝐋𝐄𝐍: [addr] → [count]
+    ● 𝐌𝐀𝐏_𝐊𝐄𝐘𝐒: [addr] → [arr_addr] – array of all keys
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym m                                                                │
+  │ 2:  │  ; Create map                                                          │
+  │ 3:  │  MAP_NEW                                                               │
+  │ 4:  │  PUSH_CONST 0                                                          │
+  │ 5:  │  BIND                                                                  │
+  │ 6:  │  ; Set map[1] = 100                                                    │
+  │ 7:  │  PUSH_CONST 0                                                          │
+  │ 8:  │  LOOKUP                                                                │
+  │ 9:  │  PUSH_INT 1                                                            │
+  │ 10: │  PUSH_INT 100                                                          │
+  │ 11: │  MAP_SET                                                               │
+  │ 12: │  ; Set map[2] = 200                                                    │
+  │ 13: │  PUSH_CONST 0                                                          │
+  │ 14: │  LOOKUP                                                                │
+  │ 15: │  PUSH_INT 2                                                            │
+  │ 16: │  PUSH_INT 200                                                          │
+  │ 17: │  MAP_SET                                                               │
+  │ 18: │  ; Get map[1]                                                          │
+  │ 19: │  PUSH_CONST 0                                                          │
+  │ 20: │  LOOKUP                                                                │
+  │ 21: │  PUSH_INT 1                                                            │
+  │ 22: │  MAP_GET                                                               │
+  │ 23: │  OUTPUT                                                                │
+  │ 24: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   100                                                                  ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  We create a map, store two entries, and retrieve the value at key 1.
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  ; Check map length                                                    │
+  │ 2:  │  .sym m                                                                │
+  │ 3:  │  MAP_NEW                                                               │
+  │ 4:  │  PUSH_CONST 0                                                          │
+  │ 5:  │  BIND                                                                  │
+  │ 6:  │  ; Add 3 entries                                                       │
+  │ 7:  │  PUSH_CONST 0                                                          │
+  │ 8:  │  LOOKUP                                                                │
+  │ 9:  │  PUSH_INT 1                                                            │
+  │ 10: │  PUSH_INT 10                                                           │
+  │ 11: │  MAP_SET                                                               │
+  │ 12: │  PUSH_CONST 0                                                          │
+  │ 13: │  LOOKUP                                                                │
+  │ 14: │  PUSH_INT 2                                                            │
+  │ 15: │  PUSH_INT 20                                                           │
+  │ 16: │  MAP_SET                                                               │
+  │ 17: │  PUSH_CONST 0                                                          │
+  │ 18: │  LOOKUP                                                                │
+  │ 19: │  PUSH_INT 3                                                            │
+  │ 20: │  PUSH_INT 30                                                           │
+  │ 21: │  MAP_SET                                                               │
+  │ 22: │  ; Output length                                                       │
+  │ 23: │  PUSH_CONST 0                                                          │
+  │ 24: │  LOOKUP                                                                │
+  │ 25: │  MAP_LEN                                                               │
+  │ 26: │  OUTPUT                                                                │
+  │ 27: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   3                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  
+  𝐇𝐞𝐚𝐩 𝐌𝐞𝐦𝐨𝐫𝐲
+  ────────────────────────────────────────────────────────────────────────────────
+  For  raw memory access,  Subnivean provides a heap: a persistent  store of fixe-
+  d-size blocks.
+  
+    ● 𝐌𝐄𝐌_𝐀𝐋𝐋𝐎𝐂: [count] → [addr] – allocate a block with count slots
+    ● 𝐌𝐄𝐌_𝐒𝐓𝐎𝐑𝐄: [val, idx, addr] → [] – store heap[addr][idx] = val
+    ● 𝐌𝐄𝐌_𝐋𝐎𝐀𝐃: [idx, addr] → [value] – load heap[addr][idx]
+    ● 𝐌𝐄𝐌_𝐋𝐄𝐍: [addr] → [len] – get block length
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym buf                                                              │
+  │ 2:  │  ; Allocate 3 slots                                                    │
+  │ 3:  │  PUSH_INT 3                                                            │
+  │ 4:  │  MEM_ALLOC                                                             │
+  │ 5:  │  PUSH_CONST 0                                                          │
+  │ 6:  │  BIND                                                                  │
+  │ 7:  │  ; Store values                                                        │
+  │ 8:  │  PUSH_CONST 0                                                          │
+  │ 9:  │  LOOKUP                                                                │
+  │ 10: │  PUSH_INT 0                                                            │
+  │ 11: │  PUSH_INT 111                                                          │
+  │ 12: │  MEM_STORE                                                             │
+  │ 13: │  PUSH_CONST 0                                                          │
+  │ 14: │  LOOKUP                                                                │
+  │ 15: │  PUSH_INT 1                                                            │
+  │ 16: │  PUSH_INT 222                                                          │
+  │ 17: │  MEM_STORE                                                             │
+  │ 18: │  PUSH_CONST 0                                                          │
+  │ 19: │  LOOKUP                                                                │
+  │ 20: │  PUSH_INT 2                                                            │
+  │ 21: │  PUSH_INT 333                                                          │
+  │ 22: │  MEM_STORE                                                             │
+  │ 23: │  ; Load slot 1                                                         │
+  │ 24: │  PUSH_CONST 0                                                          │
+  │ 25: │  LOOKUP                                                                │
+  │ 26: │  PUSH_INT 1                                                            │
+  │ 27: │  MEM_LOAD                                                              │
+  │ 28: │  OUTPUT                                                                │
+  │ 29: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   222                                                                  ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  We allocate 3 slots, store 111/222/333, and load back slot 1 (222).
+  
+                                   Stack vs Heap
+                                 o═══════════════o
+  
+  Stack values  (integers, booleans) are  transient – they exist only while on the
+  stack or bound in a scope. Heap values  (arrays, maps, memory blocks) persist in
+  the VM’s  store – they survive across  function calls and can be shared  between
+  scopes.  When a scope is freed,  bindings to heap  addresses are dropped but the
+  heap data itself persists as long as anything references it.
+  
+  
+  𝐖𝐨𝐫𝐤𝐞𝐝 𝐄𝐱𝐚𝐦𝐩𝐥𝐞: 𝐆𝐂𝐃
+  ────────────────────────────────────────────────────────────────────────────────
+  The  Euclidean algorithm computes  the greatest common divisor of two  integers.
+  The  method: while b is not zero,  replace (a, b) with (b, a mod b). When b rea-
+  ches zero, a holds the GCD.
+  
+  Let us compute gcd(48, 18) = 6:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym a                                                                │
+  │ 2:  │  .sym b                                                                │
+  │ 3:  │  .const " "                                                            │
+  │ 4:  │  ; a = 48                                                              │
+  │ 5:  │  PUSH_INT 48                                                           │
+  │ 6:  │  CELL_NEW                                                              │
+  │ 7:  │  PUSH_CONST 0                                                          │
+  │ 8:  │  BIND                                                                  │
+  │ 9:  │  ; b = 18                                                              │
+  │ 10: │  PUSH_INT 18                                                           │
+  │ 11: │  CELL_NEW                                                              │
+  │ 12: │  PUSH_CONST 1                                                          │
+  │ 13: │  BIND                                                                  │
+  │ 14: │  loop:                                                                 │
+  │ 15: │    ; if b == 0, done                                                   │
+  │ 16: │    PUSH_CONST 1                                                        │
+  │ 17: │    LOOKUP                                                              │
+  │ 18: │    CELL_GET                                                            │
+  │ 19: │    PUSH_INT 0                                                          │
+  │ 20: │    EQ                                                                  │
+  │ 21: │    JUMP_IF done                                                        │
+  │ 22: │    ; temp = a mod b                                                    │
+  │ 23: │    PUSH_CONST 0                                                        │
+  │ 24: │    LOOKUP                                                              │
+  │ 25: │    CELL_GET                                                            │
+  │ 26: │    PUSH_CONST 1                                                        │
+  │ 27: │    LOOKUP                                                              │
+  │ 28: │    CELL_GET                                                            │
+  │ 29: │    MOD                                                                 │
+  │ 30: │    ; a = b                                                             │
+  │ 31: │    PUSH_CONST 1                                                        │
+  │ 32: │    LOOKUP                                                              │
+  │ 33: │    CELL_GET                                                            │
+  │ 34: │    PUSH_CONST 0                                                        │
+  │ 35: │    LOOKUP                                                              │
+  │ 36: │    CELL_SET                                                            │
+  │ 37: │    ; b = temp (still on stack)                                         │
+  │ 38: │    PUSH_CONST 1                                                        │
+  │ 39: │    LOOKUP                                                              │
+  │ 40: │    CELL_SET                                                            │
+  │ 41: │    JUMP loop                                                           │
+  │ 42: │  done:                                                                 │
+  │ 43: │  ; output a                                                            │
+  │ 44: │  PUSH_CONST 0                                                          │
+  │ 45: │  LOOKUP                                                                │
+  │ 46: │  CELL_GET                                                              │
+  │ 47: │  OUTPUT                                                                │
+  │ 48: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   6                                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Walkthrough of the first iteration:
+  
+    ● a=48, b=18. b != 0, so continue.
+    ● Compute 48 mod 18 = 12 (push temp=12).
+    ● Copy b (18) into a: now a=18.
+    ● Store temp (12) into b: now b=12.
+    ● JUMP back to loop.
+  
+  Subsequent  iterations: (18,12) → (12,6) → (6,0).  When b=0, we exit and  output
+  a=6.
+  
+  
+  𝐖𝐨𝐫𝐤𝐞𝐝 𝐄𝐱𝐚𝐦𝐩𝐥𝐞: 𝐅𝐢𝐛𝐨𝐧𝐚𝐜𝐜𝐢
+  ────────────────────────────────────────────────────────────────────────────────
+  Iterative Fibonacci computes fib(n) by maintaining two variables: 𝑝𝑟𝑒𝑣 and 𝑐𝑢𝑟𝑟.
+  Each step sets (prev, curr) to (curr, prev+curr).
+  
+  Let us compute fib(10) = 55:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  .sym prev                                                             │
+  │ 2:  │  .sym curr                                                             │
+  │ 3:  │  .sym i                                                                │
+  │ 4:  │  ; prev = 0, curr = 1, i = 2                                           │
+  │ 5:  │  PUSH_INT 0                                                            │
+  │ 6:  │  CELL_NEW                                                              │
+  │ 7:  │  PUSH_CONST 0                                                          │
+  │ 8:  │  BIND                                                                  │
+  │ 9:  │  PUSH_INT 1                                                            │
+  │ 10: │  CELL_NEW                                                              │
+  │ 11: │  PUSH_CONST 1                                                          │
+  │ 12: │  BIND                                                                  │
+  │ 13: │  PUSH_INT 2                                                            │
+  │ 14: │  CELL_NEW                                                              │
+  │ 15: │  PUSH_CONST 2                                                          │
+  │ 16: │  BIND                                                                  │
+  │ 17: │  loop:                                                                 │
+  │ 18: │    ; if i > 10, done                                                   │
+  │ 19: │    PUSH_CONST 2                                                        │
+  │ 20: │    LOOKUP                                                              │
+  │ 21: │    CELL_GET                                                            │
+  │ 22: │    PUSH_INT 10                                                         │
+  │ 23: │    GT                                                                  │
+  │ 24: │    JUMP_IF done                                                        │
+  │ 25: │    ; temp = prev + curr                                                │
+  │ 26: │    PUSH_CONST 0                                                        │
+  │ 27: │    LOOKUP                                                              │
+  │ 28: │    CELL_GET                                                            │
+  │ 29: │    PUSH_CONST 1                                                        │
+  │ 30: │    LOOKUP                                                              │
+  │ 31: │    CELL_GET                                                            │
+  │ 32: │    ADD                                                                 │
+  │ 33: │    ; prev = curr                                                       │
+  │ 34: │    PUSH_CONST 1                                                        │
+  │ 35: │    LOOKUP                                                              │
+  │ 36: │    CELL_GET                                                            │
+  │ 37: │    PUSH_CONST 0                                                        │
+  │ 38: │    LOOKUP                                                              │
+  │ 39: │    CELL_SET                                                            │
+  │ 40: │    ; curr = temp (on stack)                                            │
+  │ 41: │    PUSH_CONST 1                                                        │
+  │ 42: │    LOOKUP                                                              │
+  │ 43: │    CELL_SET                                                            │
+  │ 44: │    ; i++                                                               │
+  │ 45: │    PUSH_CONST 2                                                        │
+  │ 46: │    LOOKUP                                                              │
+  │ 47: │    CELL_INC                                                            │
+  │ 48: │    POP                                                                 │
+  │ 49: │    JUMP loop                                                           │
+  │ 50: │  done:                                                                 │
+  │ 51: │  PUSH_CONST 1                                                          │
+  │ 52: │  LOOKUP                                                                │
+  │ 53: │  CELL_GET                                                              │
+  │ 54: │  OUTPUT                                                                │
+  │ 55: │  HALT                                                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   55                                                                   ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  The  loop runs for  i=2..10 (nine  iterations). Starting from  fib(0)=0 and  fi-
+  b(1)=1, we accumulate up to fib(10)=55.
+  
+  
+  𝐎𝐩𝐜𝐨𝐝𝐞 𝐑𝐞𝐟𝐞𝐫𝐞𝐧𝐜𝐞
+  ────────────────────────────────────────────────────────────────────────────────
+  Complete  reference of every Subnivean  instruction. Stack effects use the nota-
+  tion [popped] → [pushed].  Operand column shows what the operand means (– if no-
+  ne).
+  
+                                  Stack Operations
+                                o══════════════════o
+    ● 𝐍𝐎𝐏: no operation
+    ● 𝐏𝐎𝐏: [a] → [] – discard top of stack
+    ● 𝐃𝐔𝐏: [a] → [a, a] – duplicate top
+    ● 𝐒𝐖𝐀𝐏: [a, b] → [b, a] – swap top two
+    ● 𝐑𝐎𝐓: [a, b, c] → [b, c, a] – rotate top three
+                                     Constants
+                                   o═══════════o
+    ● 𝐏𝐔𝐒𝐇_𝐍𝐈𝐋: [] → [nil]
+    ● 𝐏𝐔𝐒𝐇_𝐓𝐑𝐔𝐄: [] → [1]
+    ● 𝐏𝐔𝐒𝐇_𝐅𝐀𝐋𝐒𝐄: [] → [0]
+    ● 𝐏𝐔𝐒𝐇_𝐈𝐍𝐓 𝐧: [] → [n] – push immediate integer
+    ● 𝐏𝐔𝐒𝐇_𝐂𝐎𝐍𝐒𝐓 𝐧: [] → [pool[n]] – push from constant pool
+                                  Scope Operations
+                                o══════════════════o
+    ● 𝐒𝐂𝐎𝐏𝐄_𝐍𝐄𝐖: create child scope, enter it
+    ● 𝐒𝐂𝐎𝐏𝐄_𝐏𝐎𝐏: exit to parent scope
+    ● 𝐒𝐂𝐎𝐏𝐄_𝐂𝐀𝐏𝐓𝐔𝐑𝐄: [] → [scope] – push current scope
+    ● 𝐒𝐂𝐎𝐏𝐄_𝐑𝐄𝐒𝐓𝐎𝐑𝐄: [scope] → [] – restore scope
+                                 Bindings (Static)
+                               o═══════════════════o
+    ● 𝐁𝐈𝐍𝐃: [value, sym] → [] – bind in current scope
+    ● 𝐋𝐎𝐎𝐊𝐔𝐏: [sym] → [value] – search scope chain
+    ● 𝐋𝐎𝐎𝐊𝐔𝐏_𝐇𝐄𝐑𝐄: [sym] → [value] – current scope only
+    ● 𝐒𝐄𝐓: [value, sym] → [] – update existing binding
+                                 Bindings (Dynamic)
+                               o════════════════════o
+    ● 𝐁𝐈𝐍𝐃_𝐃𝐘𝐍: [value, str] → [] – intern string, bind
+    ● 𝐋𝐎𝐎𝐊𝐔𝐏_𝐃𝐘𝐍: [str] → [value] – intern string, lookup
+    ● 𝐒𝐄𝐓_𝐃𝐘𝐍: [value, str] → [] – intern string, set
+                                       Cells
+                                     o═══════o
+    ● 𝐂𝐄𝐋𝐋_𝐍𝐄𝐖: [value] → [cell] – box the value
+    ● 𝐂𝐄𝐋𝐋_𝐆𝐄𝐓: [cell] → [value] – unbox
+    ● 𝐂𝐄𝐋𝐋_𝐒𝐄𝐓: [value, cell] → [] – mutate contents
+    ● 𝐂𝐄𝐋𝐋_𝐈𝐍𝐂: [cell] → [new_val] – increment integer in cell
+    ● 𝐂𝐄𝐋𝐋_𝐃𝐄𝐂: [cell] → [new_val] – decrement integer in cell
+                                     Arithmetic
+                                   o════════════o
+    ● 𝐀𝐃𝐃: [b, a] → [a+b]
+    ● 𝐒𝐔𝐁: [b, a] → [a-b]
+    ● 𝐌𝐔𝐋: [b, a] → [a*b]
+    ● 𝐃𝐈𝐕: [b, a] → [a/b]
+    ● 𝐌𝐎𝐃: [b, a] → [a mod b]
+    ● 𝐍𝐄𝐆: [a] → [-a]
+    ● 𝐑𝐀𝐍𝐃: [max] → [random 0..max-1]
+                                     Comparison
+                                   o════════════o
+    ● 𝐄𝐐: [b, a] → [a==b ? 1 : 0]
+    ● 𝐍𝐄: [b, a] → [a!=b ? 1 : 0]
+    ● 𝐋𝐓: [b, a] → [a<b ? 1 : 0]
+    ● 𝐆𝐓: [b, a] → [a>b ? 1 : 0]
+    ● 𝐋𝐄: [b, a] → [a<=b ? 1 : 0]
+    ● 𝐆𝐄: [b, a] → [a>=b ? 1 : 0]
+                                       Logic
+                                     o═══════o
+    ● 𝐀𝐍𝐃: [b, a] → [a&&b ? 1 : 0]
+    ● 𝐎𝐑: [b, a] → [a||b ? 1 : 0]
+    ● 𝐍𝐎𝐓: [a] → [!a ? 1 : 0]
+                                    Control Flow
+                                  o══════════════o
+    ● 𝐉𝐔𝐌𝐏 𝐥𝐚𝐛𝐞𝐥: unconditional jump
+    ● 𝐉𝐔𝐌𝐏_𝐈𝐅 𝐥𝐚𝐛𝐞𝐥: [cond] → [] – jump if truthy
+    ● 𝐉𝐔𝐌𝐏_𝐔𝐍𝐋𝐄𝐒𝐒 𝐥𝐚𝐛𝐞𝐥: [cond] → [] – jump if falsy
+    ● 𝐋𝐎𝐎𝐏 𝐥𝐚𝐛𝐞𝐥: backward jump
+                                     Functions
+                                   o═══════════o
+    ● 𝐂𝐋𝐎𝐒𝐔𝐑𝐄 𝐧: [scope] → [closure] – wrap function pool[n]
+    ● 𝐂𝐀𝐋𝐋 𝐧: [args…, closure] → [result] – call with n args
+    ● 𝐓𝐀𝐈𝐋_𝐂𝐀𝐋𝐋 𝐧: like CALL, reuses frame
+    ● 𝐈𝐍𝐕𝐎𝐊𝐄_𝐃𝐘𝐍 𝐧: [args…, val] → [result] – dynamic dispatch
+    ● 𝐑𝐄𝐓𝐔𝐑𝐍: return nil
+    ● 𝐑𝐄𝐓𝐔𝐑𝐍_𝐕𝐀𝐋: [value] → ; return TOS
+                                       Arrays
+                                     o════════o
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐍𝐄𝐖 𝐧: [elems…] → [arr] – n = element count
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐆𝐄𝐓: [idx, arr] → [elem]
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐒𝐄𝐓: [val, idx, arr] → []
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐋𝐄𝐍: [arr] → [len]
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐏𝐔𝐒𝐇: [val, arr] → []
+    ● 𝐀𝐑𝐑𝐀𝐘_𝐏𝐎𝐏: [arr] → [val]
+                                        Maps
+                                      o══════o
+    ● 𝐌𝐀𝐏_𝐍𝐄𝐖: [] → [addr]
+    ● 𝐌𝐀𝐏_𝐆𝐄𝐓: [key, addr] → [value]
+    ● 𝐌𝐀𝐏_𝐒𝐄𝐓: [val, key, addr] → []
+    ● 𝐌𝐀𝐏_𝐇𝐀𝐒: [key, addr] → [0/1]
+    ● 𝐌𝐀𝐏_𝐃𝐄𝐋: [key, addr] → [0/1]
+    ● 𝐌𝐀𝐏_𝐋𝐄𝐍: [addr] → [count]
+    ● 𝐌𝐀𝐏_𝐊𝐄𝐘𝐒: [addr] → [arr_addr]
+                                    Heap Memory
+                                  o═════════════o
+    ● 𝐌𝐄𝐌_𝐀𝐋𝐋𝐎𝐂: [count] → [addr]
+    ● 𝐌𝐄𝐌_𝐒𝐓𝐎𝐑𝐄: [val, idx, addr] → []
+    ● 𝐌𝐄𝐌_𝐋𝐎𝐀𝐃: [idx, addr] → [value]
+    ● 𝐌𝐄𝐌_𝐋𝐄𝐍: [addr] → [len]
+                                      Strings
+                                    o═════════o
+    ● 𝐂𝐎𝐍𝐂𝐀𝐓: [b, a] → [a+b] – string concatenation
+    ● 𝐒𝐓𝐑𝐈𝐍𝐆𝐈𝐅𝐘: [val] → [str] – convert to string
+    ● 𝐒𝐘𝐌𝐁𝐎𝐋: [str] → [sym] – intern string as symbol
+                                       Output
+                                     o════════o
+    ● 𝐎𝐔𝐓𝐏𝐔𝐓: [val] → [] – stringify and append to output
+    ● 𝐎𝐔𝐓𝐏𝐔𝐓_𝐑𝐀𝐖 𝐧: emit literal text from pool[n]
+    ● 𝐄𝐌𝐈𝐓_𝐂𝐔𝐑𝐒𝐎𝐑: [row, col] → [] – emit cursor positioning escape
+                                      Special
+                                    o═════════o
+    ● 𝐇𝐀𝐋𝐓: stop execution
+    ● 𝐁𝐑𝐄𝐀𝐊𝐏𝐎𝐈𝐍𝐓: debugger hook
+    ● 𝐀𝐒𝐒𝐄𝐑𝐓: [cond, msg] → [] – error if falsy
+    ● 𝐋𝐄𝐍: [val] → [len] – unified length
+                                Assembler Directives
+                              o══════════════════════o
+    ● .𝐜𝐨𝐧𝐬𝐭 “𝐭𝐞𝐱𝐭”: add a string to the constant pool
+    ● .𝐬𝐲𝐦 𝐧𝐚𝐦𝐞: intern a symbol, add to the constant pool
+    ● 𝐧𝐚𝐦𝐞:: define a label (jump target)
+    ● ; 𝐭𝐞𝐱𝐭: comment (ignored)
+  
+  Both .const and .sym share the same  constant pool. Indices are  assigned seque-
+  ntially:  the first  directive is index 0, the  second is index 1, regardless of
+  type. Blank lines are ignored.
+  
+                                 Instruction Format
+                               o════════════════════o
+  
+  Each  instruction is 8 bytes: a 4-byte  opcode and a 4-byte signed  operand. The
+  operand  is  an immediate  integer, a constant  pool  index, or a relative  jump
+  offset  depending on the  instruction. The assembler handles all offset computa-
+  tion automatically.
+
+@label subnivean_guide
+    The CL guide teaches how to write Computational Lambdas -- the high-level
+    language compiled by Hyades.  This companion guide goes one level deeper.
+    Here you will learn what CL compiles \textit{down to}: the raw bytecode
+    executed by the Subnivean virtual machine.
+
+    Every example in this guide is \textit{live}.  The boxed assembly listings
+    are not pseudocode; they are real programs executed by \cmd{sn}\{...\},
+    Hyades' inline assembler.  Each one runs inside the typesetting engine and
+    produces the output you see beside it.
+
+    Subnivean is a \textit{stack machine}.  There are no registers.  Every
+    value lives on a stack; instructions pop their operands and push their
+    results.  If you have ever used an HP calculator in RPN mode, or written
+    Forth, the model will feel familiar.  If not, the first few sections will
+    build the intuition from scratch.
+
+    Why does Subnivean exist?  Speed.  The text-based macro interpreter
+    expands strings character by character -- fine for formatting, but far
+    too slow for Game of Life or Matrix Digital Rain at interactive frame
+    rates.  Subnivean compiles to bytecode and executes it in a tight C
+    loop, achieving a 65x speedup over interpreted CL.
+
+    The \cmd{sn}\{...\} command feeds source text to a two-pass assembler.
+    Pass one collects labels and constant-pool directives.  Pass two emits
+    instructions.  The resulting bytecode is handed to the VM, which executes
+    it and returns whatever was sent to OUTPUT as a string.
+
+    The sections build on each other.  By the end you will have written a
+    complete GCD algorithm and an iterative Fibonacci generator at the
+    bytecode level -- and you will know exactly what every instruction does.
+
+
+    \section{\textbf{The Stack}}
+
+    Everything in Subnivean begins with the stack.  PUSH\_INT places an
+    integer on top; OUTPUT pops the top value and sends it to the output
+    stream.  HALT stops execution.
+
+    \hylst{\verb|
+PUSH_INT 42
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 42
+OUTPUT
+HALT
+        }
+    }
+}
+
+    That is a complete program.  PUSH\_INT 42 pushes the integer 42 onto
+    the stack.  OUTPUT pops it, converts it to its string representation,
+    and appends it to the output buffer.  HALT stops the VM.
+
+    Instructions consume their operands by popping.  After OUTPUT, the
+    stack is empty again.  Let us try arithmetic:
+
+    \hylst{\verb|
+PUSH_INT 5
+PUSH_INT 3
+ADD
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 5
+PUSH_INT 3
+ADD
+OUTPUT
+HALT
+        }
+    }
+}
+
+    PUSH\_INT 5 pushes 5.  PUSH\_INT 3 pushes 3.  Now the stack holds
+    [5, 3] (3 on top).  ADD pops both and pushes their sum: [8].  OUTPUT
+    pops 8 and prints it.
+
+    \fculn{DUP and POP}
+
+    DUP duplicates the top of stack.  POP discards it.
+
+    \hylst{\verb|
+PUSH_INT 10
+DUP
+ADD
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 10
+DUP
+ADD
+OUTPUT
+HALT
+        }
+    }
+}
+
+    DUP copies 10, giving [10, 10].  ADD produces [20].
+
+    \fculn{SWAP and ROT}
+
+    SWAP exchanges the top two elements.  ROT rotates the top three:
+    [a, b, c] becomes [b, c, a].
+
+    Order matters for non-commutative operations.  SUB pops [b, a] and
+    computes a - b.  If you push 10 then 3, you get 10 - 3 = 7:
+
+    \hylst{\verb|
+PUSH_INT 10
+PUSH_INT 3
+SUB
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 10
+PUSH_INT 3
+SUB
+OUTPUT
+HALT
+        }
+    }
+}
+
+    But if you need 3 - 10, push them in the opposite order -- or use
+    SWAP after pushing:
+
+    \hylst{\verb|
+PUSH_INT 10
+PUSH_INT 3
+SWAP
+SUB
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 10
+PUSH_INT 3
+SWAP
+SUB
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \fculn{Special Values}
+
+    PUSH\_NIL pushes a nil value.  PUSH\_TRUE pushes integer 1.
+    PUSH\_FALSE pushes integer 0.  Booleans in Subnivean are just
+    integers: any nonzero value is truthy, zero is falsy.
+
+    \hylst{\verb|
+PUSH_TRUE
+PUSH_FALSE
+ADD
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_TRUE
+PUSH_FALSE
+ADD
+OUTPUT
+HALT
+        }
+    }
+}
+
+    True (1) plus false (0) equals 1.
+
+    \begin{didyouknow}
+    \center{STACK DEPTH}
+    The Subnivean stack is 4096 entries deep -- more than enough for any
+    computation.  A stack overflow halts the VM with an error.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Arithmetic}}
+
+    Subnivean provides six arithmetic operations.  All binary operators
+    pop two values [b, a] and push the result.  The \textit{first} value
+    pushed is the left operand:
+
+    \indented{\fancylist{
+        - \textbf{ADD}: a + b
+        - \textbf{SUB}: a - b
+        - \textbf{MUL}: a * b
+        - \textbf{DIV}: a / b (integer, truncates toward zero)
+        - \textbf{MOD}: a mod b (remainder)
+        - \textbf{NEG}: unary negation (one operand)
+    }}
+
+    \hylst{\verb|
+; Multiplication: 6 * 7 = 42
+PUSH_INT 6
+PUSH_INT 7
+MUL
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 6
+PUSH_INT 7
+MUL
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \hylst{\verb|
+; Division: 20 / 3 = 6 (truncated)
+PUSH_INT 20
+PUSH_INT 3
+DIV
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 20
+PUSH_INT 3
+DIV
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \hylst{\verb|
+; Modulo: 17 mod 5 = 2
+PUSH_INT 17
+PUSH_INT 5
+MOD
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 17
+PUSH_INT 5
+MOD
+OUTPUT
+HALT
+        }
+    }
+}
+
+    NEG takes a single operand and negates it:
+
+    \hylst{\verb|
+PUSH_INT 42
+NEG
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 42
+NEG
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \begin{didyouknow}
+    \center{INTEGER PRECISION}
+    All values are 64-bit signed integers.  Integer division truncates
+    toward zero.  There are no floating-point numbers in Subnivean.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Constants and Strings}}
+
+    Integers are pushed with PUSH\_INT.  But what about strings?  Strings
+    live in the \textit{constant pool} -- a per-function array of compile-
+    time values.  The assembler directive \textbf{.const} adds a string:
+
+    \fancylisting{\verb|
+.const "hello"       ; index 0
+.const "world"       ; index 1
+PUSH_CONST 0         ; push "hello"
+PUSH_CONST 1         ; push "world"
+|}
+
+    The first .const gets index 0, the second gets index 1, and so on.
+    PUSH\_CONST loads from the constant pool by index.
+
+    \hylst{\verb|
+.const "hello"
+PUSH_CONST 0
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.const "hello"
+PUSH_CONST 0
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \fculn{String Concatenation}
+
+    CONCAT pops two strings [b, a] and pushes their concatenation a+b:
+
+    \hylst{\verb|
+.const "hello "
+.const "world"
+PUSH_CONST 0
+PUSH_CONST 1
+CONCAT
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.const "hello "
+.const "world"
+PUSH_CONST 0
+PUSH_CONST 1
+CONCAT
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \fculn{STRINGIFY}
+
+    STRINGIFY converts any value to its string representation.  This is
+    how you mix integers and strings:
+
+    \hylst{\verb|
+.const " is the answer"
+PUSH_INT 42
+STRINGIFY
+PUSH_CONST 0
+CONCAT
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.const " is the answer"
+PUSH_INT 42
+STRINGIFY
+PUSH_CONST 0
+CONCAT
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \fculn{Escape Sequences}
+
+    Strings in .const support standard escape sequences:
+
+    \indented{\fancylist{
+        - \verb|\\n| -- newline
+        - \verb|\\t| -- tab
+        - \verb|\\\\| -- literal backslash
+        - \verb|\\"| -- literal double quote
+    }}
+
+    \fculn{Constant Pool Indexing}
+
+    Pool indices are assigned sequentially.  Both .const and .sym (covered
+    next) share the same pool.  The first directive is index 0, the second
+    is index 1, regardless of whether it is .const or .sym.  Plan your
+    indices accordingly.
+
+    \begin{didyouknow}
+    \center{OUTPUT ACCEPTS ANYTHING}
+    OUTPUT calls STRINGIFY internally.  You can OUTPUT an integer
+    directly without explicit STRINGIFY -- it will be converted
+    automatically.  STRINGIFY is needed when you want to CONCAT an
+    integer with a string.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Symbols and Bindings}}
+
+    Variables in Subnivean are \textit{bindings}: a symbol (the name)
+    associated with a value in a \textit{scope}.  The assembler provides
+    the .sym directive to intern a symbol:
+
+    \fancylisting{\verb|
+.sym x          ; intern symbol "x", add to constant pool
+|}
+
+    Like .const, .sym occupies a constant pool slot.  The difference is
+    that .sym creates an interned \textit{symbol} -- a unique identity
+    used for fast variable lookup.
+
+    Three instructions work with bindings:
+
+    \indented{\fancylist{
+        - \textbf{BIND}: [value, sym] → [] -- bind value to symbol in current scope
+        - \textbf{LOOKUP}: [sym] → [value] -- search scope chain for symbol
+        - \textbf{SET}: [value, sym] → [] -- update existing binding in chain
+    }}
+
+    \hylst{\verb|
+.sym x
+PUSH_INT 42
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym x
+PUSH_INT 42
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+        }
+    }
+}
+
+    Step by step: .sym x interns "x" at pool index 0.  PUSH\_INT 42
+    pushes the value.  PUSH\_CONST 0 pushes the symbol.  BIND pops both
+    and stores the binding x=42 in the current scope.  Then PUSH\_CONST 0
+    pushes the symbol again, LOOKUP finds it, and OUTPUT prints 42.
+
+    SET updates an existing binding without creating a new one:
+
+    \hylst{\verb|
+.sym x
+PUSH_INT 10
+PUSH_CONST 0
+BIND
+PUSH_INT 99
+PUSH_CONST 0
+SET
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym x
+PUSH_INT 10
+PUSH_CONST 0
+BIND
+PUSH_INT 99
+PUSH_CONST 0
+SET
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+        }
+    }
+}
+
+    First x is bound to 10, then SET overwrites it with 99.
+
+    \begin{didyouknow}
+    \center{WHY SYMBOLS?}
+    Symbols are \textit{interned} -- each unique name exists exactly once
+    in memory.  Comparing two symbols is a pointer comparison (O(1)),
+    not a string comparison (O(n)).  This is why variable lookup is fast.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Cells -- Mutable Boxes}}
+
+    Subnivean values are immutable.  An integer on the stack is just a
+    number -- you cannot increment it in place.  But programs need mutable
+    state.  The solution is \textit{cells}: mutable boxes that wrap a
+    value.
+
+    \indented{\fancylist{
+        - \textbf{CELL\_NEW}: [value] → [cell] -- box the value
+        - \textbf{CELL\_GET}: [cell] → [value] -- unbox (copy the contents)
+        - \textbf{CELL\_SET}: [value, cell] → [] -- mutate the contents
+        - \textbf{CELL\_INC}: [cell] → [new\_val] -- increment integer in cell, push new value
+        - \textbf{CELL\_DEC}: [cell] → [new\_val] -- decrement integer in cell, push new value
+    }}
+
+    The canonical pattern for a mutable variable:
+
+    \fancylisting{\verb|
+; Create mutable variable x = 5
+.sym x
+PUSH_INT 5          ; value
+CELL_NEW            ; wrap in cell
+PUSH_CONST 0        ; symbol
+BIND                ; bind cell to symbol
+|}
+
+    To read the variable, look up the cell, then CELL\_GET.  To mutate
+    it, look up the cell, then CELL\_SET (or CELL\_INC/CELL\_DEC):
+
+    \hylst{\verb|
+.sym x
+PUSH_INT 5
+CELL_NEW
+PUSH_CONST 0
+BIND
+; read x
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym x
+PUSH_INT 5
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    CELL\_INC increments the integer inside a cell and pushes the new
+    value.  Here we increment x five times:
+
+    \hylst{\verb|
+.sym x
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+; increment 5 times
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym x
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+OUTPUT
+HALT
+        }
+    }
+}
+
+    We start at 0 and increment five times; the final CELL\_INC pushes 5,
+    which OUTPUT prints.  Each intermediate CELL\_INC result is discarded
+    with POP.
+
+    \begin{didyouknow}
+    \center{CELLS AND CL}
+    In CL, \cmd{let}\<x:int\>\{5\} compiles to exactly: PUSH\_INT 5 /
+    CELL\_NEW / PUSH\_CONST \<sym\_x\> / BIND.  Every mutable variable
+    is a cell.  Reading \$\{x\} compiles to LOOKUP / CELL\_GET.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Comparison and Logic}}
+
+    Subnivean provides six comparison operators and three logic operators.
+    All comparisons pop [b, a] and push 1 (true) or 0 (false):
+
+    \indented{\fancylist{
+        - \textbf{EQ}: a == b
+        - \textbf{NE}: a != b
+        - \textbf{LT}: a < b
+        - \textbf{GT}: a > b
+        - \textbf{LE}: a <= b
+        - \textbf{GE}: a >= b
+    }}
+
+    Logic operators:
+
+    \indented{\fancylist{
+        - \textbf{AND}: a \&\& b (non-short-circuit)
+        - \textbf{OR}: a || b
+        - \textbf{NOT}: !a (unary)
+    }}
+
+    Results are plain integers.  1 is true, 0 is false:
+
+    \hylst{\verb|
+; 10 < 20?
+PUSH_INT 10
+PUSH_INT 20
+LT
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 10
+PUSH_INT 20
+LT
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \hylst{\verb|
+; 5 == 5?
+PUSH_INT 5
+PUSH_INT 5
+EQ
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 5
+PUSH_INT 5
+EQ
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \hylst{\verb|
+; NOT 0 = 1
+PUSH_FALSE
+NOT
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_FALSE
+NOT
+OUTPUT
+HALT
+        }
+    }
+}
+
+    These are the building blocks for control flow, which follows next.
+
+
+    {}\\
+    \section{\textbf{Control Flow}}
+
+    Without jumps, programs execute top to bottom.  Labels and jump
+    instructions add branching and loops.
+
+    \fculn{Labels}
+
+    A label is an identifier followed by a colon.  It marks a position
+    in the instruction stream:
+
+    \fancylisting{\verb|
+start:                ; defines label "start"
+    PUSH_INT 1
+done:                 ; defines label "done"
+    HALT
+|}
+
+    Labels do not emit instructions -- they are resolved by the assembler
+    and converted to relative offsets.
+
+    \fculn{Jump Instructions}
+
+    \indented{\fancylist{
+        - \textbf{JUMP label}: unconditional jump
+        - \textbf{JUMP\_IF label}: [cond] → [] -- jump if truthy (nonzero)
+        - \textbf{JUMP\_UNLESS label}: [cond] → [] -- jump if falsy (zero)
+        - \textbf{LOOP label}: backward jump (for loops)
+    }}
+
+    \fculn{If/Else Pattern}
+
+    The classic conditional: test a condition, jump to one branch or
+    the other.
+
+    \hylst{\verb|
+.const "yes"
+.const "no"
+; Is 10 > 5?
+PUSH_INT 10
+PUSH_INT 5
+GT
+JUMP_IF yes
+; false branch
+PUSH_CONST 1
+JUMP end
+yes:
+PUSH_CONST 0
+end:
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.const "yes"
+.const "no"
+PUSH_INT 10
+PUSH_INT 5
+GT
+JUMP_IF yes
+PUSH_CONST 1
+JUMP end
+yes:
+PUSH_CONST 0
+end:
+OUTPUT
+HALT
+        }
+    }
+}
+
+    GT pushes 1 (10 > 5 is true).  JUMP\_IF pops it and jumps to
+    \textit{yes}.  The string "yes" is pushed and printed.
+
+    \fculn{A Simple Countdown Loop}
+
+    Loops use LOOP for backward jumps.  Here is a countdown from 5 to 1:
+
+    \hylst{\verb|
+.sym n
+.const " "
+; n = 5 (as cell)
+PUSH_INT 5
+CELL_NEW
+PUSH_CONST 0
+BIND
+loop:
+  ; output n
+  PUSH_CONST 0
+  LOOKUP
+  CELL_GET
+  OUTPUT
+  ; output space
+  PUSH_CONST 1
+  OUTPUT
+  ; decrement n
+  PUSH_CONST 0
+  LOOKUP
+  CELL_DEC
+  ; if n > 0, continue
+  PUSH_INT 0
+  GT
+  JUMP_IF loop
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym n
+.const " "
+PUSH_INT 5
+CELL_NEW
+PUSH_CONST 0
+BIND
+loop:
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+PUSH_CONST 1
+OUTPUT
+PUSH_CONST 0
+LOOKUP
+CELL_DEC
+PUSH_INT 0
+GT
+JUMP_IF loop
+HALT
+        }
+    }
+}
+
+    CELL\_DEC decrements the cell and pushes the new value.  We compare
+    that with 0 using GT.  If still positive, JUMP\_IF loops back.
+
+    \fculn{Sum 1 to 10}
+
+    A slightly more involved loop that computes 1+2+...+10 = 55:
+
+    \hylst{\verb|
+.sym sum
+.sym i
+; sum = 0
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+; i = 1
+PUSH_INT 1
+CELL_NEW
+PUSH_CONST 1
+BIND
+loop:
+  ; sum += i
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  PUSH_CONST 0
+  LOOKUP
+  CELL_GET
+  ADD
+  PUSH_CONST 0
+  LOOKUP
+  CELL_SET
+  ; i++
+  PUSH_CONST 1
+  LOOKUP
+  CELL_INC
+  ; if i <= 10, loop
+  PUSH_INT 10
+  LE
+  JUMP_IF loop
+; output sum
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym sum
+.sym i
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_INT 1
+CELL_NEW
+PUSH_CONST 1
+BIND
+loop:
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+ADD
+PUSH_CONST 0
+LOOKUP
+CELL_SET
+PUSH_CONST 1
+LOOKUP
+CELL_INC
+PUSH_INT 10
+LE
+JUMP_IF loop
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \fculn{The Two Loop Patterns}
+
+    \textit{Bottom-tested} (do-while): the body always executes at least
+    once.  The condition comes after the body:
+
+    \fancylisting{\verb|
+loop:
+    ; ... body ...
+    ; ... condition ...
+    JUMP_IF loop         ; repeat while true
+|}
+
+    \textit{Top-tested} (while): the condition is checked before the body.
+    If false initially, the body never executes:
+
+    \fancylisting{\verb|
+loop:
+    ; ... condition ...
+    JUMP_UNLESS done     ; exit if false
+    ; ... body ...
+    JUMP loop
+done:
+|}
+
+    \begin{didyouknow}
+    \center{LABELS AND OFFSETS}
+    JUMP, JUMP\_IF, and JUMP\_UNLESS use \textit{relative} offsets
+    internally, but the assembler computes them from label names.  You
+    never need to count instructions by hand.  Forward references work
+    -- you can JUMP\_IF done before done: is defined.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Scopes}}
+
+    Subnivean organizes bindings into a \textit{scope chain}.  Each scope
+    has a parent; LOOKUP searches up the chain.
+
+    \indented{\fancylist{
+        - \textbf{SCOPE\_NEW}: create a child scope of the current one, enter it
+        - \textbf{SCOPE\_POP}: exit to parent (child freed if no references remain)
+        - \textbf{SCOPE\_CAPTURE}: push the current scope as a value
+        - \textbf{SCOPE\_RESTORE}: pop a scope value, make it current
+    }}
+
+    Scopes let you shadow variables without losing the outer binding:
+
+    \hylst{\verb|
+.sym x
+.const " "
+; x = 10 in outer scope
+PUSH_INT 10
+PUSH_CONST 0
+BIND
+; enter new scope
+SCOPE_NEW
+; x = 99 in inner scope (shadows outer)
+PUSH_INT 99
+PUSH_CONST 0
+BIND
+; read inner x
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+PUSH_CONST 1
+OUTPUT
+; exit inner scope
+SCOPE_POP
+; read outer x (still 10)
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym x
+.const " "
+PUSH_INT 10
+PUSH_CONST 0
+BIND
+SCOPE_NEW
+PUSH_INT 99
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+PUSH_CONST 1
+OUTPUT
+SCOPE_POP
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+        }
+    }
+}
+
+    The inner scope binds x=99, which shadows the outer x=10.  After
+    SCOPE\_POP, the inner scope is destroyed and x resolves to 10 again.
+
+    \begin{didyouknow}
+    \center{WHY SCOPES MATTER}
+    Closures capture scopes.  In CL loops, per-iteration scopes give
+    each closure its own variables -- the "JavaScript let in for-loop"
+    semantics that prevent the classic "all closures share one counter"
+    bug.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Functions and Closures}}
+
+    Subnivean supports first-class closures: a function paired with the
+    scope in which it was created.
+
+    \indented{\fancylist{
+        - \textbf{CLOSURE}: [scope] → [closure] -- wraps a function (by constant pool index) with a captured scope
+        - \textbf{CALL}: [args..., closure] → [result] -- call with operand = argc
+        - \textbf{RETURN}: return nil from current function
+        - \textbf{RETURN\_VAL}: [value] → ; return TOS
+        - \textbf{TAIL\_CALL}: like CALL but reuses the stack frame (optimization)
+    }}
+
+    Creating a closure requires a compiled sub-function stored in the
+    constant pool.  The \cmd{sn}\{\} assembler compiles a single flat
+    function, so closures cannot be demonstrated in raw assembly.
+    However, the mechanism is straightforward:
+
+    \fancylisting{\verb|
+; How CL compiles a closure:
+; 1. The lambda body is compiled to a Function
+;    and stored in the constant pool at some index N
+; 2. At the call site:
+SCOPE_CAPTURE        ; push current scope
+CLOSURE N            ; wrap function N with scope -> closure
+CALL 0               ; call with 0 arguments
+|}
+
+    When CALL executes, the VM creates a new call frame, pushes arguments
+    into a child scope of the captured scope, and transfers control.
+    RETURN\_VAL pops the result and passes it back to the caller.
+
+    \begin{didyouknow}
+    \center{COMPILATION PATTERN}
+    Every \#\{...\} lambda body compiles to a Function stored in the
+    parent's constant pool.  \cmd{invoke} emits SCOPE\_CAPTURE /
+    PUSH\_CONST / CLOSURE / CALL.  Arguments are pushed before the
+    closure, and the CALL operand indicates how many there are.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Arrays}}
+
+    Subnivean arrays live in a persistent store and are accessed by
+    address.
+
+    \indented{\fancylist{
+        - \textbf{ARRAY\_NEW}: [elems...] → [array] -- operand = element count
+        - \textbf{ARRAY\_GET}: [idx, arr] → [elem]
+        - \textbf{ARRAY\_SET}: [val, idx, arr] → []
+        - \textbf{ARRAY\_LEN}: [arr] → [len]
+        - \textbf{ARRAY\_PUSH}: [val, arr] → []
+        - \textbf{ARRAY\_POP}: [arr] → [val]
+    }}
+
+    Create an array with three elements and read the second one (index 1):
+
+    \hylst{\verb|
+; Create array [10, 20, 30]
+PUSH_INT 10
+PUSH_INT 20
+PUSH_INT 30
+ARRAY_NEW 3
+; Read element at index 1
+DUP
+PUSH_INT 1
+ARRAY_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 10
+PUSH_INT 20
+PUSH_INT 30
+ARRAY_NEW 3
+DUP
+PUSH_INT 1
+ARRAY_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    ARRAY\_NEW 3 pops three values and creates an array [10, 20, 30],
+    pushing its address.  We DUP the address (we will need it), push
+    index 1, and ARRAY\_GET pops idx then arr, producing 20.
+
+    \fculn{Push and Pop}
+
+    ARRAY\_PUSH appends a value; ARRAY\_POP removes and returns the last:
+
+    \hylst{\verb|
+; Create empty array
+ARRAY_NEW 0
+; Push 100, 200, 300
+DUP
+PUSH_INT 100
+ARRAY_PUSH
+DUP
+PUSH_INT 200
+ARRAY_PUSH
+DUP
+PUSH_INT 300
+ARRAY_PUSH
+; Get length
+DUP
+ARRAY_LEN
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+ARRAY_NEW 0
+DUP
+PUSH_INT 100
+ARRAY_PUSH
+DUP
+PUSH_INT 200
+ARRAY_PUSH
+DUP
+PUSH_INT 300
+ARRAY_PUSH
+DUP
+ARRAY_LEN
+OUTPUT
+HALT
+        }
+    }
+}
+
+    We push three elements onto an initially empty array, then ARRAY\_LEN
+    confirms the count is 3.
+
+    Note the pattern: ARRAY\_PUSH pops val (top) then arr (second),
+    so we DUP the array address, push the value, and call ARRAY\_PUSH.
+
+
+    {}\\
+    \section{\textbf{Maps}}
+
+    Maps are Robin Hood hash tables in the persistent store.  Keys and
+    values are integers.
+
+    \indented{\fancylist{
+        - \textbf{MAP\_NEW}: [] → [addr] -- create empty map
+        - \textbf{MAP\_SET}: [val, key, addr] → [] -- set map[key] = val
+        - \textbf{MAP\_GET}: [key, addr] → [value] -- get map[key] (0 if missing)
+        - \textbf{MAP\_HAS}: [key, addr] → [0/1] -- check if key exists
+        - \textbf{MAP\_DEL}: [key, addr] → [0/1] -- delete key
+        - \textbf{MAP\_LEN}: [addr] → [count]
+        - \textbf{MAP\_KEYS}: [addr] → [arr\_addr] -- array of all keys
+    }}
+
+    \hylst{\verb|
+.sym m
+; Create map
+MAP_NEW
+PUSH_CONST 0
+BIND
+; Set map[1] = 100
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 100
+MAP_SET
+; Set map[2] = 200
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 200
+MAP_SET
+; Get map[1]
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+MAP_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym m
+MAP_NEW
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 100
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 200
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+MAP_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    We create a map, store two entries, and retrieve the value at key 1.
+
+    \hylst{\verb|
+; Check map length
+.sym m
+MAP_NEW
+PUSH_CONST 0
+BIND
+; Add 3 entries
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 10
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 20
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 3
+PUSH_INT 30
+MAP_SET
+; Output length
+PUSH_CONST 0
+LOOKUP
+MAP_LEN
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym m
+MAP_NEW
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 10
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 20
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 3
+PUSH_INT 30
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+MAP_LEN
+OUTPUT
+HALT
+        }
+    }
+}
+
+
+    {}\\
+    \section{\textbf{Heap Memory}}
+
+    For raw memory access, Subnivean provides a heap: a persistent store
+    of fixed-size blocks.
+
+    \indented{\fancylist{
+        - \textbf{MEM\_ALLOC}: [count] → [addr] -- allocate a block with count slots
+        - \textbf{MEM\_STORE}: [val, idx, addr] → [] -- store heap[addr][idx] = val
+        - \textbf{MEM\_LOAD}: [idx, addr] → [value] -- load heap[addr][idx]
+        - \textbf{MEM\_LEN}: [addr] → [len] -- get block length
+    }}
+
+    \hylst{\verb|
+.sym buf
+; Allocate 3 slots
+PUSH_INT 3
+MEM_ALLOC
+PUSH_CONST 0
+BIND
+; Store values
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 0
+PUSH_INT 111
+MEM_STORE
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 222
+MEM_STORE
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 333
+MEM_STORE
+; Load slot 1
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+MEM_LOAD
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym buf
+PUSH_INT 3
+MEM_ALLOC
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 0
+PUSH_INT 111
+MEM_STORE
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 222
+MEM_STORE
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 333
+MEM_STORE
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+MEM_LOAD
+OUTPUT
+HALT
+        }
+    }
+}
+
+    We allocate 3 slots, store 111/222/333, and load back slot 1 (222).
+
+    \fculn{Stack vs Heap}
+
+    Stack values (integers, booleans) are transient -- they exist only
+    while on the stack or bound in a scope.  Heap values (arrays, maps,
+    memory blocks) persist in the VM's store -- they survive across
+    function calls and can be shared between scopes.  When a scope is
+    freed, bindings to heap addresses are dropped but the heap data
+    itself persists as long as anything references it.
+
+
+    {}\\
+    \section{\textbf{Worked Example: GCD}}
+
+    The Euclidean algorithm computes the greatest common divisor of two
+    integers.  The method: while b is not zero, replace (a, b) with
+    (b, a mod b).  When b reaches zero, a holds the GCD.
+
+    Let us compute gcd(48, 18) = 6:
+
+    \hylst{\verb|
+.sym a
+.sym b
+.const " "
+; a = 48
+PUSH_INT 48
+CELL_NEW
+PUSH_CONST 0
+BIND
+; b = 18
+PUSH_INT 18
+CELL_NEW
+PUSH_CONST 1
+BIND
+loop:
+  ; if b == 0, done
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  PUSH_INT 0
+  EQ
+  JUMP_IF done
+  ; temp = a mod b
+  PUSH_CONST 0
+  LOOKUP
+  CELL_GET
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  MOD
+  ; a = b
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  PUSH_CONST 0
+  LOOKUP
+  CELL_SET
+  ; b = temp (still on stack)
+  PUSH_CONST 1
+  LOOKUP
+  CELL_SET
+  JUMP loop
+done:
+; output a
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym a
+.sym b
+.const " "
+PUSH_INT 48
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_INT 18
+CELL_NEW
+PUSH_CONST 1
+BIND
+loop:
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+PUSH_INT 0
+EQ
+JUMP_IF done
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+MOD
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+PUSH_CONST 0
+LOOKUP
+CELL_SET
+PUSH_CONST 1
+LOOKUP
+CELL_SET
+JUMP loop
+done:
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    Walkthrough of the first iteration:
+
+    \indented{\fancylist{
+        - a=48, b=18.  b != 0, so continue.
+        - Compute 48 mod 18 = 12 (push temp=12).
+        - Copy b (18) into a: now a=18.
+        - Store temp (12) into b: now b=12.
+        - JUMP back to loop.
+    }}
+
+    Subsequent iterations: (18,12) → (12,6) → (6,0).
+    When b=0, we exit and output a=6.
+
+
+    {}\\
+    \section{\textbf{Worked Example: Fibonacci}}
+
+    Iterative Fibonacci computes fib(n) by maintaining two variables:
+    \textit{prev} and \textit{curr}.  Each step sets (prev, curr) to
+    (curr, prev+curr).
+
+    Let us compute fib(10) = 55:
+
+    \hylst{\verb|
+.sym prev
+.sym curr
+.sym i
+; prev = 0, curr = 1, i = 2
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_INT 1
+CELL_NEW
+PUSH_CONST 1
+BIND
+PUSH_INT 2
+CELL_NEW
+PUSH_CONST 2
+BIND
+loop:
+  ; if i > 10, done
+  PUSH_CONST 2
+  LOOKUP
+  CELL_GET
+  PUSH_INT 10
+  GT
+  JUMP_IF done
+  ; temp = prev + curr
+  PUSH_CONST 0
+  LOOKUP
+  CELL_GET
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  ADD
+  ; prev = curr
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  PUSH_CONST 0
+  LOOKUP
+  CELL_SET
+  ; curr = temp (on stack)
+  PUSH_CONST 1
+  LOOKUP
+  CELL_SET
+  ; i++
+  PUSH_CONST 2
+  LOOKUP
+  CELL_INC
+  POP
+  JUMP loop
+done:
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym prev
+.sym curr
+.sym i
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_INT 1
+CELL_NEW
+PUSH_CONST 1
+BIND
+PUSH_INT 2
+CELL_NEW
+PUSH_CONST 2
+BIND
+loop:
+PUSH_CONST 2
+LOOKUP
+CELL_GET
+PUSH_INT 10
+GT
+JUMP_IF done
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+ADD
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+PUSH_CONST 0
+LOOKUP
+CELL_SET
+PUSH_CONST 1
+LOOKUP
+CELL_SET
+PUSH_CONST 2
+LOOKUP
+CELL_INC
+POP
+JUMP loop
+done:
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    The loop runs for i=2..10 (nine iterations).  Starting from fib(0)=0
+    and fib(1)=1, we accumulate up to fib(10)=55.
+
+
+    {}\\
+    \section{\textbf{Opcode Reference}}
+
+    Complete reference of every Subnivean instruction.  Stack effects use
+    the notation [popped] → [pushed].  Operand column
+    shows what the operand means (-- if none).
+
+    \fculn{Stack Operations}
+
+    \indented{\fancylist{
+        - \textbf{NOP}: no operation
+        - \textbf{POP}: [a] → [] -- discard top of stack
+        - \textbf{DUP}: [a] → [a, a] -- duplicate top
+        - \textbf{SWAP}: [a, b] → [b, a] -- swap top two
+        - \textbf{ROT}: [a, b, c] → [b, c, a] -- rotate top three
+    }}
+
+    \fculn{Constants}
+
+    \indented{\fancylist{
+        - \textbf{PUSH\_NIL}: [] → [nil]
+        - \textbf{PUSH\_TRUE}: [] → [1]
+        - \textbf{PUSH\_FALSE}: [] → [0]
+        - \textbf{PUSH\_INT n}: [] → [n] -- push immediate integer
+        - \textbf{PUSH\_CONST n}: [] → [pool[n]] -- push from constant pool
+    }}
+
+    \fculn{Scope Operations}
+
+    \indented{\fancylist{
+        - \textbf{SCOPE\_NEW}: create child scope, enter it
+        - \textbf{SCOPE\_POP}: exit to parent scope
+        - \textbf{SCOPE\_CAPTURE}: [] → [scope] -- push current scope
+        - \textbf{SCOPE\_RESTORE}: [scope] → [] -- restore scope
+    }}
+
+    \fculn{Bindings (Static)}
+
+    \indented{\fancylist{
+        - \textbf{BIND}: [value, sym] → [] -- bind in current scope
+        - \textbf{LOOKUP}: [sym] → [value] -- search scope chain
+        - \textbf{LOOKUP\_HERE}: [sym] → [value] -- current scope only
+        - \textbf{SET}: [value, sym] → [] -- update existing binding
+    }}
+
+    \fculn{Bindings (Dynamic)}
+
+    \indented{\fancylist{
+        - \textbf{BIND\_DYN}: [value, str] → [] -- intern string, bind
+        - \textbf{LOOKUP\_DYN}: [str] → [value] -- intern string, lookup
+        - \textbf{SET\_DYN}: [value, str] → [] -- intern string, set
+    }}
+
+    \fculn{Cells}
+
+    \indented{\fancylist{
+        - \textbf{CELL\_NEW}: [value] → [cell] -- box the value
+        - \textbf{CELL\_GET}: [cell] → [value] -- unbox
+        - \textbf{CELL\_SET}: [value, cell] → [] -- mutate contents
+        - \textbf{CELL\_INC}: [cell] → [new\_val] -- increment integer in cell
+        - \textbf{CELL\_DEC}: [cell] → [new\_val] -- decrement integer in cell
+    }}
+
+    \fculn{Arithmetic}
+
+    \indented{\fancylist{
+        - \textbf{ADD}: [b, a] → [a+b]
+        - \textbf{SUB}: [b, a] → [a-b]
+        - \textbf{MUL}: [b, a] → [a*b]
+        - \textbf{DIV}: [b, a] → [a/b]
+        - \textbf{MOD}: [b, a] → [a mod b]
+        - \textbf{NEG}: [a] → [-a]
+        - \textbf{RAND}: [max] → [random 0..max-1]
+    }}
+
+    \fculn{Comparison}
+
+    \indented{\fancylist{
+        - \textbf{EQ}: [b, a] → [a==b ? 1 : 0]
+        - \textbf{NE}: [b, a] → [a!=b ? 1 : 0]
+        - \textbf{LT}: [b, a] → [a<b ? 1 : 0]
+        - \textbf{GT}: [b, a] → [a>b ? 1 : 0]
+        - \textbf{LE}: [b, a] → [a<=b ? 1 : 0]
+        - \textbf{GE}: [b, a] → [a>=b ? 1 : 0]
+    }}
+
+    \fculn{Logic}
+
+    \indented{\fancylist{
+        - \textbf{AND}: [b, a] → [a\&\&b ? 1 : 0]
+        - \textbf{OR}: [b, a] → [a||b ? 1 : 0]
+        - \textbf{NOT}: [a] → [!a ? 1 : 0]
+    }}
+
+    \fculn{Control Flow}
+
+    \indented{\fancylist{
+        - \textbf{JUMP label}: unconditional jump
+        - \textbf{JUMP\_IF label}: [cond] → [] -- jump if truthy
+        - \textbf{JUMP\_UNLESS label}: [cond] → [] -- jump if falsy
+        - \textbf{LOOP label}: backward jump
+    }}
+
+    \fculn{Functions}
+
+    \indented{\fancylist{
+        - \textbf{CLOSURE n}: [scope] → [closure] -- wrap function pool[n]
+        - \textbf{CALL n}: [args..., closure] → [result] -- call with n args
+        - \textbf{TAIL\_CALL n}: like CALL, reuses frame
+        - \textbf{INVOKE\_DYN n}: [args..., val] → [result] -- dynamic dispatch
+        - \textbf{RETURN}: return nil
+        - \textbf{RETURN\_VAL}: [value] → ; return TOS
+    }}
+
+    \fculn{Arrays}
+
+    \indented{\fancylist{
+        - \textbf{ARRAY\_NEW n}: [elems...] → [arr] -- n = element count
+        - \textbf{ARRAY\_GET}: [idx, arr] → [elem]
+        - \textbf{ARRAY\_SET}: [val, idx, arr] → []
+        - \textbf{ARRAY\_LEN}: [arr] → [len]
+        - \textbf{ARRAY\_PUSH}: [val, arr] → []
+        - \textbf{ARRAY\_POP}: [arr] → [val]
+    }}
+
+    \fculn{Maps}
+
+    \indented{\fancylist{
+        - \textbf{MAP\_NEW}: [] → [addr]
+        - \textbf{MAP\_GET}: [key, addr] → [value]
+        - \textbf{MAP\_SET}: [val, key, addr] → []
+        - \textbf{MAP\_HAS}: [key, addr] → [0/1]
+        - \textbf{MAP\_DEL}: [key, addr] → [0/1]
+        - \textbf{MAP\_LEN}: [addr] → [count]
+        - \textbf{MAP\_KEYS}: [addr] → [arr\_addr]
+    }}
+
+    \fculn{Heap Memory}
+
+    \indented{\fancylist{
+        - \textbf{MEM\_ALLOC}: [count] → [addr]
+        - \textbf{MEM\_STORE}: [val, idx, addr] → []
+        - \textbf{MEM\_LOAD}: [idx, addr] → [value]
+        - \textbf{MEM\_LEN}: [addr] → [len]
+    }}
+
+    \fculn{Strings}
+
+    \indented{\fancylist{
+        - \textbf{CONCAT}: [b, a] → [a+b] -- string concatenation
+        - \textbf{STRINGIFY}: [val] → [str] -- convert to string
+        - \textbf{SYMBOL}: [str] → [sym] -- intern string as symbol
+    }}
+
+    \fculn{Output}
+
+    \indented{\fancylist{
+        - \textbf{OUTPUT}: [val] → [] -- stringify and append to output
+        - \textbf{OUTPUT\_RAW n}: emit literal text from pool[n]
+        - \textbf{EMIT\_CURSOR}: [row, col] → [] -- emit cursor positioning escape
+    }}
+
+    \fculn{Special}
+
+    \indented{\fancylist{
+        - \textbf{HALT}: stop execution
+        - \textbf{BREAKPOINT}: debugger hook
+        - \textbf{ASSERT}: [cond, msg] → [] -- error if falsy
+        - \textbf{LEN}: [val] → [len] -- unified length
+    }}
+
+    \fculn{Assembler Directives}
+
+    \indented{\fancylist{
+        - \textbf{.const "text"}: add a string to the constant pool
+        - \textbf{.sym name}: intern a symbol, add to the constant pool
+        - \textbf{name:}: define a label (jump target)
+        - \textbf{; text}: comment (ignored)
+    }}
+
+    Both .const and .sym share the same constant pool.  Indices are
+    assigned sequentially: the first directive is index 0, the second is
+    index 1, regardless of type.  Blank lines are ignored.
+
+    \fculn{Instruction Format}
+
+    Each instruction is 8 bytes: a 4-byte opcode and a 4-byte signed
+    operand.  The operand is an immediate integer, a constant pool index,
+    or a relative jump offset depending on the instruction.  The assembler
+    handles all offset computation automatically.
+
+
+@end
+
+#target_prefix " "
+
+#before_each
+    \linebreaker{greedy}
+    \setwidth{80}
+    \setunicode{true}
+    \setmathitalic{true}
+
+    \macro<\indented{content}>{\indent[2]{${content}}}
+    \macro<\cmd{x}>{\textbackslash{}\textit{${x}}}
+
+    %%% Renders hy as source and rend as an example rendered output
+    \macro<\hylst{hy}{rend}>{%
+        \fancylisting{${hy}}
+
+        \begin{vbox}
+            \child{%
+                \begin{hbox}
+                    \child[3]{}
+                    \child{\hrule{╭}{─}{╮}}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child{
+                        ╭──┴────────────╮
+                    }
+                    \child[1]{│}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child[1]{│}
+                    \child[1]{}
+                    \child[15]{
+                        \hyades{} Output │
+                    }
+                    \child{\hrule{|}{·}{|}}
+                    \child[1]{│}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child{
+                        ╰──┬────────────╯
+                    }
+                    \child[1]{│}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child[3]{}
+                    \child[1]{\vrule[auto]{}{│}{}}
+                    \child[1]{}
+                    \child{${rend}}
+                    \child[2]{}
+                    \child[1]{\vrule[auto]{}{░}{}}
+                    \child[1]{\vrule[auto]{}{│}{}}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{
+                \begin{hbox}
+                    \child[3]{}
+                    \child{\hrule{╰}{─}{╯}}
+                    \child[2]{}
+                \end{hbox}
+
+            }
+        \end{vbox}
+    }
+
+    \macro<\didyouknow{content}>{
+        \vskip{1}
+        \hcenter[60]{
+        \hrule{}{.}{}
+        ${content}
+        \hrule{}{.}{}
+        }
+    }
+#end

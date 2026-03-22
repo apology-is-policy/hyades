@@ -1,0 +1,242 @@
+@cassilda: noether
+│                                                    𝑎     𝑎   μ
+│  𝐓𝐡𝐞𝐨𝐫𝐞𝐦 (Noether,  field-theory version).  𝐿𝑒𝑡 ℒ(φ , ∂ φ , 𝑥 ) 𝑏𝑒 𝑎 𝐿𝑎𝑔𝑟𝑎𝑛𝑔𝑖𝑎𝑛
+│                                                        μ
+│                                  𝑎
+│  𝑑𝑒𝑛𝑠𝑖𝑡𝑦  𝑑𝑒𝑝𝑒𝑛𝑑𝑖𝑛𝑔 𝑜𝑛 𝑁 𝑓𝑖𝑒𝑙𝑑𝑠 φ  (𝑎 = 1, …, 𝑁) 𝑎𝑛𝑑  𝑡ℎ𝑒𝑖𝑟 𝑓𝑖𝑟𝑠𝑡  𝑑𝑒𝑟𝑖𝑣𝑎𝑡𝑖𝑣𝑒𝑠,
+│  𝑎𝑛𝑑 𝑙𝑒𝑡 𝑡ℎ𝑒 𝑎𝑐𝑡𝑖𝑜𝑛 𝑏𝑒
+│  
+│                                 ⌠   4      𝑎     𝑎   μ
+│                         𝑆[φ] =  ⎮  𝑑 𝑥  ℒ(φ , ∂ φ , 𝑥 )                     (1)
+│                                 ⌡              μ
+│  
+│  𝑆𝑢𝑝𝑝𝑜𝑠𝑒 𝑆 𝑖𝑠  𝑖𝑛𝑣𝑎𝑟𝑖𝑎𝑛𝑡  —  𝑢𝑝  𝑡𝑜  𝑎 𝑡𝑜𝑡𝑎𝑙  𝑑𝑖𝑣𝑒𝑟𝑔𝑒𝑛𝑐𝑒 — 𝑢𝑛𝑑𝑒𝑟  𝑎  𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑜𝑢𝑠
+│  𝑜𝑛𝑒-𝑝𝑎𝑟𝑎𝑚𝑒𝑡𝑒𝑟 𝑓𝑎𝑚𝑖𝑙𝑦 𝑜𝑓 𝑓𝑖𝑒𝑙𝑑 𝑡𝑟𝑎𝑛𝑠𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛𝑠 𝑝𝑎𝑟𝑎𝑚𝑒𝑡𝑟𝑖𝑠𝑒𝑑 𝑏𝑦 ε:
+│  
+│              𝑎         𝑎          𝑎              μ      μ      μ
+│             φ (𝑥)  ⟼  φ (𝑥) + ε Δφ (𝑥),         𝑥   ⟼  𝑥  + ε ξ (𝑥)         (2)
+│  
+│                                         μ
+│  𝑇ℎ𝑒𝑛 𝑡ℎ𝑒𝑟𝑒 𝑒𝑥𝑖𝑠𝑡𝑠 𝑎 𝑐𝑜𝑛𝑠𝑒𝑟𝑣𝑒𝑑 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑗 (𝑥) 𝑠𝑎𝑡𝑖𝑠𝑓𝑦𝑖𝑛𝑔
+│  
+│                                    ┌────────┐
+│                                    │   μ    │
+│                                    │∂ 𝑗  = 0│                               (𝑁)
+│                                    │ μ      │
+│                                    └────────┘
+│  
+│  𝑎𝑛𝑑 𝑎 𝑐𝑜𝑟𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑖𝑛𝑔 𝑐𝑜𝑛𝑠𝑒𝑟𝑣𝑒𝑑 𝑐ℎ𝑎𝑟𝑔𝑒
+│  
+│                           ⌠   3    0               𝑑𝑄
+│                      𝑄 ≔  ⎮  𝑑 𝑥  𝑗 (𝑥),          ──── = 0                  (3)
+│                           ⌡                        𝑑𝑡
+│                           Σ
+│  
+│  𝑤ℎ𝑒𝑟𝑒 Σ 𝑖𝑠 𝑎𝑛𝑦 𝑠𝑝𝑎𝑐𝑒𝑙𝑖𝑘𝑒 ℎ𝑦𝑝𝑒𝑟𝑠𝑢𝑟𝑓𝑎𝑐𝑒.
+│  
+│  𝐏𝐫𝐨𝐨𝐟.
+│  
+│  𝐒𝐭𝐞𝐩 𝟏: 𝐕𝐚𝐫𝐢𝐚𝐭𝐢𝐨𝐧 𝐨𝐟 𝐭𝐡𝐞  𝐚𝐜𝐭𝐢𝐨𝐧. Under the  transformation (2), the field va-
+│  riation at fixed spacetime point 𝑥 is
+│  
+│                           𝑎     ⎛   𝑎    μ   𝑎 ⎞       𝑎
+│                        δ φ  ≔ ε ⎜ Δφ  − ξ ∂ φ  ⎟ ≕ ε Δ̄φ                     (4)
+│                         ε       ⎝          μ   ⎠
+│  
+│          𝑎
+│  where Δ̄φ  is the 𝑖𝑛𝑡𝑒𝑟𝑛𝑎𝑙 variation — the change in the field value at a fixed
+│  label point. The corresponding variation of the Lagrangian density is:
+│  
+│                         ∂ℒ      𝑎      ∂ℒ           𝑎     μ
+│                  δ ℒ = ─────  Δ̄φ  + ─────────  ∂ (Δ̄φ ) + ξ ∂ ℒ              (5)
+│                   ε       𝑎               𝑎     μ           μ
+│                         ∂φ           ∂(∂ φ )
+│                                         μ
+│  
+│  𝐒𝐭𝐞𝐩 𝟐: 𝐔𝐬𝐢𝐧𝐠 𝐭𝐡𝐞  𝐄𝐮𝐥𝐞𝐫-𝐋𝐚𝐠𝐫𝐚𝐧𝐠𝐞 𝐞𝐪𝐮𝐚𝐭𝐢𝐨𝐧𝐬. On-shell — i.e. for  fields sati-
+│  sfying the field equations — the Euler-Lagrange equations hold for each field
+│   𝑎
+│  φ :
+│  
+│                              ∂ℒ           ∂ℒ
+│                             ───── − ∂  ───────── = 0                       (𝐸𝐿)
+│                                𝑎     μ       𝑎
+│                              ∂φ         ∂(∂ φ )
+│                                            μ
+│  
+│  We  use  (EL)  to  rewrite  the  first  term in (5).  Adding and  subtracting
+│     ⎛           ⎞
+│     ⎜    ∂ℒ     ⎟   𝑎
+│  ∂  ⎜ ───────── ⎟ Δ̄φ :
+│   μ ⎜       𝑎   ⎟
+│     ⎝  ∂(∂ φ )  ⎠
+│           μ
+│  
+│                                             ⎡                ⎤
+│         ∂ℒ      𝑎      ∂ℒ           𝑎       ⎢    ∂ℒ        𝑎 ⎥
+│        ─────  Δ̄φ  + ─────────  ∂ (Δ̄φ ) = ∂  ⎢ ─────────  Δ̄φ  ⎥
+│           𝑎               𝑎     μ         μ ⎢       𝑎        ⎥
+│         ∂φ           ∂(∂ φ )                ⎣  ∂(∂ φ )       ⎦
+│                         μ                         μ
+│  
+│                                               ⎡                      ⎤      (6)
+│                                               ⎢  ∂ℒ           ∂ℒ     ⎥  𝑎
+│                                             + ⎢ ───── − ∂  ───────── ⎥Δ̄φ
+│                                               ⎢    𝑎     μ       𝑎   ⎥
+│                                               ⎣  ∂φ         ∂(∂ φ )  ⎦
+│                                                                μ
+│                                               ╰───────────┬──────────╯
+│                                                      =  0  (EL)
+│  
+│  The underbraced term vanishes on-shell. Substituting back into (5):
+│  
+│                                ⎡                ⎤
+│                                ⎢    ∂ℒ        𝑎 ⎥    μ
+│                       δ ℒ = ∂  ⎢ ─────────  Δ̄φ  ⎥ + ξ ∂ ℒ                   (7)
+│                        ε     μ ⎢       𝑎        ⎥      μ
+│                                ⎣  ∂(∂ φ )       ⎦
+│                                      μ
+│  
+│  𝐒𝐭𝐞𝐩 𝟑: 𝐓𝐡𝐞 𝐬𝐲𝐦𝐦𝐞𝐭𝐫𝐲 𝐜𝐨𝐧𝐝𝐢𝐭𝐢𝐨𝐧. By assumption, the transformation (2) is a sy-
+│  mmetry: 𝑆 is invariant up to a total divergence, meaning
+│  
+│                                            μ
+│                                 δ ℒ = ε ∂ 𝐾 (𝑥)                             (8)
+│                                  ε       μ
+│  
+│                    μ
+│  for some current 𝐾  (which vanishes for strict  symmetries). Dividing by ε and
+│  combining (7) and (8):
+│  
+│                          ⎡                           ⎤
+│                          ⎢    ∂ℒ        𝑎    μ     μ ⎥
+│                       ∂  ⎢ ─────────  Δ̄φ  + ξ ℒ − 𝐾  ⎥ = 0                  (9)
+│                        μ ⎢       𝑎                   ⎥
+│                          ⎣  ∂(∂ φ )                  ⎦
+│                                μ
+│  
+│                                                                     μ
+│  𝐒𝐭𝐞𝐩 𝟒: 𝐓𝐡𝐞 𝐍𝐨𝐞𝐭𝐡𝐞𝐫 𝐜𝐮𝐫𝐫𝐞𝐧𝐭. Equation (9) is a conservation law ∂ 𝑗  = 0 with
+│                                                                   μ
+│  
+│                           μ      ∂ℒ        𝑎    μ     μ
+│                          𝑗  ≔ ─────────  Δ̄φ  + ξ ℒ − 𝐾                     (10)
+│                                     𝑎
+│                                ∂(∂ φ )
+│                                   μ
+│  
+│                                     𝑎     𝑎    ν   𝑎
+│  Substituting back the definition Δ̄φ  = Δφ  − ξ ∂ φ  from (4):
+│                                                  ν
+│  
+│                  ┌───────────────────────────────────────────┐
+│                  │ μ      ∂ℒ      ⎛   𝑎    ν   𝑎 ⎞    μ     μ│
+│                  │𝑗  = ─────────  ⎜ Δφ  − ξ ∂ φ  ⎟ + ξ ℒ − 𝐾 │             (11)
+│                  │           𝑎    ⎝          ν   ⎠           │
+│                  │      ∂(∂ φ )                              │
+│                  │         μ                                 │
+│                  └───────────────────────────────────────────┘
+│  
+│  This is the 𝐍𝐨𝐞𝐭𝐡𝐞𝐫 𝐜𝐮𝐫𝐫𝐞𝐧𝐭.
+│  
+│                                                μ
+│  𝐒𝐭𝐞𝐩 𝟓: 𝐓𝐡𝐞 𝐜𝐨𝐧𝐬𝐞𝐫𝐯𝐞𝐝 𝐜𝐡𝐚𝐫𝐠𝐞.  Integrating ∂ 𝑗  = 0 over a spacetime volume 𝑉
+│                                              μ
+│  bounded by two spacelike slices Σ   and Σ  , and applying the divergence theo-
+│                                   𝑡       𝑡
+│                                    1       2
+│  rem:
+│  
+│                     ⌠   4      μ
+│               0 =   ⎮  𝑑 𝑥  ∂ 𝑗
+│                     ⌡        μ
+│                     𝑉
+│  
+│                     ⌠    3    0    ⌠    3    0       ⌠       𝑖             (12)
+│                 =   ⎮   𝑑 𝑥  𝑗  −  ⎮   𝑑 𝑥  𝑗  +     ⌽      𝑗  𝑑𝑆
+│                     ⌡              ⌡                 ⌡           𝑖
+│                    Σ              Σ              ∂𝑉
+│                     𝑡              𝑡               spatial
+│                      2              1
+│  
+│  Assuming the fields fall off sufficiently fast at spatial infinity so that the
+│  boundary term vanishes, we obtain
+│  
+│                              𝑑    ⌠   3    0
+│                             ────  ⎮  𝑑 𝑥  𝑗 (𝑥) = 0                        (13)
+│                              𝑑𝑡   ⌡
+│                                   Σ
+│  
+│                     ⌠   3    0
+│  so the charge 𝑄 ≔  ⎮  𝑑 𝑥  𝑗  is conserved. □
+│                     ⌡
+│                     Σ
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟏 (Internal symmetry: 𝑈(1) example). 𝐶𝑜𝑛𝑠𝑖𝑑𝑒𝑟 𝑎 𝑐𝑜𝑚𝑝𝑙𝑒𝑥 𝑠𝑐𝑎𝑙𝑎𝑟 𝑓𝑖𝑒𝑙𝑑 ψ
+│                           2    2   2                          𝑖ε
+│  𝑤𝑖𝑡ℎ 𝐿𝑎𝑔𝑟𝑎𝑛𝑔𝑖𝑎𝑛 ℒ = |∂ ψ|  − 𝑚 |ψ| . 𝑇ℎ𝑒 𝑡𝑟𝑎𝑛𝑠𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 ψ ↦ 𝑒  ψ 𝑖𝑠 𝑎 𝑈(1) 𝑠𝑦-
+│                        μ
+│               μ
+│  𝑚𝑚𝑒𝑡𝑟𝑦 𝑤𝑖𝑡ℎ ξ  = 0 𝑎𝑛𝑑 Δψ = 𝑖ψ. 𝑇ℎ𝑒 𝑁𝑜𝑒𝑡ℎ𝑒𝑟 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑖𝑠
+│  
+│                              μ      * μ      μ *
+│                             𝑗  = 𝑖[ψ ∂ ψ − (∂ ψ )ψ]                        (14)
+│  
+│                                                             ⌠   3    0
+│  𝑎𝑛𝑑 𝑡ℎ𝑒 𝑐𝑜𝑛𝑠𝑒𝑟𝑣𝑒𝑑 𝑐ℎ𝑎𝑟𝑔𝑒 𝑖𝑠 𝑡ℎ𝑒 𝑡𝑜𝑡𝑎𝑙 𝑒𝑙𝑒𝑐𝑡𝑟𝑖𝑐 𝑐ℎ𝑎𝑟𝑔𝑒 𝑄 =  ⎮  𝑑 𝑥  𝑗 . 𝑇ℎ𝑖𝑠 𝑖𝑠
+│                                                             ⌡
+│  𝑡ℎ𝑒 𝑝𝑟𝑜𝑡𝑜𝑡𝑦𝑝𝑒 𝑓𝑜𝑟 𝑎𝑙𝑙 𝑔𝑎𝑢𝑔𝑒 𝑡ℎ𝑒𝑜𝑟𝑖𝑒𝑠.
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟐 (Spacetime translation:  energy-momentum tensor).  For the  spacetime
+│               μ    μ    μ          μ    μ
+│  translation 𝑥  → 𝑥  + ε  we have ξ  = δ  (for translation in direction ν) and
+│                                         ν
+│    𝑎       μ
+│  Δφ  = 0, 𝐾  = 0. The four  conserved currents (one per  direction ν) are asse-
+│  mbled into the 𝐞𝐧𝐞𝐫𝐠𝐲-𝐦𝐨𝐦𝐞𝐧𝐭𝐮𝐦 𝐭𝐞𝐧𝐬𝐨𝐫:
+│  
+│                            μ       ∂ℒ         𝑎    μ
+│                           𝑇   ≔ ─────────  ∂ φ  − δ  ℒ                     (15)
+│                             ν         𝑎     ν      ν
+│                                  ∂(∂ φ )
+│                                     μ
+│  
+│                μ
+│  satisfying ∂ 𝑇   = 0. The four conserved charges are
+│              μ  ν
+│  
+│                                 ν    ⌠   3    0ν
+│                                𝑃  =  ⎮  𝑑 𝑥  𝑇                             (16)
+│                                      ⌡
+│                                      Σ
+│  
+│  — the total energy (ν = 0) and spatial momentum (ν = 1, 2, 3) of the field co-
+│  nfiguration.
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟑 (Angular momentum and Lorentz invariance). For Lorentz boosts and ro-
+│           μ    μ    μ  ν
+│  tations 𝑥  → 𝑥  + ω  𝑥  (with ω   antisymmetric), the Noether procedure yields
+│                      ν          μν
+│  the 𝐚𝐧𝐠𝐮𝐥𝐚𝐫 𝐦𝐨𝐦𝐞𝐧𝐭𝐮𝐦 𝐭𝐞𝐧𝐬𝐨𝐫
+│  
+│                                                          𝑎
+│                    μνρ    ν μρ    ρ μν      ∂ℒ        νρ     𝑏
+│                   𝑀    ≔ 𝑥 𝑇   − 𝑥 𝑇   + ─────────  (𝑆  )   φ              (17)
+│                                                𝑎          𝑏
+│                                           ∂(∂ φ )
+│                                              μ
+│  
+│             𝑎
+│          νρ
+│  where (𝑆  )   are the spin matrices of the field in representation 𝑎. The last
+│              𝑏
+│  term is the intrinsic spin contribution, absent for scalar fields.
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟒 (Quantum version). 𝐼𝑛 𝑐𝑎𝑛𝑜𝑛𝑖𝑐𝑎𝑙  𝑞𝑢𝑎𝑛𝑡𝑖𝑠𝑎𝑡𝑖𝑜𝑛, 𝑄 𝑏𝑒𝑐𝑜𝑚𝑒𝑠 𝑎𝑛 𝑜𝑝𝑒𝑟𝑎𝑡𝑜𝑟.
+│  𝐼𝑓 𝑡ℎ𝑒  𝑣𝑎𝑐𝑢𝑢𝑚 𝑖𝑠 𝑖𝑛𝑣𝑎𝑟𝑖𝑎𝑛𝑡, 𝑄|0⟩ = 0, 𝑡ℎ𝑒𝑛 𝑡ℎ𝑒  𝑠𝑦𝑚𝑚𝑒𝑡𝑟𝑦 𝑖𝑠 𝑟𝑒𝑎𝑙𝑖𝑠𝑒𝑑  𝑖𝑛  𝑡ℎ𝑒
+│  𝑊𝑖𝑔𝑛𝑒𝑟-𝑊𝑒𝑦𝑙  𝑚𝑜𝑑𝑒 𝑎𝑛𝑑 𝑡ℎ𝑒  𝑠𝑝𝑒𝑐𝑡𝑟𝑢𝑚 𝑜𝑟𝑔𝑎𝑛𝑖𝑠𝑒𝑠 𝑖𝑛𝑡𝑜  𝑚𝑢𝑙𝑡𝑖𝑝𝑙𝑒𝑡𝑠 𝑜𝑓 𝑡ℎ𝑒 𝑠𝑦𝑚𝑚𝑒𝑡𝑟𝑦
+│  𝑔𝑟𝑜𝑢𝑝. 𝐼𝑓 𝑄|0⟩ ≠ 0, 𝑡ℎ𝑒 𝑠𝑦𝑚𝑚𝑒𝑡𝑟𝑦 𝑖𝑠 𝑠𝑝𝑜𝑛𝑡𝑎𝑛𝑒𝑜𝑢𝑠𝑙𝑦 𝑏𝑟𝑜𝑘𝑒𝑛 — 𝑡ℎ𝑒 𝐺𝑜𝑙𝑑𝑠𝑡𝑜𝑛𝑒 𝑡ℎ𝑒𝑜-
+│  𝑟𝑒𝑚 𝑡ℎ𝑒𝑛 𝑔𝑢𝑎𝑟𝑎𝑛𝑡𝑒𝑒𝑠 𝑎 𝑚𝑎𝑠𝑠𝑙𝑒𝑠𝑠 𝑠𝑐𝑎𝑙𝑎𝑟 𝑝𝑎𝑟𝑡𝑖𝑐𝑙𝑒 𝑓𝑜𝑟 𝑒𝑎𝑐ℎ 𝑏𝑟𝑜𝑘𝑒𝑛 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑜𝑟, 𝑤𝑖𝑡ℎ
+│      μ
+│   ∂ 𝑗  = 0 ℎ𝑜𝑙𝑑𝑖𝑛𝑔 𝑎𝑠 𝑎𝑛 𝑜𝑝𝑒𝑟𝑎𝑡𝑜𝑟 𝑒𝑞𝑢𝑎𝑡𝑖𝑜𝑛.
+│    μ

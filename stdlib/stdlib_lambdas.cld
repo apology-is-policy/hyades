@@ -1,0 +1,1091 @@
+% =============================================================================
+% HYADES STANDARD LIBRARY - FUNCTIONS (STD::)
+% =============================================================================
+%
+% These lambdas are registered globally and available in all documents.
+% Convention: STD:: prefix, UPPERCASE names
+%
+% Usage: \recall<STD::FUNCTION>[args]
+%
+% Variable naming convention:
+%   lowercase_name   -> Local variables (scoped to lambda, auto-cleaned)
+%   UPPERCASE_NAME   -> Global arrays when mutation needed (e.g., sort)
+%
+% Lambda body syntax:
+%   #{...} - Computational mode: must use \return{} to return values
+%            Strips whitespace, returns array as rvalue (_RV_N)
+%   {...}  - Normal mode: preserves whitespace (for typesetting lambdas)
+%
+% Array return pattern:
+%   \return{array_name} - Moves array to caller's scope as rvalue
+%   Rvalues can be passed directly to other functions or stored
+%
+% =============================================================================
+
+% =============================================================================
+% ARRAY GENERATORS
+% =============================================================================
+
+% STD::RANGE[start,end] - Generate array of integers from start to end (inclusive)
+% Returns: rvalue array containing the sequence
+% Example: \recall<STD::RANGE>[1,5] creates array [1,2,3,4,5]
+\lambda<STD::RANGE>[start,end]#{
+    \let<result[]>{}
+    \let<i>{\recall<start>}
+    \begin{loop}
+        \exit_when{\gt{\valueof<i>,\recall<end>}}
+        \push<result>{\valueof<i>}
+        \inc<i>
+    \end{loop}
+    \return{result}
+}
+
+% STD::IOTA[start,end,step] - Generate array with custom step
+% Example: \recall<STD::IOTA>[0,10,2] creates [0,2,4,6,8,10]
+\lambda<STD::IOTA>[start,end,step]#{
+    \let<result[]>{}
+    \let<i>{\recall<start>}
+    \begin{loop}
+        \exit_when{\gt{\valueof<i>,\recall<end>}}
+        \push<result>{\valueof<i>}
+        \let<i>{\add{\valueof<i>,\recall<step>}}
+    \end{loop}
+    \return{result}
+}
+
+% STD::REPEAT[value,n] - Create array with value repeated n times
+% Example: \recall<STD::REPEAT>[x,3] creates [x,x,x]
+\lambda<STD::REPEAT>[value,n]#{
+    \let<result[]>{}
+    \let<i>{0}
+    \begin{loop}
+        \exit_when{\ge{\valueof<i>,\recall<n>}}
+        \push<result>{\recall<value>}
+        \inc<i>
+    \end{loop}
+    \return{result}
+}
+
+% STD::FILL[n,val] - Create array of n elements initialized to val (alias for REPEAT)
+% Example: \recall<STD::FILL>[5,0] creates [0,0,0,0,0]
+\lambda<STD::FILL>[n,val]#{
+    \let<result[]>{}
+    \let<i>{0}
+    \begin{loop}
+        \exit_when{\ge{\valueof<i>,\recall<n>}}
+        \push<result>{\recall<val>}
+        \inc<i>
+    \end{loop}
+    \return{result}
+}
+
+% STD::COPY[arr] - Create a copy of an array
+% Returns: rvalue array (copy)
+\lambda<STD::COPY>[arr]#{
+    \let<result[]>{}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \push<result>{\recall<v>}
+    \end{enumerate}
+    \return{result}
+}
+
+% =============================================================================
+% ARRAY SEARCH
+% =============================================================================
+
+% STD::CONTAINS[arr,val] - Check if array contains value
+% Returns: 1 if found, 0 if not
+\lambda<STD::CONTAINS>[arr,val]#{
+    \let<found>{0}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \if{\eq{\recall<v>,\recall<val>}}{\let<found>{1}}
+    \end{enumerate}
+    \return{\valueof<found>}
+}
+
+% STD::INDEX_OF[arr,val] - Find index of value in array
+% Returns: index if found, -1 if not found
+\lambda<STD::INDEX_OF>[arr,val]#{
+    \let<result>{-1}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \if{\and{\eq{\valueof<result>,-1},\eq{\recall<v>,\recall<val>}}}{
+            \let<result>{\valueof<i>}
+        }
+    \end{enumerate}
+    \return{\valueof<result>}
+}
+
+% =============================================================================
+% ARRAY AGGREGATES
+% =============================================================================
+
+% STD::SUM[arr] - Sum all elements of a numeric array
+% Example: \recall<STD::SUM>[nums] where nums=[1,2,3] returns 6
+\lambda<STD::SUM>[arr]#{
+    \let<acc>{0}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \let<acc>{\add{\valueof<acc>,\recall<v>}}
+    \end{enumerate}
+    \return{\valueof<acc>}
+}
+
+% STD::PRODUCT[arr] - Product of all elements
+% Example: \recall<STD::PRODUCT>[nums] where nums=[2,3,4] returns 24
+\lambda<STD::PRODUCT>[arr]#{
+    \let<acc>{1}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \let<acc>{\mul{\valueof<acc>,\recall<v>}}
+    \end{enumerate}
+    \return{\valueof<acc>}
+}
+
+% STD::MIN[arr] - Minimum value in array
+\lambda<STD::MIN>[arr]#{
+    \let<minval>{2147483647}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \if{\lt{\recall<v>,\valueof<minval>}}{\let<minval>{\recall<v>}}
+    \end{enumerate}
+    \return{\valueof<minval>}
+}
+
+% STD::MAX[arr] - Maximum value in array
+\lambda<STD::MAX>[arr]#{
+    \let<maxval>{-2147483648}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \if{\gt{\recall<v>,\valueof<maxval>}}{\let<maxval>{\recall<v>}}
+    \end{enumerate}
+    \return{\valueof<maxval>}
+}
+
+% STD::LEN[arr] - Length of array (wrapper for consistency)
+\lambda<STD::LEN>[arr]#{\return{\len<\recall<arr>>}}
+
+% STD::AVG[arr] - Average (mean) of numeric array
+\lambda<STD::AVG>[arr]#{
+    \return{\div{\recall<STD::SUM>[\recall<arr>],\len<\recall<arr>>}}
+}
+
+% STD::COUNT[arr,pred] - Count elements matching predicate
+\lambda<STD::COUNT>[arr,pred]#{
+    \let<count>{0}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \if{\recall<\recall<pred>>[\recall<v>]}{\inc<count>}
+    \end{enumerate}
+    \return{\valueof<count>}
+}
+
+% =============================================================================
+% ARRAY TRANSFORMATIONS
+% =============================================================================
+
+% STD::REVERSE[arr] - Reverse array order
+% Returns: rvalue array
+\lambda<STD::REVERSE>[arr]#{
+    \let<result[]>{}
+    \let<len>{\len<\recall<arr>>}
+    \let<i>{\sub{\valueof<len>,1}}
+    \begin{loop}
+        \exit_when{\lt{\valueof<i>,0}}
+        \push<result>{\recall<arr>[\valueof<i>]}
+        \dec<i>
+    \end{loop}
+    \return{result}
+}
+
+% STD::MAP[arr,fn] - Apply function to each element
+% Returns: rvalue array
+% Example: \recall<STD::MAP>[nums,double] applies double to each element
+\lambda<STD::MAP>[arr,fn]#{
+    \let<result[]>{}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \push<result>{\recall<\recall<fn>>[\recall<v>]}
+    \end{enumerate}
+    \return{result}
+}
+
+% STD::FILTER[arr,pred] - Keep elements where predicate returns non-zero
+% Returns: rvalue array
+\lambda<STD::FILTER>[arr,pred]#{
+    \let<result[]>{}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \if{\recall<\recall<pred>>[\recall<v>]}{\push<result>{\recall<v>}}
+    \end{enumerate}
+    \return{result}
+}
+
+% STD::TAKE[arr,n] - Take first n elements
+\lambda<STD::TAKE>[arr,n]#{
+    \let<result[]>{}
+    \let<count>{0}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \exit_when{\ge{\valueof<count>,\recall<n>}}
+        \push<result>{\recall<v>}
+        \inc<count>
+    \end{enumerate}
+    \return{result}
+}
+
+% STD::DROP[arr,n] - Drop first n elements
+\lambda<STD::DROP>[arr,n]#{
+    \let<result[]>{}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \if{\ge{\valueof<i>,\recall<n>}}{\push<result>{\recall<v>}}
+    \end{enumerate}
+    \return{result}
+}
+
+% STD::SLICE[arr,start,end] - Get subarray from start to end (exclusive)
+\lambda<STD::SLICE>[arr,start,end]#{
+    \let<result[]>{}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \if{\ge{\valueof<i>,\recall<start>}}{
+            \if{\lt{\valueof<i>,\recall<end>}}{
+                \push<result>{\recall<v>}
+            }
+        }
+    \end{enumerate}
+    \return{result}
+}
+
+% =============================================================================
+% ARRAY TO STRING
+% =============================================================================
+
+% STD::JOIN[arr,sep] - Join array elements with separator
+% Example: \recall<STD::JOIN>[words,{, }] joins with ", "
+\lambda<STD::JOIN>[arr,sep]#{
+    \assign<result>{}
+    \begin<\recall<arr>>[i,v]{enumerate}
+        \if{\eq{\valueof<i>,0}}{
+            \assign<result>{\recall<v>}
+        }\else{
+            \assign<result>{\recall<result>\recall<sep>\recall<v>}
+        }
+    \end{enumerate}
+    \return{\recall<result>}
+}
+
+% =============================================================================
+% MATH UTILITIES
+% =============================================================================
+
+% STD::ABS[x] - Absolute value
+\lambda<STD::ABS>[x]#{
+    \return{\if{\lt{\recall<x>,0}}{\mul{\recall<x>,-1}}\else{\recall<x>}}
+}
+
+% STD::SIGN[x] - Sign of number (-1, 0, or 1)
+\lambda<STD::SIGN>[x]#{
+    \return{\if{\lt{\recall<x>,0}}{-1}\else{\if{\gt{\recall<x>,0}}{1}\else{0}}}
+}
+
+% STD::CLAMP[x,lo,hi] - Clamp value to range
+\lambda<STD::CLAMP>[x,lo,hi]#{
+    \return{\if{\lt{\recall<x>,\recall<lo>}}{
+        \recall<lo>
+    }\else{
+        \if{\gt{\recall<x>,\recall<hi>}}{
+            \recall<hi>
+        }\else{
+            \recall<x>
+        }
+    }}
+}
+
+% STD::POW[base,exp] - Integer exponentiation
+\lambda<STD::POW>[base,exp]#{
+    \let<result>{1}
+    \let<i>{0}
+    \begin{loop}
+        \exit_when{\ge{\valueof<i>,\recall<exp>}}
+        \let<result>{\mul{\valueof<result>,\recall<base>}}
+        \inc<i>
+    \end{loop}
+    \return{\valueof<result>}
+}
+
+%%% STD::FACTORIAL[n] - n!
+\lambda<STD::FACTORIAL>[n]#{
+    \let<result>{1}
+    \let<i>{\recall<n>}
+    \begin{loop}
+        \exit_when{\le{\valueof<i>,1}}
+        \let<result>{\mul{\valueof<result>,\valueof<i>}}
+        \dec<i>
+    \end{loop}
+    \return{\valueof<result>}
+}
+
+% STD::GCD[a,b] - Greatest common divisor (Euclidean algorithm)
+\lambda<STD::GCD>[a,b]#{
+    \let<x>{\recall<a>}
+    \let<y>{\recall<b>}
+    \begin{loop}
+        \exit_when{\eq{\valueof<y>,0}}
+        \let<t>{\mod{\valueof<x>,\valueof<y>}}
+        \let<x>{\valueof<y>}
+        \let<y>{\valueof<t>}
+    \end{loop}
+    \return{\valueof<x>}
+}
+
+% STD::LCM[a,b] - Least common multiple
+\lambda<STD::LCM>[a,b]#{
+    \return{\div{\mul{\recall<a>,\recall<b>},\recall<STD::GCD>[\recall<a>,\recall<b>]}}
+}
+
+% STD::FIB[n] - nth Fibonacci number
+\lambda<STD::FIB>[n]#{
+    \let<a>{0}
+    \let<b>{1}
+    \let<i>{0}
+    \begin{loop}
+        \exit_when{\ge{\valueof<i>,\recall<n>}}
+        \let<t>{\valueof<b>}
+        \let<b>{\add{\valueof<a>,\valueof<b>}}
+        \let<a>{\valueof<t>}
+        \inc<i>
+    \end{loop}
+    \return{\valueof<a>}
+}
+
+% =============================================================================
+% FORMATTING
+% =============================================================================
+
+% STD::ORDINAL[n] - Convert number to ordinal (1st, 2nd, 3rd, etc.)
+% Uses regular lambda {} because it does text rendering
+\lambda<STD::ORDINAL>[n]{%
+\let<num>{\recall<n>}%
+\let<mod10>{\mod{\valueof<num>,10}}%
+\let<mod100>{\mod{\valueof<num>,100}}%
+\valueof<num>\if{\ge{\valueof<mod100>,11}}{\if{\le{\valueof<mod100>,13}}{th}\else{\if{\eq{\valueof<mod10>,1}}{st}\else{\if{\eq{\valueof<mod10>,2}}{nd}\else{\if{\eq{\valueof<mod10>,3}}{rd}\else{th}}}}}\else{\if{\eq{\valueof<mod10>,1}}{st}\else{\if{\eq{\valueof<mod10>,2}}{nd}\else{\if{\eq{\valueof<mod10>,3}}{rd}\else{th}}}}}
+
+% STD::ROMAN[n] - Convert to Roman numerals (1-3999)
+\lambda<STD::ROMAN>[n]#{
+    \let<num>{\recall<n>}
+    \assign<result>{}
+    \begin{loop}
+        \exit_when{\lt{\valueof<num>,1000}}
+        \assign<result>{\recall<result>M}
+        \let<num>{\sub{\valueof<num>,1000}}
+    \end{loop}
+    \if{\ge{\valueof<num>,900}}{
+        \assign<result>{\recall<result>CM}
+        \let<num>{\sub{\valueof<num>,900}}
+    }
+    \if{\ge{\valueof<num>,500}}{
+        \assign<result>{\recall<result>D}
+        \let<num>{\sub{\valueof<num>,500}}
+    }
+    \if{\ge{\valueof<num>,400}}{
+        \assign<result>{\recall<result>CD}
+        \let<num>{\sub{\valueof<num>,400}}
+    }
+    \begin{loop}
+        \exit_when{\lt{\valueof<num>,100}}
+        \assign<result>{\recall<result>C}
+        \let<num>{\sub{\valueof<num>,100}}
+    \end{loop}
+    \if{\ge{\valueof<num>,90}}{
+        \assign<result>{\recall<result>XC}
+        \let<num>{\sub{\valueof<num>,90}}
+    }
+    \if{\ge{\valueof<num>,50}}{
+        \assign<result>{\recall<result>L}
+        \let<num>{\sub{\valueof<num>,50}}
+    }
+    \if{\ge{\valueof<num>,40}}{
+        \assign<result>{\recall<result>XL}
+        \let<num>{\sub{\valueof<num>,40}}
+    }
+    \begin{loop}
+        \exit_when{\lt{\valueof<num>,10}}
+        \assign<result>{\recall<result>X}
+        \let<num>{\sub{\valueof<num>,10}}
+    \end{loop}
+    \if{\ge{\valueof<num>,9}}{
+        \assign<result>{\recall<result>IX}
+        \let<num>{\sub{\valueof<num>,9}}
+    }
+    \if{\ge{\valueof<num>,5}}{
+        \assign<result>{\recall<result>V}
+        \let<num>{\sub{\valueof<num>,5}}
+    }
+    \if{\ge{\valueof<num>,4}}{
+        \assign<result>{\recall<result>IV}
+        \let<num>{\sub{\valueof<num>,4}}
+    }
+    \begin{loop}
+        \exit_when{\lt{\valueof<num>,1}}
+        \assign<result>{\recall<result>I}
+        \let<num>{\sub{\valueof<num>,1}}
+    \end{loop}
+    \return{\recall<result>}
+}
+
+% =============================================================================
+% SORTING (Insertion Sort - simple, stable)
+% =============================================================================
+
+% STD::SORT[arr] - Sort array numerically (ascending)
+% Returns: rvalue array (sorted)
+\lambda<STD::SORT>[arr]#{
+    \let<RESULT[]>{}
+    \let<len>{\len<\recall<arr>>}
+    \begin<\recall<arr>>[idx,val]{enumerate}
+        \push<RESULT>{\recall<val>}
+    \end{enumerate}
+    \let<i>{1}
+    \begin{loop}
+        \exit_when{\ge{\valueof<i>,\valueof<len>}}
+        \let<key>{\recall<RESULT>[\valueof<i>]}
+        \let<j>{\sub{\valueof<i>,1}}
+        \begin{loop}
+            \exit_when{\lt{\valueof<j>,0}}
+            \exit_when{\le{\recall<RESULT>[\valueof<j>],\valueof<key>}}
+            \setelement<RESULT>[\add{\valueof<j>,1}]{\recall<RESULT>[\valueof<j>]}
+            \dec<j>
+        \end{loop}
+        \setelement<RESULT>[\add{\valueof<j>,1}]{\valueof<key>}
+        \inc<i>
+    \end{loop}
+    \return{RESULT}
+}
+
+% STD::SORT_DESC[arr] - Sort array numerically (descending)
+\lambda<STD::SORT_DESC>[arr]#{
+    \recall<STD::REVERSE>[\recall<STD::SORT>[\recall<arr>]]
+}
+
+% =============================================================================
+% PREDICATES (for use with FILTER, COUNT, etc.)
+% =============================================================================
+
+% STD::IS_POSITIVE[x] - Returns 1 if x > 0
+\lambda<STD::IS_POSITIVE>[x]#{\return{\gt{\recall<x>,0}}}
+
+% STD::IS_NEGATIVE[x] - Returns 1 if x < 0
+\lambda<STD::IS_NEGATIVE>[x]#{\return{\lt{\recall<x>,0}}}
+
+% STD::IS_ZERO[x] - Returns 1 if x == 0
+\lambda<STD::IS_ZERO>[x]#{\return{\eq{\recall<x>,0}}}
+
+% STD::IS_EVEN[x] - Returns 1 if x is even
+\lambda<STD::IS_EVEN>[x]#{\return{\eq{\mod{\recall<x>,2},0}}}
+
+% STD::IS_ODD[x] - Returns 1 if x is odd
+\lambda<STD::IS_ODD>[x]#{\return{\ne{\mod{\recall<x>,2},0}}}
+
+% =============================================================================
+% COMPREHENSIVE SMOKE TEST
+% =============================================================================
+%
+% STD::SMOKE_TEST[] - Exercises ALL lambda features in nested, complex ways
+%
+% This test covers:
+%   1. Computational lambdas (#{}) with \return{}
+%   2. Normal lambdas ({}) for typesetting
+%   3. Single and multiple parameters
+%   4. Array creation, access, modification, length
+%   5. Loops with exit_when
+%   6. Enumerate over arrays
+%   7. Counters: let, valueof, inc, dec
+%   8. Values: assign, recall
+%   9. Conditionals: if/else, nested
+%  10. All arithmetic: add, sub, mul, div, mod
+%  11. All comparisons: eq, ne, lt, gt, le, ge
+%  12. Boolean operators: and, or, not
+%  13. Higher-order functions (lambdas as arguments)
+%  14. Nested lambda calls (lambdas calling lambdas)
+%  15. Rvalue array returns
+%  16. Closures (captured scope)
+%  17. String splitting
+%  18. Recursive-style iteration
+%
+% Returns: "PASS" if all tests pass, or error description
+%
+\lambda<STD::SMOKE_TEST>[]#{
+    % =========================================================================
+    % PHASE 1: Basic counter and value operations
+    % =========================================================================
+    \let<test_phase>{1}
+    \assign<status>{PASS}
+
+    % Test counters
+    \let<counter>{0}
+    \inc<counter>
+    \inc<counter>
+    \dec<counter>
+    \if{\ne{\valueof<counter>,1}}{
+        \assign<status>{FAIL: counter operations}
+        \return{\recall<status>}
+    }
+
+    % Test arithmetic
+    \let<a>{10}
+    \let<b>{3}
+    \let<sum>{\add{\valueof<a>,\valueof<b>}}
+    \let<diff>{\sub{\valueof<a>,\valueof<b>}}
+    \let<prod>{\mul{\valueof<a>,\valueof<b>}}
+    \let<quot>{\div{\valueof<a>,\valueof<b>}}
+    \let<rem>{\mod{\valueof<a>,\valueof<b>}}
+
+    \if{\or{\ne{\valueof<sum>,13},\ne{\valueof<diff>,7}}}{
+        \assign<status>{FAIL: add/sub}
+        \return{\recall<status>}
+    }
+    \if{\or{\ne{\valueof<prod>,30},\ne{\valueof<quot>,3}}}{
+        \assign<status>{FAIL: mul/div}
+        \return{\recall<status>}
+    }
+    \if{\ne{\valueof<rem>,1}}{
+        \assign<status>{FAIL: mod}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 2: Comparisons and boolean logic
+    % =========================================================================
+    \let<test_phase>{2}
+
+    \let<x>{5}
+    \let<y>{10}
+
+    % Test all comparisons
+    \if{\not{\lt{\valueof<x>,\valueof<y>}}}{
+        \assign<status>{FAIL: lt}
+        \return{\recall<status>}
+    }
+    \if{\not{\gt{\valueof<y>,\valueof<x>}}}{
+        \assign<status>{FAIL: gt}
+        \return{\recall<status>}
+    }
+    \if{\not{\le{\valueof<x>,\valueof<x>}}}{
+        \assign<status>{FAIL: le}
+        \return{\recall<status>}
+    }
+    \if{\not{\ge{\valueof<y>,\valueof<y>}}}{
+        \assign<status>{FAIL: ge}
+        \return{\recall<status>}
+    }
+    \if{\not{\eq{\valueof<x>,5}}}{
+        \assign<status>{FAIL: eq}
+        \return{\recall<status>}
+    }
+    \if{\not{\ne{\valueof<x>,\valueof<y>}}}{
+        \assign<status>{FAIL: ne}
+        \return{\recall<status>}
+    }
+
+    % Test boolean operations
+    \if{\not{\and{\eq{1,1},\eq{2,2}}}}{
+        \assign<status>{FAIL: and}
+        \return{\recall<status>}
+    }
+    \if{\not{\or{\eq{1,2},\eq{2,2}}}}{
+        \assign<status>{FAIL: or}
+        \return{\recall<status>}
+    }
+    \if{\not{\not{\eq{1,2}}}}{
+        \assign<status>{FAIL: not}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 3: Array creation and basic operations
+    % =========================================================================
+    \let<test_phase>{3}
+
+    % Create array with initializer
+    \let<arr1[]>{1,2,3,4,5}
+    \if{\ne{\len<arr1>,5}}{
+        \assign<status>{FAIL: array init length}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<arr1>[0],1}}{
+        \assign<status>{FAIL: array access [0]}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<arr1>[4],5}}{
+        \assign<status>{FAIL: array access [4]}
+        \return{\recall<status>}
+    }
+
+    % Create empty array and push
+    \let<arr2[]>{}
+    \push<arr2>{10}
+    \push<arr2>{20}
+    \push<arr2>{30}
+    \if{\ne{\len<arr2>,3}}{
+        \assign<status>{FAIL: push/length}
+        \return{\recall<status>}
+    }
+
+    % Set element
+    \setelement<arr2>[1]{25}
+    \if{\ne{\recall<arr2>[1],25}}{
+        \assign<status>{FAIL: setelement}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 4: Loops and enumerate
+    % =========================================================================
+    \let<test_phase>{4}
+
+    % Sum using loop
+    \let<loop_sum>{0}
+    \let<loop_i>{0}
+    \begin{loop}
+        \exit_when{\ge{\valueof<loop_i>,\len<arr1>}}
+        \let<loop_sum>{\add{\valueof<loop_sum>,\recall<arr1>[\valueof<loop_i>]}}
+        \inc<loop_i>
+    \end{loop}
+    \if{\ne{\valueof<loop_sum>,15}}{
+        \assign<status>{FAIL: loop sum}
+        \return{\recall<status>}
+    }
+
+    % Sum using enumerate
+    \let<enum_sum>{0}
+    \let<enum_count>{0}
+    \begin<arr1>[i,v]{enumerate}
+        \let<enum_sum>{\add{\valueof<enum_sum>,\recall<v>}}
+        \inc<enum_count>
+    \end{enumerate}
+    \if{\ne{\valueof<enum_sum>,15}}{
+        \assign<status>{FAIL: enumerate sum}
+        \return{\recall<status>}
+    }
+    \if{\ne{\valueof<enum_count>,5}}{
+        \assign<status>{FAIL: enumerate count}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 5: Nested conditionals
+    % =========================================================================
+    \let<test_phase>{5}
+
+    \let<val>{15}
+    \let<category>{0}
+    \if{\lt{\valueof<val>,10}}{
+        \let<category>{1}
+    }\else{
+        \if{\lt{\valueof<val>,20}}{
+            \let<category>{2}
+        }\else{
+            \if{\lt{\valueof<val>,30}}{
+                \let<category>{3}
+            }\else{
+                \let<category>{4}
+            }
+        }
+    }
+    \if{\ne{\valueof<category>,2}}{
+        \assign<status>{FAIL: nested if/else}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 6: Calling stdlib lambdas (nested lambda calls)
+    % =========================================================================
+    \let<test_phase>{6}
+
+    % Test RANGE
+    \let<range_arr[]>{}
+    \begin<\recall<STD::RANGE>[1,5]>[i,v]{enumerate}
+        \push<range_arr>{\recall<v>}
+    \end{enumerate}
+    \if{\ne{\len<range_arr>,5}}{
+        \assign<status>{FAIL: STD::RANGE length}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<range_arr>[2],3}}{
+        \assign<status>{FAIL: STD::RANGE values}
+        \return{\recall<status>}
+    }
+
+    % Test SUM
+    \let<std_sum>{\recall<STD::SUM>[arr1]}
+    \if{\ne{\valueof<std_sum>,15}}{
+        \assign<status>{FAIL: STD::SUM}
+        \return{\recall<status>}
+    }
+
+    % Test MIN/MAX
+    \if{\ne{\recall<STD::MIN>[arr1],1}}{
+        \assign<status>{FAIL: STD::MIN}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<STD::MAX>[arr1],5}}{
+        \assign<status>{FAIL: STD::MAX}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 7: Higher-order functions (passing lambdas as arguments)
+    % =========================================================================
+    \let<test_phase>{7}
+
+    % Define a doubling function
+    \lambda<double_it>[x]#{\return{\mul{\recall<x>,2}}}
+
+    % Use MAP with our lambda
+    \let<doubled[]>{}
+    \let<small_arr[]>{1,2,3}
+    \begin<\recall<STD::MAP>[small_arr,double_it]>[i,v]{enumerate}
+        \push<doubled>{\recall<v>}
+    \end{enumerate}
+
+    \if{\ne{\recall<doubled>[0],2}}{
+        \assign<status>{FAIL: MAP [0]}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<doubled>[1],4}}{
+        \assign<status>{FAIL: MAP [1]}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<doubled>[2],6}}{
+        \assign<status>{FAIL: MAP [2]}
+        \return{\recall<status>}
+    }
+
+    % Test FILTER with predicate
+    \let<evens[]>{}
+    \let<nums[]>{1,2,3,4,5,6}
+    \begin<\recall<STD::FILTER>[nums,STD::IS_EVEN]>[i,v]{enumerate}
+        \push<evens>{\recall<v>}
+    \end{enumerate}
+    \if{\ne{\len<evens>,3}}{
+        \assign<status>{FAIL: FILTER length}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<evens>[1],4}}{
+        \assign<status>{FAIL: FILTER values}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 8: String splitting
+    % =========================================================================
+    \let<test_phase>{8}
+
+    \split<parts>{a,b,c}{,}
+    \if{\ne{\len<parts>,3}}{
+        \assign<status>{FAIL: split length}
+        \return{\recall<status>}
+    }
+    \if{\not{\streq{\recall<parts>[0],a}}}{
+        \assign<status>{FAIL: split [0]}
+        \return{\recall<status>}
+    }
+    \if{\not{\streq{\recall<parts>[2],c}}}{
+        \assign<status>{FAIL: split [2]}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 9: Complex nested computation
+    % =========================================================================
+    \let<test_phase>{9}
+
+    % Compute sum of squares of even numbers from 1 to 10
+    % Should be: 2^2 + 4^2 + 6^2 + 8^2 + 10^2 = 4 + 16 + 36 + 64 + 100 = 220
+    \let<sum_sq_even>{0}
+    \begin<\recall<STD::RANGE>[1,10]>[i,n]{enumerate}
+        \if{\eq{\mod{\recall<n>,2},0}}{
+            \let<sum_sq_even>{\add{\valueof<sum_sq_even>,\mul{\recall<n>,\recall<n>}}}
+        }
+    \end{enumerate}
+    \if{\ne{\valueof<sum_sq_even>,220}}{
+        \assign<status>{FAIL: sum of squares of evens}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 10: Deeply nested lambda calls with rvalue passing
+    % =========================================================================
+    \let<test_phase>{10}
+
+    % Chain: RANGE -> FILTER (evens) -> MAP (double) -> SUM
+    % Range 1-6: [1,2,3,4,5,6]
+    % Filter evens: [2,4,6]
+    % Double: [4,8,12]
+    % Sum: 24
+    \lambda<chain_double>[x]#{\return{\mul{\recall<x>,2}}}
+
+    \let<chain_result>{\recall<STD::SUM>[
+        \recall<STD::MAP>[
+            \recall<STD::FILTER>[
+                \recall<STD::RANGE>[1,6],
+                STD::IS_EVEN
+            ],
+            chain_double
+        ]
+    ]}
+    \if{\ne{\valueof<chain_result>,24}}{
+        \assign<status>{FAIL: chained rvalue operations}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 11: Closure test - lambda capturing outer scope
+    % =========================================================================
+    \let<test_phase>{11}
+
+    \let<outer_val>{100}
+    \lambda<add_outer>[x]#{\return{\add{\recall<x>,\valueof<outer_val>}}}
+    \let<closure_result>{\recall<add_outer>[5]}
+    \if{\ne{\valueof<closure_result>,105}}{
+        \assign<status>{FAIL: closure capture}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 12: Sorting verification
+    % =========================================================================
+    \let<test_phase>{12}
+
+    \let<unsorted[]>{5,2,8,1,9,3}
+    \let<sorted[]>{}
+    \begin<\recall<STD::SORT>[unsorted]>[i,v]{enumerate}
+        \push<sorted>{\recall<v>}
+    \end{enumerate}
+
+    \if{\ne{\recall<sorted>[0],1}}{
+        \assign<status>{FAIL: sort [0]}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<sorted>[5],9}}{
+        \assign<status>{FAIL: sort [5]}
+        \return{\recall<status>}
+    }
+
+    % Verify sorted order
+    \let<sort_ok>{1}
+    \let<prev>{-999999}
+    \begin<sorted>[i,v]{enumerate}
+        \if{\lt{\recall<v>,\valueof<prev>}}{
+            \let<sort_ok>{0}
+        }
+        \let<prev>{\recall<v>}
+    \end{enumerate}
+    \if{\ne{\valueof<sort_ok>,1}}{
+        \assign<status>{FAIL: sort order}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 13: Factorial and recursive-style computation
+    % =========================================================================
+    \let<test_phase>{13}
+
+    \let<fact5>{\recall<STD::FACTORIAL>[5]}
+    \if{\ne{\valueof<fact5>,120}}{
+        \assign<status>{FAIL: factorial}
+        \return{\recall<status>}
+    }
+
+    % Fibonacci
+    \let<fib10>{\recall<STD::FIB>[10]}
+    \if{\ne{\valueof<fib10>,55}}{
+        \assign<status>{FAIL: fibonacci}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 14: GCD/LCM
+    % =========================================================================
+    \let<test_phase>{14}
+
+    \let<gcd_result>{\recall<STD::GCD>[48,18]}
+    \if{\ne{\valueof<gcd_result>,6}}{
+        \assign<status>{FAIL: GCD}
+        \return{\recall<status>}
+    }
+
+    \let<lcm_result>{\recall<STD::LCM>[4,6]}
+    \if{\ne{\valueof<lcm_result>,12}}{
+        \assign<status>{FAIL: LCM}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 15: Power and absolute value
+    % =========================================================================
+    \let<test_phase>{15}
+
+    \let<pow_result>{\recall<STD::POW>[2,10]}
+    \if{\ne{\valueof<pow_result>,1024}}{
+        \assign<status>{FAIL: POW}
+        \return{\recall<status>}
+    }
+
+    \let<abs_result>{\recall<STD::ABS>[-42]}
+    \if{\ne{\valueof<abs_result>,42}}{
+        \assign<status>{FAIL: ABS}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 16: Array manipulation - REVERSE, TAKE, DROP, SLICE
+    % =========================================================================
+    \let<test_phase>{16}
+
+    \let<orig[]>{1,2,3,4,5}
+
+    % REVERSE
+    \let<rev[]>{}
+    \begin<\recall<STD::REVERSE>[orig]>[i,v]{enumerate}
+        \push<rev>{\recall<v>}
+    \end{enumerate}
+    \if{\ne{\recall<rev>[0],5}}{
+        \assign<status>{FAIL: REVERSE}
+        \return{\recall<status>}
+    }
+
+    % TAKE
+    \let<taken[]>{}
+    \begin<\recall<STD::TAKE>[orig,3]>[i,v]{enumerate}
+        \push<taken>{\recall<v>}
+    \end{enumerate}
+    \if{\ne{\len<taken>,3}}{
+        \assign<status>{FAIL: TAKE length}
+        \return{\recall<status>}
+    }
+
+    % DROP
+    \let<dropped[]>{}
+    \begin<\recall<STD::DROP>[orig,2]>[i,v]{enumerate}
+        \push<dropped>{\recall<v>}
+    \end{enumerate}
+    \if{\ne{\len<dropped>,3}}{
+        \assign<status>{FAIL: DROP length}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<dropped>[0],3}}{
+        \assign<status>{FAIL: DROP value}
+        \return{\recall<status>}
+    }
+
+    % SLICE
+    \let<sliced[]>{}
+    \begin<\recall<STD::SLICE>[orig,1,4]>[i,v]{enumerate}
+        \push<sliced>{\recall<v>}
+    \end{enumerate}
+    \if{\ne{\len<sliced>,3}}{
+        \assign<status>{FAIL: SLICE length}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<sliced>[0],2}}{
+        \assign<status>{FAIL: SLICE start}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<sliced>[2],4}}{
+        \assign<status>{FAIL: SLICE end}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 17: CONTAINS and INDEX_OF
+    % =========================================================================
+    \let<test_phase>{17}
+
+    \let<search_arr[]>{10,20,30,40,50}
+
+    \if{\ne{\recall<STD::CONTAINS>[search_arr,30],1}}{
+        \assign<status>{FAIL: CONTAINS found}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<STD::CONTAINS>[search_arr,99],0}}{
+        \assign<status>{FAIL: CONTAINS not found}
+        \return{\recall<status>}
+    }
+
+    \if{\ne{\recall<STD::INDEX_OF>[search_arr,30],2}}{
+        \assign<status>{FAIL: INDEX_OF found}
+        \return{\recall<status>}
+    }
+    \if{\ne{\recall<STD::INDEX_OF>[search_arr,99],-1}}{
+        \assign<status>{FAIL: INDEX_OF not found}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 18: COUNT with predicate
+    % =========================================================================
+    \let<test_phase>{18}
+
+    \let<count_arr[]>{1,2,3,4,5,6,7,8,9,10}
+    \let<even_count>{\recall<STD::COUNT>[count_arr,STD::IS_EVEN]}
+    \if{\ne{\valueof<even_count>,5}}{
+        \assign<status>{FAIL: COUNT evens}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 19: Deeply nested array building
+    % =========================================================================
+    \let<test_phase>{19}
+
+    % Build a 2D-ish structure: for each i in 1..3, create array [i, i*2, i*3]
+    % Then flatten and sum all values
+    % i=1: [1,2,3] sum=6
+    % i=2: [2,4,6] sum=12
+    % i=3: [3,6,9] sum=18
+    % Total: 36
+    \let<nested_total>{0}
+    \begin<\recall<STD::RANGE>[1,3]>[i,base]{enumerate}
+        \let<inner[]>{}
+        \begin<\recall<STD::RANGE>[1,3]>[j,mult]{enumerate}
+            \push<inner>{\mul{\recall<base>,\recall<mult>}}
+        \end{enumerate}
+        \begin<inner>[k,val]{enumerate}
+            \let<nested_total>{\add{\valueof<nested_total>,\recall<val>}}
+        \end{enumerate}
+    \end{enumerate}
+    \if{\ne{\valueof<nested_total>,36}}{
+        \assign<status>{FAIL: nested array building}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % PHASE 20: Combining everything - complex expression
+    % =========================================================================
+    \let<test_phase>{20}
+
+    % Compute: sum of (factorial of count of elements > threshold) for multiple thresholds
+    % Data: [1,2,3,4,5,6,7,8,9,10]
+    % Thresholds: [3, 5, 7]
+    % Count > 3: 7 elements, 7! = 5040
+    % Count > 5: 5 elements, 5! = 120
+    % Count > 7: 3 elements, 3! = 6
+    % Sum: 5166
+    \let<data[]>{1,2,3,4,5,6,7,8,9,10}
+    \let<thresholds[]>{3,5,7}
+    \let<complex_sum>{0}
+
+    \begin<thresholds>[ti,thresh]{enumerate}
+        % Count elements greater than threshold
+        \let<gt_count>{0}
+        \begin<data>[di,dval]{enumerate}
+            \if{\gt{\recall<dval>,\recall<thresh>}}{
+                \inc<gt_count>
+            }
+        \end{enumerate}
+        % Add factorial of count to sum
+        \let<complex_sum>{\add{\valueof<complex_sum>,\recall<STD::FACTORIAL>[\valueof<gt_count>]}}
+    \end{enumerate}
+
+    \if{\ne{\valueof<complex_sum>,5166}}{
+        \assign<status>{FAIL: complex combined (got \valueof<complex_sum>, expected 5166)}
+        \return{\recall<status>}
+    }
+
+    % =========================================================================
+    % ALL TESTS PASSED
+    % =========================================================================
+    \return{PASS}
+}

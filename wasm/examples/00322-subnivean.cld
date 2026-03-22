@@ -1,0 +1,1927 @@
+% @category: Advanced Programmability & Terminal
+% @name: Subnivean VM / Bytecode Assembly
+% @description: A guide to the Subnivean stack machine
+@cassilda: subnivean_guide
+
+@label subnivean_guide
+    The CL guide teaches how to write Computational Lambdas -- the high-level
+    language compiled by Hyades.  This companion guide goes one level deeper.
+    Here you will learn what CL compiles \textit{down to}: the raw bytecode
+    executed by the Subnivean virtual machine.
+
+    Every example in this guide is \textit{live}.  The boxed assembly listings
+    are not pseudocode; they are real programs executed by \cmd{sn}\{...\},
+    Hyades' inline assembler.  Each one runs inside the typesetting engine and
+    produces the output you see beside it.
+
+    Subnivean is a \textit{stack machine}.  There are no registers.  Every
+    value lives on a stack; instructions pop their operands and push their
+    results.  If you have ever used an HP calculator in RPN mode, or written
+    Forth, the model will feel familiar.  If not, the first few sections will
+    build the intuition from scratch.
+
+    Why does Subnivean exist?  Speed.  The text-based macro interpreter
+    expands strings character by character -- fine for formatting, but far
+    too slow for Game of Life or Matrix Digital Rain at interactive frame
+    rates.  Subnivean compiles to bytecode and executes it in a tight C
+    loop, achieving a 65x speedup over interpreted CL.
+
+    The \cmd{sn}\{...\} command feeds source text to a two-pass assembler.
+    Pass one collects labels and constant-pool directives.  Pass two emits
+    instructions.  The resulting bytecode is handed to the VM, which executes
+    it and returns whatever was sent to OUTPUT as a string.
+
+    The sections build on each other.  By the end you will have written a
+    complete GCD algorithm and an iterative Fibonacci generator at the
+    bytecode level -- and you will know exactly what every instruction does.
+
+
+    \section{\textbf{The Stack}}
+
+    Everything in Subnivean begins with the stack.  PUSH\_INT places an
+    integer on top; OUTPUT pops the top value and sends it to the output
+    stream.  HALT stops execution.
+
+    \hylst{\verb|
+PUSH_INT 42
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 42
+OUTPUT
+HALT
+        }
+    }
+}
+
+    That is a complete program.  PUSH\_INT 42 pushes the integer 42 onto
+    the stack.  OUTPUT pops it, converts it to its string representation,
+    and appends it to the output buffer.  HALT stops the VM.
+
+    Instructions consume their operands by popping.  After OUTPUT, the
+    stack is empty again.  Let us try arithmetic:
+
+    \hylst{\verb|
+PUSH_INT 5
+PUSH_INT 3
+ADD
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 5
+PUSH_INT 3
+ADD
+OUTPUT
+HALT
+        }
+    }
+}
+
+    PUSH\_INT 5 pushes 5.  PUSH\_INT 3 pushes 3.  Now the stack holds
+    [5, 3] (3 on top).  ADD pops both and pushes their sum: [8].  OUTPUT
+    pops 8 and prints it.
+
+    \fculn{DUP and POP}
+
+    DUP duplicates the top of stack.  POP discards it.
+
+    \hylst{\verb|
+PUSH_INT 10
+DUP
+ADD
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 10
+DUP
+ADD
+OUTPUT
+HALT
+        }
+    }
+}
+
+    DUP copies 10, giving [10, 10].  ADD produces [20].
+
+    \fculn{SWAP and ROT}
+
+    SWAP exchanges the top two elements.  ROT rotates the top three:
+    [a, b, c] becomes [b, c, a].
+
+    Order matters for non-commutative operations.  SUB pops [b, a] and
+    computes a - b.  If you push 10 then 3, you get 10 - 3 = 7:
+
+    \hylst{\verb|
+PUSH_INT 10
+PUSH_INT 3
+SUB
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 10
+PUSH_INT 3
+SUB
+OUTPUT
+HALT
+        }
+    }
+}
+
+    But if you need 3 - 10, push them in the opposite order -- or use
+    SWAP after pushing:
+
+    \hylst{\verb|
+PUSH_INT 10
+PUSH_INT 3
+SWAP
+SUB
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 10
+PUSH_INT 3
+SWAP
+SUB
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \fculn{Special Values}
+
+    PUSH\_NIL pushes a nil value.  PUSH\_TRUE pushes integer 1.
+    PUSH\_FALSE pushes integer 0.  Booleans in Subnivean are just
+    integers: any nonzero value is truthy, zero is falsy.
+
+    \hylst{\verb|
+PUSH_TRUE
+PUSH_FALSE
+ADD
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_TRUE
+PUSH_FALSE
+ADD
+OUTPUT
+HALT
+        }
+    }
+}
+
+    True (1) plus false (0) equals 1.
+
+    \begin{didyouknow}
+    \center{STACK DEPTH}
+    The Subnivean stack is 4096 entries deep -- more than enough for any
+    computation.  A stack overflow halts the VM with an error.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Arithmetic}}
+
+    Subnivean provides six arithmetic operations.  All binary operators
+    pop two values [b, a] and push the result.  The \textit{first} value
+    pushed is the left operand:
+
+    \indented{\fancylist{
+        - \textbf{ADD}: a + b
+        - \textbf{SUB}: a - b
+        - \textbf{MUL}: a * b
+        - \textbf{DIV}: a / b (integer, truncates toward zero)
+        - \textbf{MOD}: a mod b (remainder)
+        - \textbf{NEG}: unary negation (one operand)
+    }}
+
+    \hylst{\verb|
+; Multiplication: 6 * 7 = 42
+PUSH_INT 6
+PUSH_INT 7
+MUL
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 6
+PUSH_INT 7
+MUL
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \hylst{\verb|
+; Division: 20 / 3 = 6 (truncated)
+PUSH_INT 20
+PUSH_INT 3
+DIV
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 20
+PUSH_INT 3
+DIV
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \hylst{\verb|
+; Modulo: 17 mod 5 = 2
+PUSH_INT 17
+PUSH_INT 5
+MOD
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 17
+PUSH_INT 5
+MOD
+OUTPUT
+HALT
+        }
+    }
+}
+
+    NEG takes a single operand and negates it:
+
+    \hylst{\verb|
+PUSH_INT 42
+NEG
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 42
+NEG
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \begin{didyouknow}
+    \center{INTEGER PRECISION}
+    All values are 64-bit signed integers.  Integer division truncates
+    toward zero.  There are no floating-point numbers in Subnivean.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Constants and Strings}}
+
+    Integers are pushed with PUSH\_INT.  But what about strings?  Strings
+    live in the \textit{constant pool} -- a per-function array of compile-
+    time values.  The assembler directive \textbf{.const} adds a string:
+
+    \fancylisting{\verb|
+.const "hello"       ; index 0
+.const "world"       ; index 1
+PUSH_CONST 0         ; push "hello"
+PUSH_CONST 1         ; push "world"
+|}
+
+    The first .const gets index 0, the second gets index 1, and so on.
+    PUSH\_CONST loads from the constant pool by index.
+
+    \hylst{\verb|
+.const "hello"
+PUSH_CONST 0
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.const "hello"
+PUSH_CONST 0
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \fculn{String Concatenation}
+
+    CONCAT pops two strings [b, a] and pushes their concatenation a+b:
+
+    \hylst{\verb|
+.const "hello "
+.const "world"
+PUSH_CONST 0
+PUSH_CONST 1
+CONCAT
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.const "hello "
+.const "world"
+PUSH_CONST 0
+PUSH_CONST 1
+CONCAT
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \fculn{STRINGIFY}
+
+    STRINGIFY converts any value to its string representation.  This is
+    how you mix integers and strings:
+
+    \hylst{\verb|
+.const " is the answer"
+PUSH_INT 42
+STRINGIFY
+PUSH_CONST 0
+CONCAT
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.const " is the answer"
+PUSH_INT 42
+STRINGIFY
+PUSH_CONST 0
+CONCAT
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \fculn{Escape Sequences}
+
+    Strings in .const support standard escape sequences:
+
+    \indented{\fancylist{
+        - \verb|\\n| -- newline
+        - \verb|\\t| -- tab
+        - \verb|\\\\| -- literal backslash
+        - \verb|\\"| -- literal double quote
+    }}
+
+    \fculn{Constant Pool Indexing}
+
+    Pool indices are assigned sequentially.  Both .const and .sym (covered
+    next) share the same pool.  The first directive is index 0, the second
+    is index 1, regardless of whether it is .const or .sym.  Plan your
+    indices accordingly.
+
+    \begin{didyouknow}
+    \center{OUTPUT ACCEPTS ANYTHING}
+    OUTPUT calls STRINGIFY internally.  You can OUTPUT an integer
+    directly without explicit STRINGIFY -- it will be converted
+    automatically.  STRINGIFY is needed when you want to CONCAT an
+    integer with a string.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Symbols and Bindings}}
+
+    Variables in Subnivean are \textit{bindings}: a symbol (the name)
+    associated with a value in a \textit{scope}.  The assembler provides
+    the .sym directive to intern a symbol:
+
+    \fancylisting{\verb|
+.sym x          ; intern symbol "x", add to constant pool
+|}
+
+    Like .const, .sym occupies a constant pool slot.  The difference is
+    that .sym creates an interned \textit{symbol} -- a unique identity
+    used for fast variable lookup.
+
+    Three instructions work with bindings:
+
+    \indented{\fancylist{
+        - \textbf{BIND}: [value, sym] → [] -- bind value to symbol in current scope
+        - \textbf{LOOKUP}: [sym] → [value] -- search scope chain for symbol
+        - \textbf{SET}: [value, sym] → [] -- update existing binding in chain
+    }}
+
+    \hylst{\verb|
+.sym x
+PUSH_INT 42
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym x
+PUSH_INT 42
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+        }
+    }
+}
+
+    Step by step: .sym x interns "x" at pool index 0.  PUSH\_INT 42
+    pushes the value.  PUSH\_CONST 0 pushes the symbol.  BIND pops both
+    and stores the binding x=42 in the current scope.  Then PUSH\_CONST 0
+    pushes the symbol again, LOOKUP finds it, and OUTPUT prints 42.
+
+    SET updates an existing binding without creating a new one:
+
+    \hylst{\verb|
+.sym x
+PUSH_INT 10
+PUSH_CONST 0
+BIND
+PUSH_INT 99
+PUSH_CONST 0
+SET
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym x
+PUSH_INT 10
+PUSH_CONST 0
+BIND
+PUSH_INT 99
+PUSH_CONST 0
+SET
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+        }
+    }
+}
+
+    First x is bound to 10, then SET overwrites it with 99.
+
+    \begin{didyouknow}
+    \center{WHY SYMBOLS?}
+    Symbols are \textit{interned} -- each unique name exists exactly once
+    in memory.  Comparing two symbols is a pointer comparison (O(1)),
+    not a string comparison (O(n)).  This is why variable lookup is fast.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Cells -- Mutable Boxes}}
+
+    Subnivean values are immutable.  An integer on the stack is just a
+    number -- you cannot increment it in place.  But programs need mutable
+    state.  The solution is \textit{cells}: mutable boxes that wrap a
+    value.
+
+    \indented{\fancylist{
+        - \textbf{CELL\_NEW}: [value] → [cell] -- box the value
+        - \textbf{CELL\_GET}: [cell] → [value] -- unbox (copy the contents)
+        - \textbf{CELL\_SET}: [value, cell] → [] -- mutate the contents
+        - \textbf{CELL\_INC}: [cell] → [new\_val] -- increment integer in cell, push new value
+        - \textbf{CELL\_DEC}: [cell] → [new\_val] -- decrement integer in cell, push new value
+    }}
+
+    The canonical pattern for a mutable variable:
+
+    \fancylisting{\verb|
+; Create mutable variable x = 5
+.sym x
+PUSH_INT 5          ; value
+CELL_NEW            ; wrap in cell
+PUSH_CONST 0        ; symbol
+BIND                ; bind cell to symbol
+|}
+
+    To read the variable, look up the cell, then CELL\_GET.  To mutate
+    it, look up the cell, then CELL\_SET (or CELL\_INC/CELL\_DEC):
+
+    \hylst{\verb|
+.sym x
+PUSH_INT 5
+CELL_NEW
+PUSH_CONST 0
+BIND
+; read x
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym x
+PUSH_INT 5
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    CELL\_INC increments the integer inside a cell and pushes the new
+    value.  Here we increment x five times:
+
+    \hylst{\verb|
+.sym x
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+; increment 5 times
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym x
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+POP
+PUSH_CONST 0
+LOOKUP
+CELL_INC
+OUTPUT
+HALT
+        }
+    }
+}
+
+    We start at 0 and increment five times; the final CELL\_INC pushes 5,
+    which OUTPUT prints.  Each intermediate CELL\_INC result is discarded
+    with POP.
+
+    \begin{didyouknow}
+    \center{CELLS AND CL}
+    In CL, \cmd{let}\<x:int\>\{5\} compiles to exactly: PUSH\_INT 5 /
+    CELL\_NEW / PUSH\_CONST \<sym\_x\> / BIND.  Every mutable variable
+    is a cell.  Reading \$\{x\} compiles to LOOKUP / CELL\_GET.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Comparison and Logic}}
+
+    Subnivean provides six comparison operators and three logic operators.
+    All comparisons pop [b, a] and push 1 (true) or 0 (false):
+
+    \indented{\fancylist{
+        - \textbf{EQ}: a == b
+        - \textbf{NE}: a != b
+        - \textbf{LT}: a < b
+        - \textbf{GT}: a > b
+        - \textbf{LE}: a <= b
+        - \textbf{GE}: a >= b
+    }}
+
+    Logic operators:
+
+    \indented{\fancylist{
+        - \textbf{AND}: a \&\& b (non-short-circuit)
+        - \textbf{OR}: a || b
+        - \textbf{NOT}: !a (unary)
+    }}
+
+    Results are plain integers.  1 is true, 0 is false:
+
+    \hylst{\verb|
+; 10 < 20?
+PUSH_INT 10
+PUSH_INT 20
+LT
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 10
+PUSH_INT 20
+LT
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \hylst{\verb|
+; 5 == 5?
+PUSH_INT 5
+PUSH_INT 5
+EQ
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 5
+PUSH_INT 5
+EQ
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \hylst{\verb|
+; NOT 0 = 1
+PUSH_FALSE
+NOT
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_FALSE
+NOT
+OUTPUT
+HALT
+        }
+    }
+}
+
+    These are the building blocks for control flow, which follows next.
+
+
+    {}\\
+    \section{\textbf{Control Flow}}
+
+    Without jumps, programs execute top to bottom.  Labels and jump
+    instructions add branching and loops.
+
+    \fculn{Labels}
+
+    A label is an identifier followed by a colon.  It marks a position
+    in the instruction stream:
+
+    \fancylisting{\verb|
+start:                ; defines label "start"
+    PUSH_INT 1
+done:                 ; defines label "done"
+    HALT
+|}
+
+    Labels do not emit instructions -- they are resolved by the assembler
+    and converted to relative offsets.
+
+    \fculn{Jump Instructions}
+
+    \indented{\fancylist{
+        - \textbf{JUMP label}: unconditional jump
+        - \textbf{JUMP\_IF label}: [cond] → [] -- jump if truthy (nonzero)
+        - \textbf{JUMP\_UNLESS label}: [cond] → [] -- jump if falsy (zero)
+        - \textbf{LOOP label}: backward jump (for loops)
+    }}
+
+    \fculn{If/Else Pattern}
+
+    The classic conditional: test a condition, jump to one branch or
+    the other.
+
+    \hylst{\verb|
+.const "yes"
+.const "no"
+; Is 10 > 5?
+PUSH_INT 10
+PUSH_INT 5
+GT
+JUMP_IF yes
+; false branch
+PUSH_CONST 1
+JUMP end
+yes:
+PUSH_CONST 0
+end:
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.const "yes"
+.const "no"
+PUSH_INT 10
+PUSH_INT 5
+GT
+JUMP_IF yes
+PUSH_CONST 1
+JUMP end
+yes:
+PUSH_CONST 0
+end:
+OUTPUT
+HALT
+        }
+    }
+}
+
+    GT pushes 1 (10 > 5 is true).  JUMP\_IF pops it and jumps to
+    \textit{yes}.  The string "yes" is pushed and printed.
+
+    \fculn{A Simple Countdown Loop}
+
+    Loops use LOOP for backward jumps.  Here is a countdown from 5 to 1:
+
+    \hylst{\verb|
+.sym n
+.const " "
+; n = 5 (as cell)
+PUSH_INT 5
+CELL_NEW
+PUSH_CONST 0
+BIND
+loop:
+  ; output n
+  PUSH_CONST 0
+  LOOKUP
+  CELL_GET
+  OUTPUT
+  ; output space
+  PUSH_CONST 1
+  OUTPUT
+  ; decrement n
+  PUSH_CONST 0
+  LOOKUP
+  CELL_DEC
+  ; if n > 0, continue
+  PUSH_INT 0
+  GT
+  JUMP_IF loop
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym n
+.const " "
+PUSH_INT 5
+CELL_NEW
+PUSH_CONST 0
+BIND
+loop:
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+PUSH_CONST 1
+OUTPUT
+PUSH_CONST 0
+LOOKUP
+CELL_DEC
+PUSH_INT 0
+GT
+JUMP_IF loop
+HALT
+        }
+    }
+}
+
+    CELL\_DEC decrements the cell and pushes the new value.  We compare
+    that with 0 using GT.  If still positive, JUMP\_IF loops back.
+
+    \fculn{Sum 1 to 10}
+
+    A slightly more involved loop that computes 1+2+...+10 = 55:
+
+    \hylst{\verb|
+.sym sum
+.sym i
+; sum = 0
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+; i = 1
+PUSH_INT 1
+CELL_NEW
+PUSH_CONST 1
+BIND
+loop:
+  ; sum += i
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  PUSH_CONST 0
+  LOOKUP
+  CELL_GET
+  ADD
+  PUSH_CONST 0
+  LOOKUP
+  CELL_SET
+  ; i++
+  PUSH_CONST 1
+  LOOKUP
+  CELL_INC
+  ; if i <= 10, loop
+  PUSH_INT 10
+  LE
+  JUMP_IF loop
+; output sum
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym sum
+.sym i
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_INT 1
+CELL_NEW
+PUSH_CONST 1
+BIND
+loop:
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+ADD
+PUSH_CONST 0
+LOOKUP
+CELL_SET
+PUSH_CONST 1
+LOOKUP
+CELL_INC
+PUSH_INT 10
+LE
+JUMP_IF loop
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    \fculn{The Two Loop Patterns}
+
+    \textit{Bottom-tested} (do-while): the body always executes at least
+    once.  The condition comes after the body:
+
+    \fancylisting{\verb|
+loop:
+    ; ... body ...
+    ; ... condition ...
+    JUMP_IF loop         ; repeat while true
+|}
+
+    \textit{Top-tested} (while): the condition is checked before the body.
+    If false initially, the body never executes:
+
+    \fancylisting{\verb|
+loop:
+    ; ... condition ...
+    JUMP_UNLESS done     ; exit if false
+    ; ... body ...
+    JUMP loop
+done:
+|}
+
+    \begin{didyouknow}
+    \center{LABELS AND OFFSETS}
+    JUMP, JUMP\_IF, and JUMP\_UNLESS use \textit{relative} offsets
+    internally, but the assembler computes them from label names.  You
+    never need to count instructions by hand.  Forward references work
+    -- you can JUMP\_IF done before done: is defined.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Scopes}}
+
+    Subnivean organizes bindings into a \textit{scope chain}.  Each scope
+    has a parent; LOOKUP searches up the chain.
+
+    \indented{\fancylist{
+        - \textbf{SCOPE\_NEW}: create a child scope of the current one, enter it
+        - \textbf{SCOPE\_POP}: exit to parent (child freed if no references remain)
+        - \textbf{SCOPE\_CAPTURE}: push the current scope as a value
+        - \textbf{SCOPE\_RESTORE}: pop a scope value, make it current
+    }}
+
+    Scopes let you shadow variables without losing the outer binding:
+
+    \hylst{\verb|
+.sym x
+.const " "
+; x = 10 in outer scope
+PUSH_INT 10
+PUSH_CONST 0
+BIND
+; enter new scope
+SCOPE_NEW
+; x = 99 in inner scope (shadows outer)
+PUSH_INT 99
+PUSH_CONST 0
+BIND
+; read inner x
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+PUSH_CONST 1
+OUTPUT
+; exit inner scope
+SCOPE_POP
+; read outer x (still 10)
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym x
+.const " "
+PUSH_INT 10
+PUSH_CONST 0
+BIND
+SCOPE_NEW
+PUSH_INT 99
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+PUSH_CONST 1
+OUTPUT
+SCOPE_POP
+PUSH_CONST 0
+LOOKUP
+OUTPUT
+HALT
+        }
+    }
+}
+
+    The inner scope binds x=99, which shadows the outer x=10.  After
+    SCOPE\_POP, the inner scope is destroyed and x resolves to 10 again.
+
+    \begin{didyouknow}
+    \center{WHY SCOPES MATTER}
+    Closures capture scopes.  In CL loops, per-iteration scopes give
+    each closure its own variables -- the "JavaScript let in for-loop"
+    semantics that prevent the classic "all closures share one counter"
+    bug.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Functions and Closures}}
+
+    Subnivean supports first-class closures: a function paired with the
+    scope in which it was created.
+
+    \indented{\fancylist{
+        - \textbf{CLOSURE}: [scope] → [closure] -- wraps a function (by constant pool index) with a captured scope
+        - \textbf{CALL}: [args..., closure] → [result] -- call with operand = argc
+        - \textbf{RETURN}: return nil from current function
+        - \textbf{RETURN\_VAL}: [value] → ; return TOS
+        - \textbf{TAIL\_CALL}: like CALL but reuses the stack frame (optimization)
+    }}
+
+    Creating a closure requires a compiled sub-function stored in the
+    constant pool.  The \cmd{sn}\{\} assembler compiles a single flat
+    function, so closures cannot be demonstrated in raw assembly.
+    However, the mechanism is straightforward:
+
+    \fancylisting{\verb|
+; How CL compiles a closure:
+; 1. The lambda body is compiled to a Function
+;    and stored in the constant pool at some index N
+; 2. At the call site:
+SCOPE_CAPTURE        ; push current scope
+CLOSURE N            ; wrap function N with scope -> closure
+CALL 0               ; call with 0 arguments
+|}
+
+    When CALL executes, the VM creates a new call frame, pushes arguments
+    into a child scope of the captured scope, and transfers control.
+    RETURN\_VAL pops the result and passes it back to the caller.
+
+    \begin{didyouknow}
+    \center{COMPILATION PATTERN}
+    Every \#\{...\} lambda body compiles to a Function stored in the
+    parent's constant pool.  \cmd{invoke} emits SCOPE\_CAPTURE /
+    PUSH\_CONST / CLOSURE / CALL.  Arguments are pushed before the
+    closure, and the CALL operand indicates how many there are.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Arrays}}
+
+    Subnivean arrays live in a persistent store and are accessed by
+    address.
+
+    \indented{\fancylist{
+        - \textbf{ARRAY\_NEW}: [elems...] → [array] -- operand = element count
+        - \textbf{ARRAY\_GET}: [idx, arr] → [elem]
+        - \textbf{ARRAY\_SET}: [val, idx, arr] → []
+        - \textbf{ARRAY\_LEN}: [arr] → [len]
+        - \textbf{ARRAY\_PUSH}: [val, arr] → []
+        - \textbf{ARRAY\_POP}: [arr] → [val]
+    }}
+
+    Create an array with three elements and read the second one (index 1):
+
+    \hylst{\verb|
+; Create array [10, 20, 30]
+PUSH_INT 10
+PUSH_INT 20
+PUSH_INT 30
+ARRAY_NEW 3
+; Read element at index 1
+DUP
+PUSH_INT 1
+ARRAY_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+PUSH_INT 10
+PUSH_INT 20
+PUSH_INT 30
+ARRAY_NEW 3
+DUP
+PUSH_INT 1
+ARRAY_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    ARRAY\_NEW 3 pops three values and creates an array [10, 20, 30],
+    pushing its address.  We DUP the address (we will need it), push
+    index 1, and ARRAY\_GET pops idx then arr, producing 20.
+
+    \fculn{Push and Pop}
+
+    ARRAY\_PUSH appends a value; ARRAY\_POP removes and returns the last:
+
+    \hylst{\verb|
+; Create empty array
+ARRAY_NEW 0
+; Push 100, 200, 300
+DUP
+PUSH_INT 100
+ARRAY_PUSH
+DUP
+PUSH_INT 200
+ARRAY_PUSH
+DUP
+PUSH_INT 300
+ARRAY_PUSH
+; Get length
+DUP
+ARRAY_LEN
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+ARRAY_NEW 0
+DUP
+PUSH_INT 100
+ARRAY_PUSH
+DUP
+PUSH_INT 200
+ARRAY_PUSH
+DUP
+PUSH_INT 300
+ARRAY_PUSH
+DUP
+ARRAY_LEN
+OUTPUT
+HALT
+        }
+    }
+}
+
+    We push three elements onto an initially empty array, then ARRAY\_LEN
+    confirms the count is 3.
+
+    Note the pattern: ARRAY\_PUSH pops val (top) then arr (second),
+    so we DUP the array address, push the value, and call ARRAY\_PUSH.
+
+
+    {}\\
+    \section{\textbf{Maps}}
+
+    Maps are Robin Hood hash tables in the persistent store.  Keys and
+    values are integers.
+
+    \indented{\fancylist{
+        - \textbf{MAP\_NEW}: [] → [addr] -- create empty map
+        - \textbf{MAP\_SET}: [val, key, addr] → [] -- set map[key] = val
+        - \textbf{MAP\_GET}: [key, addr] → [value] -- get map[key] (0 if missing)
+        - \textbf{MAP\_HAS}: [key, addr] → [0/1] -- check if key exists
+        - \textbf{MAP\_DEL}: [key, addr] → [0/1] -- delete key
+        - \textbf{MAP\_LEN}: [addr] → [count]
+        - \textbf{MAP\_KEYS}: [addr] → [arr\_addr] -- array of all keys
+    }}
+
+    \hylst{\verb|
+.sym m
+; Create map
+MAP_NEW
+PUSH_CONST 0
+BIND
+; Set map[1] = 100
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 100
+MAP_SET
+; Set map[2] = 200
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 200
+MAP_SET
+; Get map[1]
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+MAP_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym m
+MAP_NEW
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 100
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 200
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+MAP_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    We create a map, store two entries, and retrieve the value at key 1.
+
+    \hylst{\verb|
+; Check map length
+.sym m
+MAP_NEW
+PUSH_CONST 0
+BIND
+; Add 3 entries
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 10
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 20
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 3
+PUSH_INT 30
+MAP_SET
+; Output length
+PUSH_CONST 0
+LOOKUP
+MAP_LEN
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym m
+MAP_NEW
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 10
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 20
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 3
+PUSH_INT 30
+MAP_SET
+PUSH_CONST 0
+LOOKUP
+MAP_LEN
+OUTPUT
+HALT
+        }
+    }
+}
+
+
+    {}\\
+    \section{\textbf{Heap Memory}}
+
+    For raw memory access, Subnivean provides a heap: a persistent store
+    of fixed-size blocks.
+
+    \indented{\fancylist{
+        - \textbf{MEM\_ALLOC}: [count] → [addr] -- allocate a block with count slots
+        - \textbf{MEM\_STORE}: [val, idx, addr] → [] -- store heap[addr][idx] = val
+        - \textbf{MEM\_LOAD}: [idx, addr] → [value] -- load heap[addr][idx]
+        - \textbf{MEM\_LEN}: [addr] → [len] -- get block length
+    }}
+
+    \hylst{\verb|
+.sym buf
+; Allocate 3 slots
+PUSH_INT 3
+MEM_ALLOC
+PUSH_CONST 0
+BIND
+; Store values
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 0
+PUSH_INT 111
+MEM_STORE
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 222
+MEM_STORE
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 333
+MEM_STORE
+; Load slot 1
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+MEM_LOAD
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym buf
+PUSH_INT 3
+MEM_ALLOC
+PUSH_CONST 0
+BIND
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 0
+PUSH_INT 111
+MEM_STORE
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+PUSH_INT 222
+MEM_STORE
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 2
+PUSH_INT 333
+MEM_STORE
+PUSH_CONST 0
+LOOKUP
+PUSH_INT 1
+MEM_LOAD
+OUTPUT
+HALT
+        }
+    }
+}
+
+    We allocate 3 slots, store 111/222/333, and load back slot 1 (222).
+
+    \fculn{Stack vs Heap}
+
+    Stack values (integers, booleans) are transient -- they exist only
+    while on the stack or bound in a scope.  Heap values (arrays, maps,
+    memory blocks) persist in the VM's store -- they survive across
+    function calls and can be shared between scopes.  When a scope is
+    freed, bindings to heap addresses are dropped but the heap data
+    itself persists as long as anything references it.
+
+
+    {}\\
+    \section{\textbf{Worked Example: GCD}}
+
+    The Euclidean algorithm computes the greatest common divisor of two
+    integers.  The method: while b is not zero, replace (a, b) with
+    (b, a mod b).  When b reaches zero, a holds the GCD.
+
+    Let us compute gcd(48, 18) = 6:
+
+    \hylst{\verb|
+.sym a
+.sym b
+.const " "
+; a = 48
+PUSH_INT 48
+CELL_NEW
+PUSH_CONST 0
+BIND
+; b = 18
+PUSH_INT 18
+CELL_NEW
+PUSH_CONST 1
+BIND
+loop:
+  ; if b == 0, done
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  PUSH_INT 0
+  EQ
+  JUMP_IF done
+  ; temp = a mod b
+  PUSH_CONST 0
+  LOOKUP
+  CELL_GET
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  MOD
+  ; a = b
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  PUSH_CONST 0
+  LOOKUP
+  CELL_SET
+  ; b = temp (still on stack)
+  PUSH_CONST 1
+  LOOKUP
+  CELL_SET
+  JUMP loop
+done:
+; output a
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym a
+.sym b
+.const " "
+PUSH_INT 48
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_INT 18
+CELL_NEW
+PUSH_CONST 1
+BIND
+loop:
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+PUSH_INT 0
+EQ
+JUMP_IF done
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+MOD
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+PUSH_CONST 0
+LOOKUP
+CELL_SET
+PUSH_CONST 1
+LOOKUP
+CELL_SET
+JUMP loop
+done:
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    Walkthrough of the first iteration:
+
+    \indented{\fancylist{
+        - a=48, b=18.  b != 0, so continue.
+        - Compute 48 mod 18 = 12 (push temp=12).
+        - Copy b (18) into a: now a=18.
+        - Store temp (12) into b: now b=12.
+        - JUMP back to loop.
+    }}
+
+    Subsequent iterations: (18,12) → (12,6) → (6,0).
+    When b=0, we exit and output a=6.
+
+
+    {}\\
+    \section{\textbf{Worked Example: Fibonacci}}
+
+    Iterative Fibonacci computes fib(n) by maintaining two variables:
+    \textit{prev} and \textit{curr}.  Each step sets (prev, curr) to
+    (curr, prev+curr).
+
+    Let us compute fib(10) = 55:
+
+    \hylst{\verb|
+.sym prev
+.sym curr
+.sym i
+; prev = 0, curr = 1, i = 2
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_INT 1
+CELL_NEW
+PUSH_CONST 1
+BIND
+PUSH_INT 2
+CELL_NEW
+PUSH_CONST 2
+BIND
+loop:
+  ; if i > 10, done
+  PUSH_CONST 2
+  LOOKUP
+  CELL_GET
+  PUSH_INT 10
+  GT
+  JUMP_IF done
+  ; temp = prev + curr
+  PUSH_CONST 0
+  LOOKUP
+  CELL_GET
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  ADD
+  ; prev = curr
+  PUSH_CONST 1
+  LOOKUP
+  CELL_GET
+  PUSH_CONST 0
+  LOOKUP
+  CELL_SET
+  ; curr = temp (on stack)
+  PUSH_CONST 1
+  LOOKUP
+  CELL_SET
+  ; i++
+  PUSH_CONST 2
+  LOOKUP
+  CELL_INC
+  POP
+  JUMP loop
+done:
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+|}{%
+    \indented{
+        \sn{
+.sym prev
+.sym curr
+.sym i
+PUSH_INT 0
+CELL_NEW
+PUSH_CONST 0
+BIND
+PUSH_INT 1
+CELL_NEW
+PUSH_CONST 1
+BIND
+PUSH_INT 2
+CELL_NEW
+PUSH_CONST 2
+BIND
+loop:
+PUSH_CONST 2
+LOOKUP
+CELL_GET
+PUSH_INT 10
+GT
+JUMP_IF done
+PUSH_CONST 0
+LOOKUP
+CELL_GET
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+ADD
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+PUSH_CONST 0
+LOOKUP
+CELL_SET
+PUSH_CONST 1
+LOOKUP
+CELL_SET
+PUSH_CONST 2
+LOOKUP
+CELL_INC
+POP
+JUMP loop
+done:
+PUSH_CONST 1
+LOOKUP
+CELL_GET
+OUTPUT
+HALT
+        }
+    }
+}
+
+    The loop runs for i=2..10 (nine iterations).  Starting from fib(0)=0
+    and fib(1)=1, we accumulate up to fib(10)=55.
+
+
+    {}\\
+    \section{\textbf{Opcode Reference}}
+
+    Complete reference of every Subnivean instruction.  Stack effects use
+    the notation [popped] → [pushed].  Operand column
+    shows what the operand means (-- if none).
+
+    \fculn{Stack Operations}
+
+    \indented{\fancylist{
+        - \textbf{NOP}: no operation
+        - \textbf{POP}: [a] → [] -- discard top of stack
+        - \textbf{DUP}: [a] → [a, a] -- duplicate top
+        - \textbf{SWAP}: [a, b] → [b, a] -- swap top two
+        - \textbf{ROT}: [a, b, c] → [b, c, a] -- rotate top three
+    }}
+
+    \fculn{Constants}
+
+    \indented{\fancylist{
+        - \textbf{PUSH\_NIL}: [] → [nil]
+        - \textbf{PUSH\_TRUE}: [] → [1]
+        - \textbf{PUSH\_FALSE}: [] → [0]
+        - \textbf{PUSH\_INT n}: [] → [n] -- push immediate integer
+        - \textbf{PUSH\_CONST n}: [] → [pool[n]] -- push from constant pool
+    }}
+
+    \fculn{Scope Operations}
+
+    \indented{\fancylist{
+        - \textbf{SCOPE\_NEW}: create child scope, enter it
+        - \textbf{SCOPE\_POP}: exit to parent scope
+        - \textbf{SCOPE\_CAPTURE}: [] → [scope] -- push current scope
+        - \textbf{SCOPE\_RESTORE}: [scope] → [] -- restore scope
+    }}
+
+    \fculn{Bindings (Static)}
+
+    \indented{\fancylist{
+        - \textbf{BIND}: [value, sym] → [] -- bind in current scope
+        - \textbf{LOOKUP}: [sym] → [value] -- search scope chain
+        - \textbf{LOOKUP\_HERE}: [sym] → [value] -- current scope only
+        - \textbf{SET}: [value, sym] → [] -- update existing binding
+    }}
+
+    \fculn{Bindings (Dynamic)}
+
+    \indented{\fancylist{
+        - \textbf{BIND\_DYN}: [value, str] → [] -- intern string, bind
+        - \textbf{LOOKUP\_DYN}: [str] → [value] -- intern string, lookup
+        - \textbf{SET\_DYN}: [value, str] → [] -- intern string, set
+    }}
+
+    \fculn{Cells}
+
+    \indented{\fancylist{
+        - \textbf{CELL\_NEW}: [value] → [cell] -- box the value
+        - \textbf{CELL\_GET}: [cell] → [value] -- unbox
+        - \textbf{CELL\_SET}: [value, cell] → [] -- mutate contents
+        - \textbf{CELL\_INC}: [cell] → [new\_val] -- increment integer in cell
+        - \textbf{CELL\_DEC}: [cell] → [new\_val] -- decrement integer in cell
+    }}
+
+    \fculn{Arithmetic}
+
+    \indented{\fancylist{
+        - \textbf{ADD}: [b, a] → [a+b]
+        - \textbf{SUB}: [b, a] → [a-b]
+        - \textbf{MUL}: [b, a] → [a*b]
+        - \textbf{DIV}: [b, a] → [a/b]
+        - \textbf{MOD}: [b, a] → [a mod b]
+        - \textbf{NEG}: [a] → [-a]
+        - \textbf{RAND}: [max] → [random 0..max-1]
+    }}
+
+    \fculn{Comparison}
+
+    \indented{\fancylist{
+        - \textbf{EQ}: [b, a] → [a==b ? 1 : 0]
+        - \textbf{NE}: [b, a] → [a!=b ? 1 : 0]
+        - \textbf{LT}: [b, a] → [a<b ? 1 : 0]
+        - \textbf{GT}: [b, a] → [a>b ? 1 : 0]
+        - \textbf{LE}: [b, a] → [a<=b ? 1 : 0]
+        - \textbf{GE}: [b, a] → [a>=b ? 1 : 0]
+    }}
+
+    \fculn{Logic}
+
+    \indented{\fancylist{
+        - \textbf{AND}: [b, a] → [a\&\&b ? 1 : 0]
+        - \textbf{OR}: [b, a] → [a||b ? 1 : 0]
+        - \textbf{NOT}: [a] → [!a ? 1 : 0]
+    }}
+
+    \fculn{Control Flow}
+
+    \indented{\fancylist{
+        - \textbf{JUMP label}: unconditional jump
+        - \textbf{JUMP\_IF label}: [cond] → [] -- jump if truthy
+        - \textbf{JUMP\_UNLESS label}: [cond] → [] -- jump if falsy
+        - \textbf{LOOP label}: backward jump
+    }}
+
+    \fculn{Functions}
+
+    \indented{\fancylist{
+        - \textbf{CLOSURE n}: [scope] → [closure] -- wrap function pool[n]
+        - \textbf{CALL n}: [args..., closure] → [result] -- call with n args
+        - \textbf{TAIL\_CALL n}: like CALL, reuses frame
+        - \textbf{INVOKE\_DYN n}: [args..., val] → [result] -- dynamic dispatch
+        - \textbf{RETURN}: return nil
+        - \textbf{RETURN\_VAL}: [value] → ; return TOS
+    }}
+
+    \fculn{Arrays}
+
+    \indented{\fancylist{
+        - \textbf{ARRAY\_NEW n}: [elems...] → [arr] -- n = element count
+        - \textbf{ARRAY\_GET}: [idx, arr] → [elem]
+        - \textbf{ARRAY\_SET}: [val, idx, arr] → []
+        - \textbf{ARRAY\_LEN}: [arr] → [len]
+        - \textbf{ARRAY\_PUSH}: [val, arr] → []
+        - \textbf{ARRAY\_POP}: [arr] → [val]
+    }}
+
+    \fculn{Maps}
+
+    \indented{\fancylist{
+        - \textbf{MAP\_NEW}: [] → [addr]
+        - \textbf{MAP\_GET}: [key, addr] → [value]
+        - \textbf{MAP\_SET}: [val, key, addr] → []
+        - \textbf{MAP\_HAS}: [key, addr] → [0/1]
+        - \textbf{MAP\_DEL}: [key, addr] → [0/1]
+        - \textbf{MAP\_LEN}: [addr] → [count]
+        - \textbf{MAP\_KEYS}: [addr] → [arr\_addr]
+    }}
+
+    \fculn{Heap Memory}
+
+    \indented{\fancylist{
+        - \textbf{MEM\_ALLOC}: [count] → [addr]
+        - \textbf{MEM\_STORE}: [val, idx, addr] → []
+        - \textbf{MEM\_LOAD}: [idx, addr] → [value]
+        - \textbf{MEM\_LEN}: [addr] → [len]
+    }}
+
+    \fculn{Strings}
+
+    \indented{\fancylist{
+        - \textbf{CONCAT}: [b, a] → [a+b] -- string concatenation
+        - \textbf{STRINGIFY}: [val] → [str] -- convert to string
+        - \textbf{SYMBOL}: [str] → [sym] -- intern string as symbol
+    }}
+
+    \fculn{Output}
+
+    \indented{\fancylist{
+        - \textbf{OUTPUT}: [val] → [] -- stringify and append to output
+        - \textbf{OUTPUT\_RAW n}: emit literal text from pool[n]
+        - \textbf{EMIT\_CURSOR}: [row, col] → [] -- emit cursor positioning escape
+    }}
+
+    \fculn{Special}
+
+    \indented{\fancylist{
+        - \textbf{HALT}: stop execution
+        - \textbf{BREAKPOINT}: debugger hook
+        - \textbf{ASSERT}: [cond, msg] → [] -- error if falsy
+        - \textbf{LEN}: [val] → [len] -- unified length
+    }}
+
+    \fculn{Assembler Directives}
+
+    \indented{\fancylist{
+        - \textbf{.const "text"}: add a string to the constant pool
+        - \textbf{.sym name}: intern a symbol, add to the constant pool
+        - \textbf{name:}: define a label (jump target)
+        - \textbf{; text}: comment (ignored)
+    }}
+
+    Both .const and .sym share the same constant pool.  Indices are
+    assigned sequentially: the first directive is index 0, the second is
+    index 1, regardless of type.  Blank lines are ignored.
+
+    \fculn{Instruction Format}
+
+    Each instruction is 8 bytes: a 4-byte opcode and a 4-byte signed
+    operand.  The operand is an immediate integer, a constant pool index,
+    or a relative jump offset depending on the instruction.  The assembler
+    handles all offset computation automatically.
+
+
+@end
+
+#target_prefix " "
+
+#before_each
+    \linebreaker{greedy}
+    \setwidth{80}
+    \setunicode{true}
+    \setmathitalic{true}
+
+    \macro<\indented{content}>{\indent[2]{${content}}}
+    \macro<\cmd{x}>{\textbackslash{}\textit{${x}}}
+
+    %%% Renders hy as source and rend as an example rendered output
+    \macro<\hylst{hy}{rend}>{%
+        \fancylisting{${hy}}
+
+        \begin{vbox}
+            \child{%
+                \begin{hbox}
+                    \child[3]{}
+                    \child{\hrule{╭}{─}{╮}}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child{
+                        ╭──┴────────────╮
+                    }
+                    \child[1]{│}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child[1]{│}
+                    \child[1]{}
+                    \child[15]{
+                        \hyades{} Output │
+                    }
+                    \child{\hrule{|}{·}{|}}
+                    \child[1]{│}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child{
+                        ╰──┬────────────╯
+                    }
+                    \child[1]{│}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child[3]{}
+                    \child[1]{\vrule[auto]{}{│}{}}
+                    \child[1]{}
+                    \child{${rend}}
+                    \child[2]{}
+                    \child[1]{\vrule[auto]{}{░}{}}
+                    \child[1]{\vrule[auto]{}{│}{}}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{
+                \begin{hbox}
+                    \child[3]{}
+                    \child{\hrule{╰}{─}{╯}}
+                    \child[2]{}
+                \end{hbox}
+
+            }
+        \end{vbox}
+    }
+
+    \macro<\didyouknow{content}>{
+        \vskip{1}
+        \hcenter[60]{
+        \hrule{}{.}{}
+        ${content}
+        \hrule{}{.}{}
+        }
+    }
+#end

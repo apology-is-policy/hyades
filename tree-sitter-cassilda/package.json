@@ -1,0 +1,62 @@
+{
+  "name": "tree-sitter-cassilda",
+  "version": "1.0.0",
+  "description": "Tree-sitter grammar for Cassilda/Hyades documents",
+  "main": "bindings/node",
+  "types": "bindings/node",
+  "keywords": [
+    "tree-sitter",
+    "parser",
+    "cassilda",
+    "hyades",
+    "tex",
+    "math"
+  ],
+  "files": [
+    "grammar.js",
+    "binding.gyp",
+    "prebuilds/**",
+    "bindings/node/*",
+    "queries/*",
+    "src/**"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/tree-sitter-cassilda"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "node-addon-api": "^7.1.0",
+    "node-gyp-build": "^4.8.0"
+  },
+  "peerDependencies": {
+    "tree-sitter": "^0.21.0"
+  },
+  "peerDependenciesMeta": {
+    "tree_sitter": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.22.0",
+    "prebuildify": "^6.0.0"
+  },
+  "scripts": {
+    "build": "tree-sitter generate && tree-sitter build",
+    "test": "tree-sitter test",
+    "parse": "tree-sitter parse",
+    "install": "node-gyp-build",
+    "prebuildify": "prebuildify --napi --strip"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.cassilda",
+      "injection-regex": "cassilda|cld",
+      "file-types": [
+        "cld"
+      ],
+      "highlights": "queries/highlights.scm"
+    }
+  ]
+}

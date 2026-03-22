@@ -1,0 +1,999 @@
+% @category: General Typesetting
+% @name: Layout Primitives
+% @description: Boxes, rules, and spatial arrangement
+@cassilda: layout_guide
+  ╔══════════════════════════════════════════════════════════════════════════════╗
+  ║                              Layout Primitives                               ║
+  ╚══════════════════════════════════════════════════════════════════════════════╝
+  
+  Everything you see on screen is ultimately arranged by 𝐻𝑦𝑎δες‘s box model. Prose
+  flows into paragraphs automatically, but when you need precise spatial control –
+  columns, gutters, frames, aligned regions – you reach for the layout  primitives
+  directly.  Tables, lists, frames, and most  ::stdlib macros are  built on top of
+  these primitives.
+  
+  This guide covers the core layout system from the ground up.
+  
+  𝐓𝐡𝐞 𝐁𝐨𝐱 𝐌𝐨𝐝𝐞𝐥
+  ────────────────────────────────────────────────────────────────────────────────
+  𝐻𝑦𝑎δες arranges content using two kinds of boxes:
+  
+    ● 𝐡𝐛𝐨𝐱 (horizontal box): children are placed side by side, left to right
+    ● 𝐯𝐛𝐨𝐱 (vertical box): children are stacked top to bottom
+  
+  Every box is opened  with \𝑏𝑒𝑔𝑖𝑛 and  closed with \𝑒𝑛𝑑. Inside a box, each piece
+  of content is wrapped in a \𝑐ℎ𝑖𝑙𝑑:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin{hbox}                                                          │
+  │ 2:  │      \child[20]{Left column}                                           │
+  │ 3:  │      \child[20]{Right column}                                          │
+  │ 4:  │  \end{hbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░ Left column         Right column
+  
+  [End out Output]
+  
+  In the example above, the hbox contains two  children, each 20 columns wide. The
+  content flows within each child independently.
+  
+  A vbox stacks children vertically:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin[30]{vbox}                                                      │
+  │ 2:  │      \child{First row of content}                                      │
+  │ 3:  │      \child{Second row of content}                                     │
+  │ 4:  │      \child{Third row of content}                                      │
+  │ 5:  │  \end{vbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░ First row of content
+  ░ Second row of content
+  ░ Third row of content
+  
+  [End out Output]
+  
+  Notice  the [30] after \𝑏𝑒𝑔𝑖𝑛 – that sets the vbox width to 30 columns.  Without
+  it, the box inherits the parent width.
+  
+  
+  textbf{The
+  child Command}
+  ────────────────────────────────────────────────────────────────────────────────
+  \𝑐ℎ𝑖𝑙𝑑 is the building block inside boxes. It accepts up to two optional bracket
+  arguments:
+  
+                       ┌───────────────────────────────────┐
+                       │ \child[width][alignment]{content} │
+                       └───────────────────────────────────┘
+                                       Width
+                                     o═══════o
+  
+  The width can be:
+  
+    ● A 𝐧𝐮𝐦𝐛𝐞𝐫: fixed width in columns
+    ● 𝐚𝐮𝐭𝐨: expands to fill remaining space
+    ● 𝐎𝐦𝐢𝐭𝐭𝐞𝐝: inherits the parent box width (in vbox) or gets equal share (in
+      hbox)
+  
+  When multiple children use auto width, the remaining space is distributed  equa-
+  lly among them:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin[40]{hbox}                                                      │
+  │ 2:  │      \child[10]{Fixed}                                                 │
+  │ 3:  │      \child[auto]{Fills the rest}                                      │
+  │ 4:  │  \end{hbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░ Fixed     Fills the rest
+  
+  [End out Output]
+  
+                                     Alignment
+                                   o═══════════o
+  
+  The second bracket controls horizontal alignment within the child:
+  
+    ● 𝐥𝐞𝐟𝐭 (default): left-aligned
+    ● 𝐜𝐞𝐧𝐭𝐞𝐫: centered
+    ● 𝐫𝐢𝐠𝐡𝐭: right-aligned
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin[30]{vbox}                                                      │
+  │ 2:  │      \child[left]{Left}                                                │
+  │ 3:  │      \child[center]{Center}                                            │
+  │ 4:  │      \child[right]{Right}                                              │
+  │ 5:  │  \end{vbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░ Left
+  ░             Center
+  ░                          Right
+  
+  [End out Output]
+  
+  Both parameters can be combined:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin[40]{hbox}                                                      │
+  │ 2:  │      \child[20][right]{Right-aligned}                                  │
+  │ 3:  │      \child[20][center]{Centered}                                      │
+  │ 4:  │  \end{hbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░        Right-aligned      Centered
+  
+  [End out Output]
+  
+                             Vertical Alignment in hbox
+                           o════════════════════════════o
+  
+  When  children in an hbox have  different heights, you can control vertical ali-
+  gnment with the \𝑏𝑒𝑔𝑖𝑛 bracket:
+  
+    ● \𝑏𝑒𝑔𝑖𝑛[top]{hbox}: align children to the top (default)
+    ● \𝑏𝑒𝑔𝑖𝑛[middle]{hbox}: center children vertically
+    ● \𝑏𝑒𝑔𝑖𝑛[bottom]{hbox}: align children to the bottom
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin[bottom]{hbox}                                                  │
+  │ 2:  │      \child[20]{Short}                                                 │
+  │ 3:  │      \child[20]{This child                                             │
+  │ 4:  │  has three                                                             │
+  │ 5:  │  lines}                                                                │
+  │ 6:  │  \end{hbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░ Short               This child has three
+  ░                     lines
+  
+  [End out Output]
+  
+  
+  textbf{Horizontal Rules (
+  hrule)}
+  ────────────────────────────────────────────────────────────────────────────────
+  A horizontal rule draws a line across the available width. The full syntax is:
+  
+                        ┌──────────────────────────────────┐
+                        │ \hrule[width]{left}{fill}{right} │
+                        └──────────────────────────────────┘
+    ● 𝐰𝐢𝐝𝐭𝐡: number or 𝑎𝑢𝑡𝑜 (fills parent)
+    ● 𝐥𝐞𝐟𝐭: left cap character(s)
+    ● 𝐟𝐢𝐥𝐥: repeated fill character
+    ● 𝐫𝐢𝐠𝐡𝐭: right cap character(s)
+  
+  All  arguments are  optional. A bare  \ℎ𝑟𝑢𝑙𝑒 draws a line with the  default fill
+  character:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \hrule                                                                │
+  │ 2:  │                                                                        │
+  │ 3:  │  \hrule[20]{<}{=}{>}                                                   │
+  │ 4:  │                                                                        │
+  │ 5:  │  \hrule[20]{[}{.}{]}                                                   │
+  │ 6:  │                                                                        │
+  │ 7:  │  \hrule[20]{o}{═}{o}                                                   │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░   ────────────────────────────────────────────────────────────────────────────
+  ░   <==================>
+  ░
+  ░   [..................]
+  ░
+  ░   o══════════════════o
+  
+  [End out Output]
+  
+  Inside a vbox, an 𝑎𝑢𝑡𝑜-width hrule stretches to the box width:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin[30]{vbox}                                                      │
+  │ 2:  │      \child{Some content above}                                        │
+  │ 3:  │      \child{\hrule[auto]{}{─}{}}                                       │
+  │ 4:  │      \child{Some content below}                                        │
+  │ 5:  │  \end{vbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░ Some content above
+  ░ ──────────────────────────────
+  ░ Some content below
+  
+  [End out Output]
+  
+  
+  textbf{Vertical Rules (
+  vrule)}
+  ────────────────────────────────────────────────────────────────────────────────
+  A vertical  rule draws a line down the  height of the  available space. The full
+  syntax is:
+  
+                        ┌──────────────────────────────────┐
+                        │ \vrule[width]{top}{fill}{bottom} │
+                        └──────────────────────────────────┘
+    ● 𝐰𝐢𝐝𝐭𝐡: fixed or 𝑎𝑢𝑡𝑜
+    ● 𝐭𝐨𝐩: top cap character
+    ● 𝐟𝐢𝐥𝐥: repeated fill character
+    ● 𝐛𝐨𝐭𝐭𝐨𝐦: bottom cap character
+  
+  When  placed in an hbox with auto  height, the vrule  stretches to match the ta-
+  llest sibling:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin{hbox}                                                          │
+  │ 2:  │      \child[1]{\vrule[auto]{╭}{│}{╰}}                                  │
+  │ 3:  │      \child[20]{Line one                                               │
+  │ 4:  │  Line two                                                              │
+  │ 5:  │  Line three}                                                           │
+  │ 6:  │      \child[1]{\vrule[auto]{╮}{│}{╯}}                                  │
+  │ 7:  │  \end{hbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░ ╭Line  one  Line  two╮
+  ░ ╰Line three          ╯
+  
+  [End out Output]
+  
+  This  is, in fact,  exactly how the  \𝑓𝑟𝑎𝑚𝑒 stdlib macro works  internally – two
+  vrules on the  sides, two hrules on the top and  bottom, and the  content in the
+  middle.
+  
+  
+  𝐂𝐨𝐦𝐛𝐢𝐧𝐢𝐧𝐠 𝐡𝐛𝐨𝐱 𝐚𝐧𝐝 𝐯𝐛𝐨𝐱
+  ────────────────────────────────────────────────────────────────────────────────
+  Real layouts nest boxes. A common pattern is an hbox of columns, each containing
+  a vbox:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin[40]{hbox}                                                      │
+  │ 2:  │      \child[20]{                                                       │
+  │ 3:  │          \begin{vbox}                                                  │
+  │ 4:  │              \child{Header A}                                          │
+  │ 5:  │              \child{\hrule}                                            │
+  │ 6:  │              \child{Data 1}                                            │
+  │ 7:  │              \child{Data 2}                                            │
+  │ 8:  │          \end{vbox}                                                    │
+  │ 9:  │      }                                                                 │
+  │ 10: │      \child[20]{                                                       │
+  │ 11: │          \begin{vbox}                                                  │
+  │ 12: │              \child{Header B}                                          │
+  │ 13: │              \child{\hrule}                                            │
+  │ 14: │              \child{Data 3}                                            │
+  │ 15: │              \child{Data 4}                                            │
+  │ 16: │          \end{vbox}                                                    │
+  │ 17: │      }                                                                 │
+  │ 18: │  \end{hbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░ Header A            Header B
+  ░ ────────────────────────────────────────
+  ░ Data 1              Data 3
+  ░ Data 2              Data 4
+  
+  [End out Output]
+  
+  The  \𝑡𝑎𝑏𝑙𝑒 system macro  generates exactly this  kind of nested box  structure,
+  with added frame characters and junction handling.
+  
+  
+  textbf{Junction Handling (
+  intersect_rules)}
+  ────────────────────────────────────────────────────────────────────────────────
+  When horizontal and vertical rules cross, their characters must be replaced with
+  proper junction characters. The  \𝑖𝑛𝑡𝑒𝑟𝑠𝑒𝑐𝑡_𝑟𝑢𝑙𝑒𝑠 command does this  automatica-
+  lly:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \intersect_rules{                                                     │
+  │ 2:  │  \begin[20]{vbox}                                                      │
+  │ 3:  │      \child{\hrule[auto]{}{─}{}}                                       │
+  │ 4:  │      \child{                                                           │
+  │ 5:  │          \begin{hbox}                                                  │
+  │ 6:  │              \child[1]{\vrule[auto]{}{│}{}}                            │
+  │ 7:  │              \child[auto]{Cell A}     │                                │
+  │ 8:  │              \child[1]{\vrule[auto]{}{│}{}}                            │
+  │ 9:  │              \child[auto]{Cell B}     │                                │
+  │ 10: │              \child[1]{\vrule[auto]{}{│}{}}                            │
+  │ 11: │          \end{hbox}                                                    │
+  │ 12: │      }                                                                 │
+  │ 13: │      \child{\hrule[auto]{}{─}{}}                                       │
+  │ 14: │  \end{vbox}                                                            │
+  │ 15: │  }                                                                     │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░ ┌─────────┬────────┐
+  ░ │Cell A   │Cell B  │
+  ░ └─────────┴────────┘
+  
+  [End out Output]
+  
+  Without  \𝑖𝑛𝑡𝑒𝑟𝑠𝑒𝑐𝑡_𝑟𝑢𝑙𝑒𝑠, the ─ and │ characters would overlap rather than form
+  proper ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘ junctions.  The junction fixup  pass scans every  cell,
+  checks its four neighbors for line arms, and replaces the character with the co-
+  rrect junction glyph.
+  
+  This works with  single, double, bold, and mixed line styles. It also  preserves
+  intentionally-placed  characters (like rounded  corners ╭ ╮ ╰ ╯) when their arms
+  already match the expected junction.
+  
+  
+  𝐌𝐞𝐚𝐬𝐮𝐫𝐢𝐧𝐠 𝐂𝐨𝐧𝐭𝐞𝐧𝐭
+  ────────────────────────────────────────────────────────────────────────────────
+  The  \𝑚𝑒𝑎𝑠𝑢𝑟𝑒 command renders  content in an invisible  infinite space, measures
+  its dimensions, and stores it for later recall:
+  
+                            ┌──────────────────────────┐
+                            │ \measure<c,w,h>{content} │
+                            └──────────────────────────┘
+    ● 𝐜: name under which the rendered content is stored
+    ● 𝐰: variable receiving the measured width
+    ● 𝐡: variable receiving the measured height
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \measure<box,w,h>{Hello, World!}                                      │
+  │ 2:  │                                                                        │
+  │ 3:  │  Width: ${w}, Height: ${h}                                             │
+  │ 4:  │                                                                        │
+  │ 5:  │  \recall<box>                                                          │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░   Width: 13, Height: 1
+  ░
+  ░   Hello, World!
+  
+  [End out Output]
+  
+  The measured content can be recalled with  \𝑟𝑒𝑐𝑎𝑙𝑙<name>. This is the foundation
+  of many ::stdlib macros:
+  
+    ● \𝑡𝑖𝑔ℎ𝑡𝑓𝑟𝑎𝑚𝑒 measures content to compute an exact-fit frame
+    ● \𝑐𝑢𝑙𝑛 measures text to render a centered underline of the right width
+    ● \𝑓𝑎𝑛𝑐𝑦𝑙𝑖𝑠𝑡𝑖𝑛𝑔 measures line numbers for gutter alignment
+  
+            ............................................................
+                           BUILDING A CENTERED UNDERLINE
+  
+            Here is how you might build a centered  underline from scra-
+            tch using measure and layout primitives:
+  
+              1:  │  \measure<c,w,h>{Some Important Text}
+              2:  │  \center{
+              3:  │      \recall<c>\\
+              4:  │      \center{\hrule[${w}]{}{═}{}}
+              5:  │  }
+            ............................................................
+  
+  
+  𝐖𝐢𝐝𝐭𝐡 𝐈𝐧𝐡𝐞𝐫𝐢𝐭𝐚𝐧𝐜𝐞
+  ────────────────────────────────────────────────────────────────────────────────
+  Width flows down the box tree following these rules:
+  
+    ● \𝑠𝑒𝑡𝑤𝑖𝑑𝑡ℎ{N} sets the document-level width
+    ● A box with an explicit width [N] uses that width
+    ● A box without a width inherits its parent’s width
+    ● In an hbox, children without explicit widths get equal shares of the
+      remaining space after fixed-width children are placed
+    ● auto children in an hbox expand to fill whatever is left
+  
+  Here is width inheritance in action:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin[40]{hbox}                                                      │
+  │ 2:  │      \child[10]{Fixed 10}                                              │
+  │ 3:  │      \child{Gets 15}                                                   │
+  │ 4:  │      \child{Gets 15}                                                   │
+  │ 5:  │  \end{hbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  [𝐻𝑦𝑎δες Output:]
+  
+  ░ Fixed 10  Gets 15        Gets 15
+  
+  [End out Output]
+  
+  The hbox is 40 wide. One child takes 10,  leaving 30 to be split equally between
+  the two remaining children (15 each).
+  
+  
+  𝐂𝐨𝐦𝐦𝐨𝐧 𝐏𝐚𝐭𝐭𝐞𝐫𝐧𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+                                 Two-Column Layout
+                               o═══════════════════o
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin{hbox}                                                          │
+  │ 2:  │      \child{Left column content}                                       │
+  │ 3:  │      \child[2]{}                                                       │
+  │ 4:  │      \child{Right column content}                                      │
+  │ 5:  │  \end{hbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  The empty \child[2]{} creates a 2-column gutter.
+  
+                                 Centering Content
+                               o═══════════════════o
+  
+  The \𝑐𝑒𝑛𝑡𝑒𝑟 stdlib macro is a thin wrapper around a vbox:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin{vbox}                                                          │
+  │ 2:  │      \child[center]{Centered text}                                     │
+  │ 3:  │  \end{vbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  The \ℎ𝑐𝑒𝑛𝑡𝑒𝑟 macro centers horizontally using auto-width spacers:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin{hbox}                                                          │
+  │ 2:  │      \child[auto]{}                                                    │
+  │ 3:  │      \child[40]{Content here}                                          │
+  │ 4:  │      \child[auto]{}                                                    │
+  │ 5:  │  \end{hbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+                                    Indentation
+                                  o═════════════o
+  
+  \𝑖𝑛𝑑𝑒𝑛𝑡 is a simple hbox with a spacer:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin{hbox}                                                          │
+  │ 2:  │      \child[4]{}                                                       │
+  │ 3:  │      \child{Indented content}                                          │
+  │ 4:  │  \end{hbox}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  These patterns compose. Once you understand hbox, vbox, child, hrule, vrule, and
+  intersect_rules, you can build any layout that the ::stdlib macros produce – and
+  invent new ones of your own.
+
+@label layout_guide
+    \Titleframe{Layout Primitives}
+
+    Everything you see on screen is ultimately arranged by \hyades{}'s box model.
+    Prose flows into paragraphs automatically, but when you need precise spatial
+    control -- columns, gutters, frames, aligned regions -- you reach for the
+    layout primitives directly. Tables, lists, frames, and most ::stdlib macros
+    are built on top of these primitives.
+
+    This guide covers the core layout system from the ground up.
+
+
+    \section{\textbf{The Box Model}}
+
+    \hyades{} arranges content using two kinds of boxes:
+
+    \indented{\fancylist{
+        - \textbf{hbox} (horizontal box): children are placed side by side,
+          left to right
+        - \textbf{vbox} (vertical box): children are stacked top to bottom
+    }}
+
+    Every box is opened with \cmd{begin} and closed with \cmd{end}. Inside
+    a box, each piece of content is wrapped in a \cmd{child}:
+
+    \hylst{\verb|
+\begin{hbox}
+    \child[20]{Left column}
+    \child[20]{Right column}
+\end{hbox}
+|}{%
+    \begin{hbox}
+        \child[20]{Left column}
+        \child[20]{Right column}
+    \end{hbox}
+}
+
+    In the example above, the hbox contains two children, each 20 columns
+    wide. The content flows within each child independently.
+
+    A vbox stacks children vertically:
+
+    \hylst{\verb|
+\begin[30]{vbox}
+    \child{First row of content}
+    \child{Second row of content}
+    \child{Third row of content}
+\end{vbox}
+|}{%
+    \begin[30]{vbox}
+        \child{First row of content}
+        \child{Second row of content}
+        \child{Third row of content}
+    \end{vbox}
+}
+
+    Notice the \verb|[30]| after \cmd{begin} -- that sets the vbox width
+    to 30 columns. Without it, the box inherits the parent width.
+
+
+    {}\\
+    \section{\textbf{The \\child Command}}
+
+    \cmd{child} is the building block inside boxes. It accepts up to two
+    optional bracket arguments:
+
+    \center{\tightframe{\verb|\child[width][alignment]{content}|}}
+
+    \fculn{Width}
+
+    The width can be:
+
+    \indented{\fancylist{
+        - A \textbf{number}: fixed width in columns
+        - \textbf{auto}: expands to fill remaining space
+        - \textbf{Omitted}: inherits the parent box width (in vbox) or gets
+          equal share (in hbox)
+    }}
+
+    When multiple children use \verb|auto| width, the remaining space is
+    distributed equally among them:
+
+    \hylst{\verb|
+\begin[40]{hbox}
+    \child[10]{Fixed}
+    \child[auto]{Fills the rest}
+\end{hbox}
+|}{%
+    \begin[40]{hbox}
+        \child[10]{Fixed}
+        \child[auto]{Fills the rest}
+    \end{hbox}
+}
+
+    \fculn{Alignment}
+
+    The second bracket controls horizontal alignment within the child:
+
+    \indented{\fancylist{
+        - \textbf{left} (default): left-aligned
+        - \textbf{center}: centered
+        - \textbf{right}: right-aligned
+    }}
+
+    \hylst{\verb|
+\begin[30]{vbox}
+    \child[left]{Left}
+    \child[center]{Center}
+    \child[right]{Right}
+\end{vbox}
+|}{%
+    \begin[30]{vbox}
+        \child[left]{Left}
+        \child[center]{Center}
+        \child[right]{Right}
+    \end{vbox}
+}
+
+    Both parameters can be combined:
+
+    \hylst{\verb|
+\begin[40]{hbox}
+    \child[20][right]{Right-aligned}
+    \child[20][center]{Centered}
+\end{hbox}
+|}{%
+    \begin[40]{hbox}
+        \child[20][right]{Right-aligned}
+        \child[20][center]{Centered}
+    \end{hbox}
+}
+
+    \fculn{Vertical Alignment in hbox}
+
+    When children in an hbox have different heights, you can control
+    vertical alignment with the \cmd{begin} bracket:
+
+    \indented{\fancylist{
+        - \cmd{begin}[top]\{hbox\}: align children to the top (default)
+        - \cmd{begin}[middle]\{hbox\}: center children vertically
+        - \cmd{begin}[bottom]\{hbox\}: align children to the bottom
+    }}
+
+    \hylst{\verb|
+\begin[bottom]{hbox}
+    \child[20]{Short}
+    \child[20]{This child
+has three
+lines}
+\end{hbox}
+|}{%
+    \begin[bottom]{hbox}
+        \child[20]{Short}
+        \child[20]{This child
+has three
+lines}
+    \end{hbox}
+}
+
+
+    {}\\
+    \section{\textbf{Horizontal Rules (\\hrule)}}
+
+    A horizontal rule draws a line across the available width. The full
+    syntax is:
+
+    \center{\tightframe{\verb|\hrule[width]{left}{fill}{right}|}}
+
+    \indented{\fancylist{
+        - \textbf{width}: number or \textit{auto} (fills parent)
+        - \textbf{left}: left cap character(s)
+        - \textbf{fill}: repeated fill character
+        - \textbf{right}: right cap character(s)
+    }}
+
+    All arguments are optional. A bare \cmd{hrule} draws a line with the
+    default fill character:
+
+    \hylst{\verb|
+\hrule
+
+\hrule[20]{<}{=}{>}
+
+\hrule[20]{[}{.}{]}
+
+\hrule[20]{o}{═}{o}
+|}{%
+    \indented{
+        \hrule
+
+        \hrule[20]{<}{=}{>}
+
+        \hrule[20]{[}{.}{]}
+
+        \hrule[20]{o}{═}{o}
+    }
+}
+
+    Inside a vbox, an \textit{auto}-width hrule stretches to the box width:
+
+    \hylst{\verb|
+\begin[30]{vbox}
+    \child{Some content above}
+    \child{\hrule[auto]{}{─}{}}
+    \child{Some content below}
+\end{vbox}
+|}{%
+    \begin[30]{vbox}
+        \child{Some content above}
+        \child{\hrule[auto]{}{─}{}}
+        \child{Some content below}
+    \end{vbox}
+}
+
+
+    {}\\
+    \section{\textbf{Vertical Rules (\\vrule)}}
+
+    A vertical rule draws a line down the height of the available space.
+    The full syntax is:
+
+    \center{\tightframe{\verb|\vrule[width]{top}{fill}{bottom}|}}
+
+    \indented{\fancylist{
+        - \textbf{width}: fixed or \textit{auto}
+        - \textbf{top}: top cap character
+        - \textbf{fill}: repeated fill character
+        - \textbf{bottom}: bottom cap character
+    }}
+
+    When placed in an hbox with \verb|auto| height, the vrule stretches
+    to match the tallest sibling:
+
+    \hylst{\verb|
+\begin{hbox}
+    \child[1]{\vrule[auto]{╭}{│}{╰}}
+    \child[20]{Line one
+Line two
+Line three}
+    \child[1]{\vrule[auto]{╮}{│}{╯}}
+\end{hbox}
+|}{%
+    \begin{hbox}
+        \child[1]{\vrule[auto]{╭}{│}{╰}}
+        \child[20]{Line one
+Line two
+Line three}
+        \child[1]{\vrule[auto]{╮}{│}{╯}}
+    \end{hbox}
+}
+
+    This is, in fact, exactly how the \cmd{frame} stdlib macro works
+    internally -- two vrules on the sides, two hrules on the top and bottom,
+    and the content in the middle.
+
+
+    {}\\
+    \section{\textbf{Combining hbox and vbox}}
+
+    Real layouts nest boxes. A common pattern is an hbox of columns, each
+    containing a vbox:
+
+    \hylst{\verb|
+\begin[40]{hbox}
+    \child[20]{
+        \begin{vbox}
+            \child{Header A}
+            \child{\hrule}
+            \child{Data 1}
+            \child{Data 2}
+        \end{vbox}
+    }
+    \child[20]{
+        \begin{vbox}
+            \child{Header B}
+            \child{\hrule}
+            \child{Data 3}
+            \child{Data 4}
+        \end{vbox}
+    }
+\end{hbox}
+|}{%
+    \begin[40]{hbox}
+        \child[20]{
+            \begin{vbox}
+                \child{Header A}
+                \child{\hrule}
+                \child{Data 1}
+                \child{Data 2}
+            \end{vbox}
+        }
+        \child[20]{
+            \begin{vbox}
+                \child{Header B}
+                \child{\hrule}
+                \child{Data 3}
+                \child{Data 4}
+            \end{vbox}
+        }
+    \end{hbox}
+}
+
+    The \cmd{table} system macro generates exactly this kind of nested
+    box structure, with added frame characters and junction handling.
+
+
+    {}\\
+    \section{\textbf{Junction Handling (\\intersect\_rules)}}
+
+    When horizontal and vertical rules cross, their characters must be
+    replaced with proper junction characters. The \cmd{intersect\_rules}
+    command does this automatically:
+
+    \hylst{\verb|
+\intersect_rules{
+\begin[20]{vbox}
+    \child{\hrule[auto]{}{─}{}}
+    \child{
+        \begin{hbox}
+            \child[1]{\vrule[auto]{}{│}{}}
+            \child[auto]{Cell A}
+            \child[1]{\vrule[auto]{}{│}{}}
+            \child[auto]{Cell B}
+            \child[1]{\vrule[auto]{}{│}{}}
+        \end{hbox}
+    }
+    \child{\hrule[auto]{}{─}{}}
+\end{vbox}
+}
+|}{%
+    \intersect_rules{
+    \begin[20]{vbox}
+        \child{\hrule[auto]{}{─}{}}
+        \child{
+            \begin{hbox}
+                \child[1]{\vrule[auto]{}{│}{}}
+                \child[auto]{Cell A}
+                \child[1]{\vrule[auto]{}{│}{}}
+                \child[auto]{Cell B}
+                \child[1]{\vrule[auto]{}{│}{}}
+            \end{hbox}
+        }
+        \child{\hrule[auto]{}{─}{}}
+    \end{vbox}
+    }
+}
+
+    Without \cmd{intersect\_rules}, the ─ and │ characters would overlap
+    rather than form proper ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘ junctions. The junction
+    fixup pass scans every cell, checks its four neighbors for line arms,
+    and replaces the character with the correct junction glyph.
+
+    This works with single, double, bold, and mixed line styles. It also
+    preserves intentionally-placed characters (like rounded corners
+    ╭ ╮ ╰ ╯) when their arms already match the expected junction.
+
+
+    {}\\
+    \section{\textbf{Measuring Content}}
+
+    The \cmd{measure} command renders content in an invisible infinite
+    space, measures its dimensions, and stores it for later recall:
+
+    \center{\tightframe{\verb|\measure<c,w,h>{content}|}}
+
+    \indented{\fancylist{
+        - \textbf{c}: name under which the rendered content is stored
+        - \textbf{w}: variable receiving the measured width
+        - \textbf{h}: variable receiving the measured height
+    }}
+
+    \hylst{\verb|
+\measure<box,w,h>{Hello, World!}
+
+Width: ${w}, Height: ${h}
+
+\recall<box>
+|}{%
+    \measure<box,w,h>{Hello, World!}
+    \indented{
+        Width: ${w}, Height: ${h}
+
+        \recall<box>
+    }
+}
+
+    The measured content can be recalled with \cmd{recall}\<name\>.
+    This is the foundation of many ::stdlib macros:
+
+    \indented{\fancylist{
+        - \cmd{tightframe} measures content to compute an exact-fit frame
+        - \cmd{culn} measures text to render a centered underline of the
+          right width
+        - \cmd{fancylisting} measures line numbers for gutter alignment
+    }}
+
+    \begin{didyouknow}
+    \center{BUILDING A CENTERED UNDERLINE}
+    Here is how you might build a centered underline from scratch using
+    measure and layout primitives:
+
+    \listing{
+\verb|\measure<c,w,h>{Some Important Text}
+\center{
+    \recall<c>\\
+    \center{\hrule[${w}]{}{═}{}}
+}|}
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Width Inheritance}}
+
+    Width flows down the box tree following these rules:
+
+    \indented{\fancylist{
+        - \cmd{setwidth}\{N\} sets the document-level width
+        - A box with an explicit width \verb|[N]| uses that width
+        - A box without a width inherits its parent's width
+        - In an hbox, children without explicit widths get equal shares of
+          the remaining space after fixed-width children are placed
+        - \verb|auto| children in an hbox expand to fill whatever is left
+    }}
+
+    Here is width inheritance in action:
+
+    \hylst{\verb|
+\begin[40]{hbox}
+    \child[10]{Fixed 10}
+    \child{Gets 15}
+    \child{Gets 15}
+\end{hbox}
+|}{%
+    \begin[40]{hbox}
+        \child[10]{Fixed 10}
+        \child{Gets 15}
+        \child{Gets 15}
+    \end{hbox}
+}
+
+    The hbox is 40 wide. One child takes 10, leaving 30 to be split
+    equally between the two remaining children (15 each).
+
+
+    {}\\
+    \section{\textbf{Common Patterns}}
+
+    \fculn{Two-Column Layout}
+
+    \fancylisting{\verb|
+\begin{hbox}
+    \child{Left column content}
+    \child[2]{}
+    \child{Right column content}
+\end{hbox}
+|}
+
+    The empty \verb|\child[2]{}| creates a 2-column gutter.
+
+    \fculn{Centering Content}
+
+    The \cmd{center} stdlib macro is a thin wrapper around a vbox:
+
+    \fancylisting{\verb|
+\begin{vbox}
+    \child[center]{Centered text}
+\end{vbox}
+|}
+
+    The \cmd{hcenter} macro centers horizontally using auto-width spacers:
+
+    \fancylisting{\verb|
+\begin{hbox}
+    \child[auto]{}
+    \child[40]{Content here}
+    \child[auto]{}
+\end{hbox}
+|}
+
+    \fculn{Indentation}
+
+    \cmd{indent} is a simple hbox with a spacer:
+
+    \fancylisting{\verb|
+\begin{hbox}
+    \child[4]{}
+    \child{Indented content}
+\end{hbox}
+|}
+
+    These patterns compose. Once you understand hbox, vbox, child, hrule,
+    vrule, and intersect\_rules, you can build any layout that the ::stdlib
+    macros produce -- and invent new ones of your own.
+
+@end
+
+#target_prefix " "
+
+#before_each
+    \linebreaker{greedy}
+    \setwidth{80}
+    \setunicode{true}
+    \setmathitalic{true}
+
+    \macro<\indented{content}>{\indent[2]{${content}}}
+    \macro<\cmd{x}>{\textbackslash{}\textit{${x}}}
+
+    
+    \macro<\leftbar{c}{n}>{
+       ░ ${c}
+    }
+    
+    %%% Renders hy as source and rend as an example rendered output
+    \macro<\hylst{hy}{rend}>{%
+        \fancylisting{${hy}}
+        [\hyades{} Output:]
+        \lineroutine<leftbar>{${rend}}
+        [End out Output]
+    }
+
+    \macro<\didyouknow{content}>{
+        \vskip{1}
+        \hcenter[60]{
+        \hrule{}{.}{}
+        ${content}
+        \hrule{}{.}{}
+        }
+    }
+#end

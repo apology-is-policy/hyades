@@ -1,0 +1,57 @@
+{
+    //"editor.formatOnSave": true,
+    "files.associations": {
+        "*.cld": "cassilda",
+        "*.hy": "cassilda"
+    },
+    "C_Cpp.errorSquiggles": "disabled",
+    "[c]": {
+        "editor.fontFamily": "PragmataPro Liga",
+        "editor.fontWeight": "10",
+        "editor.lineHeight": 18,
+        "editor.fontSize": 14
+    },
+    "[cassilda]": {
+        "editor.bracketPairColorization.enabled": false,
+        // Best:
+        //"editor.fontFamily": "JuliaMono",
+        //"editor.fontFamily": "Iosevka Term Extended",
+        //"editor.fontFamily": "Iosevka Term Slab Extended, JuliaMono",
+        //"editor.fontFamily": "Iosevka Term Extended, JuliaMono",
+        //"editor.fontFamily": "Menlo, 'Apple Symbols'",
+        //"editor.fontFamily": "Berkeley Mono Trial, Iosevka Term Extended, JuliaMono",
+        "editor.fontFamily": "PragmataPro Mono",
+        //
+        //"editor.fontWeight": "300", // Julia
+        //"editor.fontWeight": "200", // Others
+        "editor.fontWeight": "10", // pragmata and others
+        //
+        //"editor.fontWeight": "200", // Iosefka
+        // These two need to be tweaked to achieve vertical continuity.
+        // The following numbers are tested for JuliaMono on a retina display:
+        //
+        //"editor.lineHeight": 18, // works for Julia
+        //"editor.lineHeight": 16, // works for Iosefka Extended
+        //"editor.lineHeight": 16, // Berkeley Mono Trial, Iosevka Term Extended, JuliaMono
+        "editor.lineHeight": 16, // Berkeley Mono Trial, Iosevka Term Extended, JuliaMono
+        //
+        //"editor.fontSize": 13 // julia
+        //"editor.fontSize": 13 // iosefka
+        "editor.fontSize": 14 // pragmata
+    },
+    "cassilda.executablePath": "/Users/northkillpd/projects/texascii/build/cassilda",
+    "cassilda.processOnSave": true,
+    "cassilda.processOnSaveExclude": [
+        "**/wasm/**"
+    ],
+    "cassilda.processExtensions": [
+        ".cld",
+        ".c",
+        ".cpp",
+        ".h",
+        ".hpp",
+        ".py",
+        ".js",
+        ".ts"
+    ],
+}

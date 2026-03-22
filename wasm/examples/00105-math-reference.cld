@@ -1,0 +1,1441 @@
+% @category: Math Typesetting
+% @name: Math Reference Guide
+% @description: A progressive guide to mathematical typesetting
+@label intro
+    \center{\figlet{Math Reference}}
+@end
+@cassilda: intro
+
+% ─── INLINE VS DISPLAY ────────────────────────────────────────────────────
+
+% This is a cassilda label -- the source goes inside
+@label inline_vs_display
+    Math can appear inline or in display mode. Inline math is
+    wrapped in single dollar signs and flows with the text:
+    the equation $a^2 + b^2 = c^2$ sits inside a sentence.
+
+    Display math is wrapped in double dollar signs and gets
+    its own centered block. The implicit spacing below and above
+    math is controlled by \cmd{setmathabove} and \cmd{setmathbelow}.
+
+    $$ a^2 + b^2 = c^2 $$
+
+    Use inline for small expressions mentioned in passing.
+    Use display for anything you want to stand on its own.
+@end
+
+% This is a cassilda reference -- renders (or updates) the specified label under itself
+@cassilda: inline_vs_display
+
+% ─── VARIABLES AND OPERATORS ──────────────────────────────────────────────
+
+@label variables
+    Variables are (not) set in cursive based on the \cmd{setmathitalic}
+    setting. Standard arithmetic operators get proper implicit spacing.
+    Explicit spacing can be add using standard TeX commands:
+
+    $$ a + b - c $$
+    $$ a \times b \div c $$
+    $$ a \cdot b $$
+    $$ \pm x \quad \mp y $$
+@end
+
+@cassilda: variables
+
+% ─── SUPERSCRIPTS AND SUBSCRIPTS ─────────────────────────────────────────
+
+@label scripts
+    A caret ^ makes a superscript.  An underscore _ makes a
+    subscript.  Use braces for multi-character exponents:
+
+    $$ x^2, \quad x_i, \quad x_i^2, \quad x^{n+1}, \quad x_{i,j}, \quad a^{b^c} $$
+@end
+
+@cassilda: scripts
+
+% ─── SUBSCRIPT BRACING ───────────────────────────────────────────────────
+
+@label subscript_bracing
+    Subscripts and superscripts grab the next single token.
+    Use braces for multi-token expressions like $x^{n+1}$
+    or $a_{i,j}$.
+
+    Commands that take arguments work without extra braces,
+    just like in TeX. These are equivalent:
+
+    $$ x_\mathbf{v} \quad x_{\mathbf{v}} \quad y^\hat{a} \quad y^{\hat{a}} $$
+
+    More examples:
+
+    $$ a_{i+1} \quad b^{n+1} \quad x_\text{max} $$
+@end
+
+@cassilda: subscript_bracing
+
+% ─── FRACTIONS ────────────────────────────────────────────────────────────
+
+@label fractions
+    \cmd{frac} builds a fraction with a horizontal bar.
+    \cmd{dfrac} and \cmd{tfrac} are accepted as aliases.
+    Fractions nest naturally and to infinite depth.
+    Long math source can be written over multiple lines with
+    no effect on typesetting:
+
+    $$
+        \frac{a}{b},\,
+        \frac{x+1}{x-1},\,
+        a + \frac{b}{c} + d,\,
+        \frac{\frac{a}{b}}{\frac{c}{d}}
+    $$
+
+    
+    In vacuum, Maxwell's equations give the wave equation:
+    $$ \nabla^2\mathbf{E} = \mu_0\epsilon_0\frac{\partial^2\mathbf{E}}{\partial t^2} $$
+
+    The speed of light emerges:
+    $$ c = \frac{1}{\sqrt{\mu_0\epsilon_0}} = 299792458 \text{ m/s} $$    
+@end
+
+@cassilda: fractions
+
+% ─── ROOTS ────────────────────────────────────────────────────────────────
+
+@label roots
+    \cmd{sqrt} makes a square root.  An optional argument
+    gives the nth root: $\sqrt[3]{x}$.  Roots can infinitely
+    nest just as fractions:
+
+    $$ \sqrt{x} $$
+    $$ \sqrt{x+1} $$
+    $$ \sqrt[3]{x} $$
+    $$ \sqrt[n]{x^2 + y^2} $$
+    $$ \sqrt{\sqrt{x}} $$
+
+    Complicated fraction:
+
+    $$ \frac{\sqrt[3]{\frac{\frac{x+y}{\frac{1}{2}} \cdot \sum_{k=1}^{n} k^2 }{a - 
+        b}}}{\sqrt[3]{\frac{\frac{x+y}{\frac{1}{2}}}{a - b}}} $$
+
+    ASCII version:
+
+    \setunicode{false}
+    
+    $$ \frac{\sqrt[3]{\frac{\frac{x+y}{\frac{1}{2}} \cdot \sum_{k=1}^{n} k^2 }{a - 
+            b}}}{\sqrt[3]{\frac{\frac{x+y}{\frac{1}{2}}}{a - b}}} $$
+@end
+
+@cassilda: roots
+
+% ─── PARENTHESES AND GROUPING ────────────────────────────────────────────
+
+@label parens
+    Parentheses, brackets, and braces.  Curly braces need
+    escaping with backslash.  Absolute values use pipes or
+    explicit commands:
+
+    $$ (a + b) $$
+    $$ [a + b] $$
+    $$ \{a + b\} $$
+    $$ |x| $$
+    $$ \Vert x \Vert $$
+@end
+
+@cassilda: parens
+
+% ─── AUTO-SCALING DELIMITERS ─────────────────────────────────────────────
+
+@label autoscale
+    \cmd{left} and \cmd{right} make delimiters grow to match
+    their contents.  This is essential when wrapping fractions
+    or other tall constructs:
+
+    $$ \left( \frac{a}{b} \right)\quad
+       \left[ \frac{a}{b} \right]\quad
+       \left| \frac{a}{b} \right| $$
+
+    $$\cdots$$
+
+    $$\left( \left(a\cdot b\right) \frac{\frac{1}{2}}{\left(\frac{a}{b} \right)}
+       + \left(\frac{1}{2e^x}\right) \right)$$
+
+    Use \cmd{left}. or \cmd{right}. for invisible (null) delimiters.
+    This is essential for evaluation bars and one-sided brackets:
+
+    $$ \left.\frac{df}{dx}\right|_{x=0} $$
+    $$ \left.\frac{x^3}{3}\right|_0^1 $$
+    $$ \left(\frac{a}{b}\right. $$
+
+    Use \cmd{middle} inside \cmd{left}...\cmd{right} for scaled
+    interior delimiters (e.g.\ set builder notation, conditional
+    probability):
+
+    $$ \left( \frac{a}{b} \middle| \frac{c}{d} \right) $$
+
+@end
+
+@cassilda: autoscale
+
+
+% ─── EXPLICIT SIZING ─────────────────────────────────────────────────────
+
+@label sizing
+    For manual control, \big through \Bigg set delimiter
+    sizes explicitly.  Each step adds one row of height:
+
+    $$ (a+b) \quad \big(a+b\big) \quad \Big(a+b\Big) \quad \bigg(a+b\bigg) \quad \Bigg(a+b\Bigg) $$
+    $$ (\frac{a+b}{c+d}) \quad \big(\frac{a+b}{c+d}\big) \quad \Big(\frac{a+b}{c+d}\Big) \quad \bigg(\frac{a+b}{c+d}\bigg) \quad \Bigg(\frac{a+b}{c+d}\Bigg) $$
+
+    $$ [x^2+y^2] \quad \big[x^2+y^2\big] \quad \Big[x^2+y^2\Big] \quad \bigg[x^2+y^2\bigg] \quad \Bigg[x^2+y^2\Bigg] $$
+    $$ \left[ \frac{\sqrt{a^2+b^2}}{1+x} \right] \quad \Big[ \frac{\sqrt{a^2+b^2}}{1+x} \Big] $$
+
+    $$ \{ a-b \} \quad \big\{ a-b \big\} \quad \Big\{ a-b \Big\} \quad \bigg\{ a-b \bigg\} \quad \Bigg\{ a-b \Bigg\} $$
+    $$ \left\{ \frac{1}{2} + \sqrt[3]{z} \right\} \quad \Big\{ \frac{1}{2} + \sqrt[3]{z} \Big\} $$
+
+    $$ |x| \quad \lvert x \rvert \quad \big| x+y \big| \quad \Big| x+y \Big| \quad \bigg| x+y \bigg| \quad \Bigg| x+y \Bigg| $$
+    $$ \left| \frac{a+b}{\sqrt{1+u}} \right| \quad \Big| \frac{a+b}{\sqrt{1+u}} \Big| $$
+
+    $$ \Vert v \Vert \quad \big\Vert v \big\Vert \quad \Big\Vert v \Big\Vert \quad \bigg\Vert v \bigg\Vert \quad \Bigg\Vert v \Bigg\Vert $$
+    $$ \left\Vert \frac{\sqrt{m} + n}{1+q} \right\Vert $$
+
+    $$ \lfloor x \rfloor \quad \big\lfloor x+y \big\rfloor \quad \Big\lfloor \frac{a+b}{c+d} \Big\rfloor \quad \bigg\lfloor \sqrt{1+u} \bigg\rfloor \quad \Bigg\lfloor \sqrt[3]{z} \Bigg\rfloor $$
+    $$ \lceil x \rceil \quad \big\lceil x+y \big\rceil \quad \Big\lceil \frac{a+b}{c+d} \Big\rceil \quad \bigg\lceil \sqrt{1+u} \bigg\rceil \quad \Bigg\lceil \sqrt[5]{w} \Bigg\rceil $$
+
+    $$ \left( \frac{a+b}{c+d} \right) \cdot \left[ \sqrt{1+u} \right] \cdot \left\{ \frac{x}{1+\sqrt[3]{z}} \right\} $$
+    $$ \left| \frac{a+b}{\sqrt{1+u}} \right| \quad \left\Vert \frac{x^2+y^2}{1+t} \right\Vert \quad \left\lceil \frac{m+n}{p+q} \right\rceil \quad \left\lfloor \sqrt{1+v} \right\rfloor $$
+
+    $$ \left| \Bigg( \frac{\sqrt{a^2+b^2}}{1+\sqrt[3]{z}} \Bigg) \right| \quad \left\lceil \big[ \frac{x+y}{\sqrt{1+u}} \big] \right\rceil \quad \left\lfloor \{ \frac{p}{q} \} \right\rfloor $$
+
+    Standalone one-sided delimiters use \cmd{bigl}/\cmd{bigr}
+    (and \cmd{Bigl}/\cmd{Bigr}, \cmd{biggl}/\cmd{biggr}, \cmd{Biggl}/\cmd{Biggr}).
+    Useful for evaluation bars:
+
+    $$ f(x)\bigr|_{x=0} \quad \frac{d}{dx}f(x)\biggr|_{x=0} $$
+@end
+
+@cassilda: sizing
+
+% ─── FLOOR AND CEILING ───────────────────────────────────────────────────
+
+@label floor_ceil
+    \cmd{lfloor}/\cmd{rfloor} make floor brackets.
+    \cmd{lceil}/\cmd{rceil} make ceiling brackets.
+    Both scale with \cmd{left}/\cmd{right}:
+   
+    $$ \lfloor x \rfloor $$
+    $$ \lceil x \rceil $$
+    $$ \left\lfloor \frac{x}{2} \right\rfloor $$
+    $$ \left\lceil \frac{x}{2} \right\rceil $$
+@end
+
+@cassilda: floor_ceil
+
+% ─── GREEK LETTERS ────────────────────────────────────────────────────────
+
+@label greek
+    Greek letters use backslash-name notation.  Lowercase:
+
+    $$ \alpha \beta \gamma \delta \epsilon \zeta \eta \theta $$
+    $$ \lambda \mu \nu \xi \pi \rho \sigma \tau $$
+    $$ \phi \varphi \chi \psi \omega $$
+
+    Uppercase (only for letters that differ from Latin):
+
+    $$ \Gamma \Delta \Theta \Lambda \Xi \Pi \Sigma \Phi \Psi \Omega $$
+@end
+
+@cassilda: greek
+
+% ─── RELATIONS ────────────────────────────────────────────────────────────
+
+@label relations
+    Beyond equals, Hyades supports the full set of relational
+    operators:
+
+    $$ a \neq b $$
+    $$ a \leq b $$
+    $$ a \geq b $$
+    $$ a \ll b $$
+    $$ a \gg b $$
+    $$ a \approx b $$
+    $$ a \equiv b $$
+    $$ a \sim b $$
+    $$ a \propto b $$
+    $$ a \prec b \quad a \succ b $$
+    $$ a \preceq b \quad a \succeq b $$
+
+    The \cmd{not} prefix negates a relation:
+
+    $$ a \not= b \quad x \not\in A \quad a \not\leq b $$
+    $$ a \not\equiv b \quad A \not\subset B \quad \not\exists x $$
+@end
+
+@cassilda: relations
+
+% ─── DEFINITION SYMBOLS ──────────────────────────────────────────────────
+
+@label definitions
+    Definition symbols use relation spacing (space on both sides).
+    The \cmd{coloneqq} command renders the Unicode ≔ symbol.
+    The bare \verb|:=| is also recognized as a combined relation:
+
+    $$ \Phi := S $$
+    $$ f \coloneqq x^2 + 1 $$
+    $$ g \eqqcolon h $$
+
+    A bare colon is punctuation (no space before, space after),
+    useful in set-builder notation:
+
+    $$ \{x : x > 0\} $$
+@end
+
+@cassilda: definitions
+
+% ─── SET THEORY ───────────────────────────────────────────────────────────
+
+@label sets
+    Membership, subset, union, intersection:
+
+    $$ x \in A $$
+    $$ x \notin A $$
+    $$ A \subset B $$
+    $$ A \subseteq B $$
+    $$ A \cup B $$
+    $$ A \cap B $$
+    $$ A \setminus B $$
+    $$ \emptyset $$
+@end
+
+@cassilda: sets
+
+% ─── LOGIC ────────────────────────────────────────────────────────────────
+
+@label logic
+    Quantifiers, connectives, and arrows:
+
+    $$ \forall x \in \mathbb{R} $$
+    $$ \exists x $$
+    $$ \neg p $$
+    $$ p \land q $$
+    $$ p \lor q $$
+    $$ p \implies q $$
+    $$ p \iff q $$
+    $$ \top \quad \bot $$
+    $$ \therefore \quad \because $$
+@end
+
+@cassilda: logic
+
+% ─── ARROWS ───────────────────────────────────────────────────────────────
+
+@label arrows
+    Arrows come in many forms:
+
+    $$ \rightarrow \quad \leftarrow \quad \leftrightarrow $$
+    $$ \Rightarrow \quad \Leftarrow \quad \Leftrightarrow $$
+    $$ \mapsto \quad \longmapsto $$
+    $$ \hookrightarrow \quad \hookleftarrow $$
+    $$ \uparrow \quad \downarrow \quad \updownarrow $$
+    $$ \nearrow \quad \searrow \quad \nwarrow \quad \swarrow $$
+
+    Extensible arrows carry a label that stretches the arrow:
+
+    $$ A \xrightarrow{f} B \xleftarrow{g} C $$
+@end
+
+@cassilda: arrows
+
+% ─── STANDARD FUNCTIONS ──────────────────────────────────────────────────
+
+@label functions
+    Standard functions are set in upright (roman) type.  Hyades
+    recognises the usual names:
+
+    $$ \sin x \quad \cos(x) \quad \tan x $$
+    $$ \arcsin(x) \quad \arccos x \quad \arctan x $$
+    $$ \sinh x \quad \cosh x \quad \tanh\left(\frac{x}{2}\right) $$
+    $$ \log x \quad \log_2 x \quad \ln x \quad \exp(x) $$
+
+    Functions can take powers:
+
+    $$ \sin^2 x + \cos^2 x = 1 $$
+@end
+
+@cassilda: functions
+
+% ─── CUSTOM FUNCTION NAMES ───────────────────────────────────────────────
+
+@label fn_command
+    For functions Hyades does not know about, \cmd{fn}
+    (or the standard LaTeX \cmd{operatorname}) produces an
+    upright function name:
+
+    $$ \fn{softmax}\left(x_i\right) = \frac{e^{x_i}}{\sum_j e^{x_j}} $$
+    $$ \operatorname{ReLU}(x) = \max(0, x) $$
+    $$ \operatorname{Tr}(A) \quad \fn{Attention}(Q, K, V) $$
+@end
+
+@cassilda: fn_command
+
+% ─── TEXT IN MATH ─────────────────────────────────────────────────────────
+
+@label text_in_math
+    \cmd{text} inserts upright text inside math mode.
+    Useful for conditions and labels:
+
+    $$ x = 0 \text{ if } y > 0 $$
+    $$ f(x) \text{ for all } x \in \mathbb{R} $$
+@end
+
+@cassilda: text_in_math
+
+% ─── ACCENTS AND DECORATIONS ─────────────────────────────────────────────
+
+@label accents
+    Single-character accents attach to the next symbol:
+
+    $$ \hat{x} \quad \bar{x} \quad \tilde{x} \quad \vec{x} $$
+    $$ \dot{x} \quad \ddot{x} $$
+    $$ \acute{x} \quad \grave{x} \quad \breve{x} \quad \check{x} $$
+
+    Wide accents span multiple characters:
+
+    $$ \widehat{xyz}\quad \widetilde{xyz}\quad \overline{xyz}\quad \underline{xyz}
+       \quad\overrightarrow{AB}
+       \quad\overleftarrow{AB} $$
+@end
+
+@cassilda: accents
+
+% ─── OVERBRACE AND UNDERBRACE ────────────────────────────────────────────
+
+@label braces
+    \cmd{overbrace} and \cmd{underbrace} draw horizontal brackets above
+    or below content, with an optional centered label:
+
+    $$ \overbrace{a + b + c}^{3 \text{ terms}} $$
+
+    $$ \underbrace{x_1 + x_2 + \cdots + x_n}_{n \text{ terms}} $$
+
+    Braces nest naturally:
+
+    $$ \overbrace{\underbrace{a + b}_{2} + c}^{3} $$
+
+    $$ \underbrace{\overbrace{a + b}^{x} + \overbrace{c + d}^{y}}_{z} $$
+
+    They also work inside larger expressions:
+
+    $$ \sum_{i=1}^{n} \underbrace{a_i \cdot b_i}_\text{dot product} $$
+@end
+
+@cassilda: braces
+
+% ─── OVERSET AND UNDERSET ────────────────────────────────────────────────
+
+@label overset
+    \cmd{overset} places an annotation above a base symbol.
+    \cmd{underset} places it below.  \cmd{stackrel} is an
+    alias for \cmd{overset}:
+
+    $$ A\,\overset{n}{=}\,B$$
+    $$ \underset{x \to 0}{\lim} f(x) $$
+    $$ A\stackrel{\text{def}}{=}B $$
+@end
+
+@cassilda: overset
+
+% ─── PRIMES ───────────────────────────────────────────────────────────────
+
+@label primes
+    Primes (derivative notation) use the apostrophe:
+
+    $$ f'(x) $$
+    $$ f''(x) $$
+    $$ f'''(x) $$
+    $$ f^{(n)}(x) $$
+
+    Quotient Rule:
+    $$ \frac{d}{dx}\left[\frac{f(x)}{g(x)}\right] = \frac{f'(x)g(x) - f(x)g'(x)}{[g(x)]^2} $$
+
+    The second derivative measures the rate of change of the first derivative:
+    $$ f''(x) = \frac{d^2y}{dx^2} = \frac{d}{dx}\left(\frac{dy}{dx}\right) $$    
+@end
+
+@cassilda: primes
+
+% ─── MATH FONTS ───────────────────────────────────────────────────────────
+
+@label math_fonts
+    Special font families for different mathematical objects:
+
+    Bold for vectors and matrices: $\mathbf{A}\mathbf{x} = \mathbf{b}$
+
+    Blackboard bold for number sets:
+
+    $$ \mathbb{N} \quad \mathbb{Z} \quad \mathbb{Q} \quad \mathbb{R} \quad \mathbb{C} $$
+
+    Calligraphic / script for operators and spaces:
+
+    $$ \mathcal{L} \quad \mathcal{F} \quad \mathcal{O}\left(n^2\right) $$
+
+    Fraktur for Lie algebras and ideals:
+
+    $$ \mathfrak{g} \quad \mathfrak{h} \quad \mathfrak{su}(2) $$
+
+    Sans-serif for categories and special objects:
+
+    $$ \mathsf{Set} \quad \mathsf{Top} \quad \mathsf{Grp} $$
+
+    Bold symbols including Greek and operators (via \cmd{boldsymbol}):
+
+    $$ \boldsymbol{\alpha} + \boldsymbol{\beta} = \boldsymbol{\gamma} $$
+
+    Bold nabla and partial:
+
+    $$ \boldsymbol{\nabla} f \quad \boldsymbol{\partial} $$
+@end
+
+@cassilda: math_fonts
+
+% ─── DOTS AND ELLIPSES ───────────────────────────────────────────────────
+
+@label dots
+    Different dot patterns for different contexts:
+
+    $$ a_1, a_2, \ldots, a_n $$
+    $$ a_1 + a_2 + \cdots + a_n $$
+@end
+
+@cassilda: dots
+
+% ─── SUMMATION ────────────────────────────────────────────────────────────
+
+@label sums
+    \cmd{sum} draws the summation symbol.  Limits go in sub/super:
+
+    $$ \sum_{i=1}^{n} x_i\quad
+       \sum_{k=0}^{\infty} a_k $$
+
+    \cmd{Sum}/\cmd{SUM} give larger variants:
+
+    $$ \Sum_{i=1}^{n} x_i\quad
+       \SUM_{i=1}^{n} x_i $$
+
+    Tall bodies recursively maintain stable horizontal axes:
+
+    $$ \sum_{k=1}^{n} \frac{\sqrt[3]{x^2+y^2}}{1+x} \quad
+       \Sum^{n}_{k=1} \frac{\left(\frac{a+b}{c+d}\right)}{\sqrt{1+u^2}} \quad
+       \SUM \frac{\sqrt{\frac{p+q}{r+s}}}{t} $$
+
+    ASCII version:
+
+    \setunicode{false}
+    $$ \sum_{k=1}^{n} \frac{\sqrt[3]{x^2+y^2}}{1+x} \quad
+       \Sum^{n}_{k=1} \frac{\left(\frac{a+b}{c+d}\right)}{\sqrt{1+u^2}} \quad
+       \SUM \frac{\sqrt{\frac{p+q}{r+s}}}{t} $$
+
+    \setunicode{true}
+    Substantially unbalanced primary axis:
+    
+    $$ \sum_{k=1}^{n} \frac{1}{1+\sqrt{\,\int_{0}^{1} \frac{x^2}{1+x^2} \, dx\,}} \quad$$
+@end
+
+@cassilda: sums
+
+% ─── PRODUCTS ─────────────────────────────────────────────────────────────
+
+@label products
+    \cmd{prod} gives the product symbol. \cmd{Prod}/\cmd{PROD} for larger variants:
+
+    $$ \prod_{i=1}^{n} x_i $$
+    $$ \Prod_{i=1}^{n} x_i\quad
+       \PROD_{i=1}^{n} x_i $$
+
+    
+    $$ \Prod_{i=1}^{n} \left( \sqrt{\frac{\left(\frac{x}{y}\right)}{1+\sqrt[3]{z}}} \right) \quad
+       \Prod^{m} \left( \frac{\sqrt{a^2+b^2}}{\left( \frac{c}{d} \right)} \right)$$
+
+    ASCII version:
+
+    \setunicode{false}
+
+    $$ \Prod_{i=1}^{n} \left( \sqrt{\frac{\left(\frac{x}{y}\right)}{1+\sqrt[3]{z}}} \right) \quad
+       \Prod^{m} \left( \frac{\sqrt{a^2+b^2}}{\left( \frac{c}{d} \right)} \right)$$
+@end
+
+@cassilda: products
+
+% ─── INTEGRALS ────────────────────────────────────────────────────────────
+
+@label integrals
+    \cmd{int} draws an integral sign.  Limits go in sub/super:
+
+    $$ \int f(x) \, dx\quad \int_a^b f(x) \, dx\quad \int_{-\infty}^{\infty} e^{-x^2} dx $$
+
+    \cmd{Int}\cmd{INT} give taller variants:
+
+    $$ \Int_a^b f(x) \, dx\quad  \INT_a^b f(x) \, dx $$
+
+    More complicated examples:
+
+    $$ \int_{0}^{1} \frac{x^2}{1+x^2} \, dx \quad
+       \Int^{T} \frac{\sqrt{1+\frac{a}{b}}}{1+\sqrt{c}} \, dt \quad
+       \INT \frac{\left(\frac{\sqrt{m}}{n}\right)}{1+q} \, dq $$
+
+    Power rule:
+    
+    $$ \int x^n\,dx = \frac{x^{n+1}}{n+1} + C \quad (n \neq -1) $$
+    $$ \int \frac{1}{x}\,dx = \ln|x| + C $$
+
+    ASCII version:
+    \setunicode{false}
+    
+    $$ \int x^n\,dx = \frac{x^{n+1}}{n+1} + C \quad (n \neq -1) $$
+    $$ \int \frac{1}{x}\,dx = \ln|x| + C $$
+@end
+
+@cassilda: integrals
+
+% ─── MULTIPLE AND CONTOUR INTEGRALS ──────────────────────────────────────
+
+@label multi_integrals
+    Double and triple integrals, contour integrals:
+
+    $$ \iint f(x,y) \, dx\,dy $$
+    $$ \iiint f(x,y,z) \, dx\,dy\,dz $$
+    $$ \oint_C f(z) \, dz $$
+    $$ \oiint_S \mathbf{F} \cdot d\mathbf{S} $$
+
+    Bigger variants are available as well using the same naming notation
+    as usual:
+
+    $$ \Iint \IINT \Iiint \IIINT \Oint \OINT \Oiint \OIINT $$
+    
+    Double integral over region $R$:
+    $$ \iint_R f(x,y)\,dA = \int_a^b \int_{g_1(x)}^{g_2(x)} f(x,y)\,dy\,dx $$
+
+    Green's theorem:
+
+    $$\oint_C \mathbf{F} \cdot d\mathbf{r} =
+      \iint_D \left(\frac{\partial Q}{\partial x} - \frac{\partial P}{\partial y}\right) dA$$
+@end
+
+@cassilda: multi_integrals
+
+% ─── LIMITS ───────────────────────────────────────────────────────────────
+
+@label limits
+    \cmd{lim} places its subscript directly below.  Other
+    limit-style operators work the same way:
+
+    $$ \lim_{x \to 0} \frac{\sin x}{x} = 1 $$
+    $$ \lim_{n \to \infty} a_n $$
+    $$ \max_{x \in [0,1]} f(x) $$
+    $$ \min_{x} f(x) $$
+    $$ \argmax_\theta L(\theta) $$
+
+    Superior and inferior limits:
+
+    $$ \limsup_{n \to \infty} a_n \quad \liminf_{n \to \infty} a_n $$
+
+    L'Hopital:
+
+    $$ \lim_{x \to a} \frac{f(x)}{g(x)} = \lim_{x \to a} \frac{f'(x)}{g'(x)} $$
+
+    ASCII version:
+    \setunicode{false}
+    
+    $$ \lim_{x \to a} \frac{f(x)}{g(x)} = \lim_{x \to a} \frac{f'(x)}{g'(x)} $$
+@end
+
+@cassilda: limits
+
+% ─── CALCULUS ─────────────────────────────────────────────────────────────
+
+@label calculus
+    Derivatives, partial derivatives, differential operators:
+
+    $$ \frac{dy}{dx}\quad
+       \frac{d^2y}{dx^2}\quad
+       \frac{\partial f}{\partial x}\quad
+       \frac{\partial^2 f}{\partial x \partial y} $$
+
+    Gradient and Laplacian:
+
+    $$ \nabla f $$
+    $$ \nabla \cdot \mathbf{F} $$
+    $$ \nabla \times \mathbf{F} $$
+    $$ \nabla^2 f $$
+@end
+
+@cassilda: calculus
+
+% ─── MATRICES ─────────────────────────────────────────────────────────────
+
+@label matrices
+    Six matrix types provide different delimiters.  Ampersand
+    separates columns, double-backslash separates rows:
+
+    $$ \pmatrix{a & b \\ c & d} + \bmatrix{a & b \\ c & d} + \Bmatrix{a & b \\ c & d} $$
+    $$ \vmatrix{a & b \\ c & d} + \Vmatrix{a & b \\ c & d}$$
+    $$ \matrix{a & b \\ c & d} $$
+@end
+
+@cassilda: matrices
+
+% ─── LARGER MATRICES AND DOTS ────────────────────────────────────────────
+
+@label matrices_advanced
+    Larger matrices, identity matrix, and dot patterns:
+
+    $$ \pmatrix{1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1} $$
+
+    The general m-by-n matrix uses \cmd{cdots}, \cmd{vdots}, and \cmd{ddots}:
+
+    $$ \pmatrix{a_{11} & \cdots & a_{1n} \\ \vdots & \ddots & \vdots \\ a_{m1} & \cdots & a_{mn}} $$
+
+    Column and row vectors:
+
+    $$ \pmatrix{x \\ y \\ z} \quad \pmatrix{x & y & z} $$
+    
+    Row breaks:
+    $$ \matrix{ a & b ; c & d \\ e & f } $$
+    
+    Nested expressions in cells:
+    $$ \bmatrix{ \frac{a}{b} & c \\ d & \sqrt{e} }\quad
+       \pmatrix{ \sum_{i=1}^{n} i & \int_{0}^{1} x \, dx \\ \mathbf{A} & \mathbb{R} } $$
+    $$ \bmatrix{ \alpha+\beta & \gamma \\ \delta & \epsilon\zeta } $$
+
+    $$ \pmatrix{\frac{1}{2} & \sqrt{2} \\ \frac{\sqrt{3}}{2} & \frac{1}{2}} $$
+    $$ A = \bmatrix{1 & 2 \\ 3 & 4} \quad \det(A) = \vmatrix{1 & 2 \\ 3 & 4} $$
+    
+    Tall entries:
+    $$ \pmatrix{ \frac{a}{b} & x \\ y & \frac{c+d}{e+f} }\quad
+       \bmatrix{ \sqrt{\frac{p}{q}} & r \\ s & \sqrt{t} } $$
+
+    Nested matrices:
+    $$ \pmatrix{ 1 & 0 \\ 0 & \bmatrix{ a & b \\ c & d } } $$
+
+    Subscripts:
+    $$ \bmatrix{ a_{11} & a_{12} & a_{13} & a_{14} \\ a_{21} & a_{22} & a_{23} & a_{24} \\ a_{31} & a_{32} & a_{33} & a_{34} } $$
+
+    Spacing within cells:
+    $$ \pmatrix{ xy & uv \\ pq & x\,y } $$
+
+    Semicolon-only style:
+    $$ \matrix{ a & b & c ; d & e & f ; g & h & i } $$
+@end
+
+@cassilda: matrices_advanced
+
+% ─── MATRICES WITH MATH ──────────────────────────────────────────────────
+
+@label cases
+    The cases command builds a piecewise definition with a left brace.
+    & separates the expression from its condition:
+
+    $$\fn{f}(x)=\cases{
+        x & \text{if } x > 0 \\
+        0 & \text{if } x = 0 \\
+        -x & \text{if } x < 0
+    }$$
+
+    Cases work with complex expressions too:
+
+    $$\fn{f}(x)=\cases{
+        \frac{x^2 + 1}{x - 1} & \text{if } x \neq 1 \\
+        \sqrt{\frac{a}{b}} & \text{otherwise}
+    }$$
+
+    
+    Collatz function:
+    $$f(n) = \cases{
+      n/2 & \text{if } n \equiv 0 \pmod{2}, \\
+      3n + 1 & \text{if } n \equiv 1 \pmod{2}\text{.}
+    }$$
+    
+    Fibonacci sequence:
+    $$F_n = \cases{
+      0 & \text{if } n = 0 \\
+      1 & \text{if } n = 1 \\
+      F_{n-1} + F_{n-2} & \text{if } n > 1
+    }$$
+@end
+
+@cassilda: cases
+
+% ─── ALIGNED EQUATIONS ───────────────────────────────────────────────────
+
+@label aligned
+    The aligned environment aligns multiple equations at the
+    & mark.  Double-backslash separates rows:
+
+    $$\aligned{
+        x &= c(a + b) \\
+        \frac{x}{c} &= a+b \\
+        -b + \frac{x}{c} &= a
+    }$$
+
+    Optional parameter configures the space around the anchor:
+
+    \hcenter{\aligned[4]{
+        x &= \sqrt{\frac{1}{2}} \\
+        x &= y \\
+        x^2 + y &= \sqrt{x^3} + 2y-y&
+    }}
+    
+    Matrices in aligned:
+    \center{\aligned{
+        A &= \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} \\
+        \begin{bmatrix} a & b \\ c & d \end{bmatrix} &= B
+    }}
+@end
+
+@cassilda: aligned
+
+
+% ─── ALIGNED INTEGRALS ───────────────────────────────────────────────────
+
+@label aligned_integrals
+    Integral formulas aligned:
+
+    $$\aligned{
+        \int_0^1 x^2 dx &= \frac{1}{3} \\
+        \int_a^b f(x) dx &= F(b) - F(a) \\
+        \oint \vec{B} \cdot d\vec{l} &= \mu_0 I
+    }$$
+@end
+
+@cassilda: aligned_integrals
+
+% ─── INTERTEXT ───────────────────────────────────────────────────────────
+
+@label intertext
+    Use \cmd{intertext} inside aligned to insert prose between
+    equation rows.  It acts as an implicit row break:
+
+    $$\aligned{
+        x + y &= z \\
+        \intertext{Substituting the definition of $z$,}
+        x + y &= a + b
+    }$$
+@end
+
+@cassilda: intertext
+
+% ─── STYLE COMMANDS (NO-OPS) ─────────────────────────────────────────────
+
+@label style_noops
+    LaTeX math style commands are accepted but transparent, since
+    Hyades has no math size concept.  This lets you paste LaTeX
+    verbatim without errors:
+
+    $$ \displaystyle\sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6} $$
+
+    The commands \cmd{displaystyle}, \cmd{textstyle},
+    \cmd{scriptstyle}, \cmd{scriptscriptstyle}, \cmd{notag},
+    and \cmd{nonumber} are all silently ignored.
+@end
+
+@cassilda: style_noops
+
+% ─── MATH INSIDE TEXT COMMANDS ───────────────────────────────────────────
+
+@label math_in_text
+    Inline math \textdollar...\textdollar inside \cmd{textit} or \cmd{textbf} is
+    rendered as math (not styled as text).  The surrounding
+    prose is styled, and the math appears in its normal form:
+
+    \textit{Let $f(x) = x^2$ be a function on $\mathbb{R}$.}
+
+    \textbf{We have $E = mc^2$ by relativity.}
+@end
+
+@cassilda: math_in_text
+
+% ─── NUMBER THEORY ────────────────────────────────────────────────────────
+
+@label number_theory
+    Modular arithmetic, divisibility, binomials:
+
+    $$ a \equiv b \pmod{n} $$
+    $$ a \bmod n $$
+    $$ a \mid b $$
+    $$ n! $$
+    $$ \binom{n}{k} $$
+@end
+
+@cassilda: number_theory
+
+% ─── SPACING ──────────────────────────────────────────────────────────────
+
+@label spacing
+    Explicit spacing commands for fine control.  Shown here
+    from smallest to largest -- negative, thin, medium, thick,
+    quad (1em), and double-quad (2em):
+
+    $$ a \! b $$
+    $$ a \, b $$
+    $$ a \: b $$
+    $$ a \; b $$
+    $$ a \quad b $$
+    $$ a \qquad b $$
+
+    Common use: thin space before dx in integrals:
+
+    $$ \int f(x) \, dx $$
+@end
+
+@cassilda: spacing
+
+% ─── ATOM-TYPE OVERRIDES ─────────────────────────────────────────────────
+
+@label atom_type_overrides
+    Override the default spacing category of a symbol.
+    Analogous to TeX's \verb|{=}| idiom for suppressing
+    operator spacing, but explicit:
+
+    \cmd{mathord} -- suppress spacing (ordinary symbol):
+
+    $$ a \mathord{=} b \quad\text{vs}\quad a = b $$
+    $$ a \mathord{\leq} b \quad\text{vs}\quad a \leq b $$
+
+    \cmd{mathrel} -- force relation spacing:
+
+    $$ f \mathrel{:} A \to B \quad\text{vs}\quad f : A \to B $$
+
+    \cmd{mathbin} -- force binary operator spacing:
+
+    $$ a \mathbin{\triangle} b \quad\text{vs}\quad a \triangle b $$
+@end
+
+@cassilda: atom_type_overrides
+
+% ─── BINARY OPERATORS ────────────────────────────────────────────────────
+
+@label binary_ops
+    Circled and special operators:
+
+    $$ a \oplus b \quad a \otimes b \quad a \odot b $$
+    $$ a \circ b \quad a \bullet b \quad a \star b $$
+    $$ a \dagger b \quad a \ddagger b $$
+@end
+
+@cassilda: binary_ops
+
+% ─── GEOMETRY SYMBOLS ────────────────────────────────────────────────────
+
+@label geometry
+    $$ \angle ABC \quad \triangle ABC $$
+    $$ A \perp B \quad A \parallel B $$
+@end
+
+@cassilda: geometry
+
+% ─── MISCELLANEOUS SYMBOLS ──────────────────────────────────────────────
+
+@label misc_symbols
+    Additional symbols for various disciplines:
+
+    $$ \wp \quad \imath \quad \jmath $$
+    $$ \Box \phi = 0 $$
+    $$ 90° $$
+@end
+
+@cassilda: misc_symbols
+
+
+
+
+% ─── BOXED ──────────────────────────────────────────────────────────────
+
+@label boxed
+    \cmd{boxed} draws a box-drawing frame around its content:
+
+    $$ \boxed{E = mc^2} $$
+
+    Works with tall content too:
+
+    $$ \boxed{\frac{a}{b} + c} $$
+@end
+
+@cassilda: boxed
+
+% ─── PHANTOM ────────────────────────────────────────────────────────────
+
+@label phantom
+    \cmd{phantom} creates invisible whitespace with the same
+    dimensions as its content.  Useful for alignment tricks:
+
+    $$ a + \phantom{xyz} + c $$
+@end
+
+@cassilda: phantom
+
+% ─── SMASH ─────────────────────────────────────────────────────────────
+
+@label smash
+    \cmd{smash} renders its content but collapses the height to
+    a single line (the baseline row).  Useful to prevent tall
+    content from stretching surrounding constructs like roots:
+
+    Without smash -- the root grows to fit the exponent:
+
+    $$ \sqrt{y^3} $$
+
+    With smash -- the root stays compact:
+
+    $$ \sqrt{\smash{y^3}} $$
+
+    Smash on a fraction extracts just the bar:
+
+    $$ \smash{\frac{a}{b}} $$
+@end
+
+@cassilda: smash
+
+% ─── SUBSTACK ───────────────────────────────────────────────────────────
+
+@label substack
+    \cmd{substack} stacks multiple lines vertically, typically
+    for multi-line subscripts in summations and products:
+
+    $$ \sum_{\substack{0 < i < m \\ 0 < j < n}} P(i,j) $$
+@end
+
+@cassilda: substack
+
+% ─── TAG ────────────────────────────────────────────────────────────────
+
+@label tag
+    \cmd{tag} appends a numbered equation tag:
+
+    $$ E = mc^2 \tag{1} $$
+
+    Tags also work on \cmd{aligned} blocks.  The tag is
+    right-justified and vertically centered:
+
+    $$\aligned{
+        f(x) &= x^2 + 2x + 1 \\
+             &= (x + 1)^2
+    } \tag{7}$$
+@end
+
+@cassilda: tag
+
+
+@label examples
+    \center{\figlet{Examples}}
+@end
+@cassilda: examples
+
+% ─── QUADRATIC FORMULA ────────────────────────────────────────────────────
+
+@label quadratic
+    The quadratic formula:
+
+    $$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
+@end
+
+@cassilda: quadratic
+
+% ─── EULER'S IDENTITY ────────────────────────────────────────────────────
+
+@label euler
+    Euler's identity -- the most beautiful equation:
+
+    $$ e^{i\pi} + 1 = 0 $$
+@end
+
+@cassilda: euler
+
+% ─── TAYLOR SERIES ────────────────────────────────────────────────────────
+
+@label taylor
+    Taylor series for the exponential:
+
+    $$ e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!} $$
+@end
+
+@cassilda: taylor
+
+% ─── GAUSSIAN INTEGRAL ───────────────────────────────────────────────────
+
+@label gaussian
+    The Gaussian integral:
+
+    $$ \int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi} $$
+@end
+
+@cassilda: gaussian
+
+% ─── CAUCHY-SCHWARZ ──────────────────────────────────────────────────────
+
+@label cauchy_schwarz
+    The Cauchy-Schwarz inequality:
+
+    $$ \left| \langle x, y \rangle \right|^2 \leq \langle x, x \rangle \cdot \langle y, y \rangle $$
+@end
+
+@cassilda: cauchy_schwarz
+
+% ─── BAYES' THEOREM ──────────────────────────────────────────────────────
+
+@label bayes
+    Bayes' theorem:
+
+    $$ P(A\given B) = \frac{P(B\cond A) P(A)}{P(B)} $$
+@end
+
+@cassilda: bayes
+
+% ─── FOURIER TRANSFORM ───────────────────────────────────────────────────
+
+@label fourier
+    The Fourier transform:
+
+    $$ \hat{f}(\xi) = \int_{-\infty}^{\infty} f(x) e^{-2\pi i x \xi} dx $$
+@end
+
+@cassilda: fourier
+
+% ─── MAXWELL'S EQUATION ──────────────────────────────────────────────────
+
+@label maxwell
+    Maxwell's equation (Faraday's law):
+
+    $$ \nabla \times \mathbf{E} = -\frac{\partial \mathbf{B}}{\partial t} $$
+@end
+
+@cassilda: maxwell
+
+% ─── SCHRODINGER EQUATION ────────────────────────────────────────────────
+
+@label schrodinger
+    The Schrodinger equation:
+
+    $$ i\hbar \frac{\partial}{\partial t} \Psi = \hat{H} \Psi $$
+@end
+
+@cassilda: schrodinger
+
+% ─── EINSTEIN FIELD EQUATIONS ────────────────────────────────────────────
+
+@label einstein
+    The Einstein field equations:
+
+    $$ G_{\mu\nu} + \Lambda g_{\mu\nu} = \frac{8\pi G}{c^4} T_{\mu\nu} $$
+@end
+
+@cassilda: einstein
+
+% ─── NAVIER-STOKES ───────────────────────────────────────────────────────
+
+@label navier_stokes
+    The Navier-Stokes equation:
+
+    $$ \rho \left( \frac{\partial \mathbf{v}}{\partial t} + \mathbf{v} \cdot \nabla \mathbf{v} \right) = -\nabla p + \mu \nabla^2 \mathbf{v} $$
+@end
+
+@cassilda: navier_stokes
+
+% ─── ATTENTION MECHANISM ─────────────────────────────────────────────────
+
+@label attention
+    The attention mechanism (transformers):
+
+    $$ \fn{Attention}(Q, K, V) = \fn{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right) V $$
+@end
+
+@cassilda: attention
+
+% ─── SOFTMAX ─────────────────────────────────────────────────────────────
+
+@label softmax
+    The softmax function:
+
+    $$ \fn{softmax}(x_i) = \frac{e^{x_i}}{\sum_j e^{x_j}} $$
+
+    Cross-entropy loss:
+
+    $$ L = -\sum_{i} y_i \log(\hat{y}_i) $$
+@end
+
+@cassilda: softmax
+
+% ─── STIRLING'S APPROXIMATION ────────────────────────────────────────────
+
+@label stirling
+    Stirling's approximation:
+
+    $$ n! \approx \sqrt{2\pi n} \left(\frac{n}{e}\right)^n $$
+@end
+
+@cassilda: stirling
+
+% ─── BINOMIAL IDENTITY ───────────────────────────────────────────────────
+
+@label binomial
+    Pascal's rule for binomial coefficients:
+
+    $$ \binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k} $$
+@end
+
+@cassilda: binomial
+
+% ─── RIEMANN ZETA ────────────────────────────────────────────────────────
+
+@label zeta
+    The Riemann zeta function and its Euler product:
+
+    $$ \zeta(s) = \sum_{n=1}^{\infty} \frac{1}{n^s} = \prod_{p \text{ prime}} \frac{1}{1 - p^{-s}} $$
+@end
+
+@cassilda: zeta
+
+% ─── RESIDUE THEOREM ─────────────────────────────────────────────────────
+
+@label residue
+    The residue theorem:
+
+    $$ \oint_C f(z) \, dz = 2\pi i \sum \text{Res}(f, a_k) $$
+@end
+
+@cassilda: residue
+
+% ─── STOKES' THEOREM ─────────────────────────────────────────────────────
+
+@label stokes
+    Stokes' theorem:
+
+    $$ \int_S (\nabla \times \mathbf{F}) \cdot d\mathbf{S} = \oint_C \mathbf{F} \cdot d\mathbf{r} $$
+@end
+
+@cassilda: stokes
+
+% ─── BLACK-SCHOLES ───────────────────────────────────────────────────────
+
+@label black_scholes
+    The Black-Scholes formula:
+
+    $$ C = S_0 N(d_1) - K e^{-rT} N(d_2) $$
+@end
+
+@cassilda: black_scholes
+
+% ─── LORENTZ FACTOR ──────────────────────────────────────────────────────
+
+@label lorentz
+    The Lorentz factor:
+
+    $$ \gamma = \frac{1}{\sqrt{1 - v^2/c^2}} $$
+
+    Energy-momentum relation:
+
+    $$ E^2 = (pc)^2 + (mc^2)^2 $$
+@end
+
+@cassilda: lorentz
+
+% ─── NORMAL DISTRIBUTION ─────────────────────────────────────────────────
+
+@label normal
+    The probability density of the normal distribution:
+
+    $$ f(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{(x-\mu)^2}{2\sigma^2}} $$
+@end
+
+@cassilda: normal
+
+% ─── FUNDAMENTAL THEOREM OF CALCULUS ─────────────────────────────────────
+
+@label ftc
+    The fundamental theorem of calculus:
+
+    $$ \frac{d}{dx} \int_a^x f(t) \, dt = f(x) $$
+@end
+
+@cassilda: ftc
+
+% ─── INFORMATION ENTROPY ─────────────────────────────────────────────────
+
+@label entropy
+    Shannon entropy:
+
+    $$ H(X) = -\sum_{i} \fn{p}(x_i) \log \fn{p}(x_i) $$
+@end
+
+@cassilda: entropy
+
+@label ADSCFT
+
+    \setwidth{80}
+    \linebreaker{knuth}
+    \setparskip{1}
+    \setmathabove{1}
+    \setmathbelow{1}
+
+    \textbf{The Central Dictionary}
+
+    The fundamental statement of AdS/CFT is an equality between two partition
+    functions:
+
+    $$Z_\text{string}[\phi_0] = Z_\text{CFT}[\phi_0] \tag{0}$$
+
+    where $\phi_0$ is a field configuration defined on the boundary. Everything
+    else flows from unpacking what each side means.
+
+    \textbf{The Gravity Side}
+
+    The bulk spacetime is $(d+1)$-dimensional Anti-de Sitter space,
+    $\text{AdS}_{d+1}$. Its metric in Poincaré coordinates is:
+
+    $$ds^2 = \frac{L^2}{z^2}\left(-dt^2 + d\vec{x}^2 + dz^2\right) \tag{1}$$
+
+    where $L$ is the AdS radius and $z > 0$ is the radial coordinate. The
+    boundary sits at $z \to 0$; the deep interior at $z \to \infty$.
+
+    The bulk action is Einstein gravity with a negative cosmological constant:
+
+    $$S_\text{bulk} = \frac{1}{16\pi G_N} \int d^{d+1}x\,\sqrt{-g}
+    \left(R + \frac{d(d-1)}{L^2}\right) + S_\text{matter} \tag{2}$$
+
+    A bulk field $\phi(x, z)$ of mass $m$ satisfies the Klein-Gordon equation:
+
+    $$\left(\Box_\text{AdS} - m^2\right)\phi = 0 \tag{3}$$
+
+    Near $z \to 0$ this has two independent solutions:
+
+    $$\phi(x, z) \;\sim\; z^{d-\Delta}\,\phi_0(x) \;+\; z^{\Delta}\,
+    \langle O(x)\rangle \;+\; \cdots \tag{4}$$
+
+    where $\Delta$ is the conformal dimension, related to the bulk mass by:
+
+    $$\Delta = \frac{d}{2} + \sqrt{\frac{d^2}{4} + m^2 L^2} \tag{5}$$
+
+    The leading term $\phi_0(x)$ is the boundary value freely specified as a
+    source; the subleading term $\langle O(x)\rangle$ is the response, determined
+    dynamically. The bulk partition function in the saddle-point approximation is:
+
+    $$Z_\text{grav}[\phi_0] = e^{-S_\text{on-shell}[\phi_0]} \tag{6}$$
+
+    \textbf{The CFT Side}
+
+    On the boundary lives a Conformal Field Theory invariant under $SO(d,2)$ —
+    the same as the isometry group of $\text{AdS}_{d+1}$: the first deep
+    structural match.
+
+    The CFT partition function with source $\phi_0$ coupled to operator $O$ is:
+
+    $$Z_\text{CFT}[\phi_0] = \left\langle \exp\!\left(
+    \int d^d x\,\phi_0(x)\,O(x)\right)\right\rangle_{\!\text{CFT}} \tag{7}$$
+
+    Differentiating with respect to $\phi_0$ extracts $n$-point functions:
+
+    $$\langle O(x_1)\cdots O(x_n)\rangle =
+    \frac{\delta^n \log Z_\text{CFT}}{\delta\phi_0(x_1)\cdots\delta\phi_0(x_n)}
+    \Biggr|_{\phi_0\,=\,0} \tag{8}$$
+
+    \textbf{The GKPW Dictionary}
+
+    The precise identification — written down by Gubser, Klebanov, Polyakov and
+    independently by Witten in 1998 — equates the two partition functions when
+    the bulk field is held to the boundary value $\phi_0$:
+
+    $$Z_\text{CFT}[\phi_0] =
+    Z_\text{string}\!\left[\left.\phi\right|_{z\to 0} = \phi_0\right] \tag{9}$$
+
+    In the classical gravity limit (large $N$, large $\lambda$):
+
+    $$\left\langle\exp\!\left(\int\phi_0\,O\right)\right\rangle_{\!\text{CFT}}
+    = e^{-S_\text{on-shell}[\phi_0]} \tag{10}$$
+
+    The two-point function follows from the bulk-to-boundary propagator:
+
+    $$\langle O(x)\,O(x')\rangle = \frac{C_\Delta}{|x - x'|^{2\Delta}} \tag{11}$$
+
+    This is exactly the form required by conformal invariance.
+
+    \textbf{The Parameter Dictionary}
+
+    The mapping in the canonical example — Type IIB string theory on
+    $\text{AdS}_5 \times S^5$ dual to $\mathcal{N} = 4$ Super Yang-Mills with
+    gauge group $SU(N)$:
+
+    \center{\table[width:70, frame:single, pad:{l:1,r:1}]{
+        \row[frame:{b:double}]{
+            \col[width:37, align:c]{Gravity side}
+            \col[align:c]{CFT side}
+        }
+        \row[frame:{b:single}]{
+            \col{AdS radius $L$ / string length $\ell_s$}
+            \col{'t Hooft coupling $\lambda = g_{YM}^2 N$}
+        }
+        \row{
+            \col{Newton's constant $G_N$}
+            \col{Rank of gauge group $N$}
+        }
+        \row{
+            \col{String coupling $g_s$}
+            \col{$g_{YM}^2$}
+        }
+        \row{
+            \col{Bulk mass $m^2 L^2$}
+            \col{Conformal dimension $\Delta(\Delta - d)$}
+        }
+        \row{
+            \col{Bulk field $\phi$}
+            \col{CFT operator $O$}
+        }
+        \row{
+            \col{Black hole in bulk}
+            \col{Thermal state in CFT}
+        }
+    }}
+
+    $$\frac{L^4}{\ell_s^4} = \lambda = g_{YM}^2 N \qquad
+    \frac{L^8}{G_N} \sim N^2 \tag{12}$$
+
+    This reveals why direct verification is hard: the gravity approximation is
+    valid when $\lambda \gg 1$, but perturbative field theory requires $\lambda
+    \ll 1$. The two tractable regimes do not overlap.
+
+    \textbf{Ryu-Takayanagi: Geometry from Entanglement}
+
+    For a region $A$ on the boundary, the entanglement entropy of the CFT vacuum
+    state is:
+
+    $$S_A = \frac{\text{Area}(\gamma_A)}{4G_N} \tag{RT}$$
+
+    where $\gamma_A$ is the \textbf{minimal area surface} in the bulk homologous
+    to $A$ and anchored to $\partial A$ on the boundary. This directly
+    generalises the Bekenstein-Hawking formula to arbitrary regions — not just
+    black holes — suggesting that the entanglement structure of the CFT literally
+    \textit{encodes} the geometry of the bulk spacetime.
+
+    \textbf{What Makes It Deep}
+
+    The bulk radial coordinate $z$ maps to the renormalization group scale on the
+    boundary. Physics deep in the bulk ($z \to \infty$) encodes infrared physics
+    in the CFT; physics near the boundary ($z \to 0$) encodes ultraviolet
+    behaviour. Geometry of spacetime is, in this sense, a picture of the RG flow
+    of a quantum field theory. An extra dimension of space emerges from the
+    structure of quantum entanglement and renormalization.
+@end
+@cassilda: ADSCFT
+
+% ─── SYSTEM SETUP
+
+#target_prefix "│ " % <- what gets prepended to each line of output
+
+#before_each
+    \setunicode{true}
+    \setmathitalic{true}
+    \setwidth{78}
+    \setparskip{1} % implicit spacing around paragraphs
+    \setmathabove{1} % implicit spacing around display math
+    \setmathbelow{1}
+    \linebreaker{greedy} % greedy for smart column alignment, raggedright for left aligned
+
+    \macro<\indented{content}>{\indent[2]{${content}}}
+    \macro<\cmd{x}>{\textbackslash{}\textit{${x}}}
+#end

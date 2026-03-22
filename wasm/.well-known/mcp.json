@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "hyades": {
+      "url": "https://hyades-mcp.apg.workers.dev/mcp",
+      "name": "Hyades Math Renderer",
+      "description": "Renders LaTeX-like math to Unicode/ASCII text art",
+      "transport": "streamable-http"
+    }
+  }
+}

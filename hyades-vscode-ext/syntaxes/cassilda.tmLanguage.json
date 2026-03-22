@@ -1,0 +1,181 @@
+{
+    "name": "Cassilda",
+    "scopeName": "source.cassilda",
+    "patterns": [
+        { "include": "#rendered-output" },
+        { "include": "#directives" },
+        { "include": "#labels" },
+        { "include": "#references" },
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#verbatim" },
+        { "include": "#macro-parameter" },
+        { "include": "#math-display" },
+        { "include": "#math-inline" },
+        { "include": "#commands" }
+    ],
+    "repository": {
+        "rendered-output": {
+            "comment": "Rendered output lines contain NBSP after target_prefix",
+            "name": "meta.output.cassilda",
+            "match": "^([^\\n]*\u00A0[^\\n]*)$",
+            "captures": {
+                "1": { "name": "markup.raw.block.output.cassilda" }
+            }
+        },
+        "directives": {
+            "patterns": [
+                {
+                    "name": "meta.directive.config.cassilda",
+                    "match": "^\\s*(#)(source_prefix|target_prefix|comment_char|output_prefix|output_suffix)\\s*(\"[^\"]*\")?",
+                    "captures": {
+                        "1": { "name": "punctuation.definition.directive.cassilda" },
+                        "2": { "name": "keyword.control.directive.cassilda" },
+                        "3": { "name": "string.quoted.double.cassilda" }
+                    }
+                },
+                {
+                    "name": "meta.directive.block.cassilda",
+                    "match": "^\\s*(#)(before_each|after_each|end)\\b",
+                    "captures": {
+                        "1": { "name": "punctuation.definition.directive.cassilda" },
+                        "2": { "name": "keyword.control.directive.cassilda" }
+                    }
+                }
+            ]
+        },
+        "labels": {
+            "patterns": [
+                {
+                    "name": "meta.label.definition.cassilda",
+                    "match": "^\\s*(@)(label)\\s+([\\w-]+)",
+                    "captures": {
+                        "1": { "name": "punctuation.definition.label.cassilda" },
+                        "2": { "name": "keyword.control.label.cassilda" },
+                        "3": { "name": "entity.name.section.cassilda" }
+                    }
+                },
+                {
+                    "name": "meta.label.end.cassilda",
+                    "match": "^\\s*(@)(end)\\b",
+                    "captures": {
+                        "1": { "name": "punctuation.definition.label.cassilda" },
+                        "2": { "name": "keyword.control.label.cassilda" }
+                    }
+                }
+            ]
+        },
+        "references": {
+            "name": "meta.reference.cassilda",
+            "match": "^\\s*(@cassilda)(:)\\s*([\\w\\-,\\s]+)$",
+            "captures": {
+                "1": { "name": "keyword.control.reference.cassilda" },
+                "2": { "name": "punctuation.separator.cassilda" },
+                "3": { "name": "entity.name.tag.reference.cassilda" }
+            }
+        },
+        "comments": {
+            "name": "comment.line.percentage.cassilda",
+            "match": "%.*$"
+        },
+        "strings": {
+            "name": "string.quoted.double.cassilda",
+            "begin": "\"",
+            "end": "\"",
+            "patterns": [
+                {
+                    "name": "constant.character.escape.cassilda",
+                    "match": "\\\\."
+                }
+            ]
+        },
+        "verbatim": {
+            "patterns": [
+                {
+                    "name": "meta.verbatim.cassilda",
+                    "begin": "(\\\\verb)(.)",
+                    "end": "\\2",
+                    "beginCaptures": {
+                        "1": { "name": "keyword.control.verbatim.cassilda" },
+                        "2": { "name": "punctuation.definition.verbatim.cassilda" }
+                    },
+                    "endCaptures": {
+                        "0": { "name": "punctuation.definition.verbatim.cassilda" }
+                    },
+                    "contentName": "string.other.verbatim.cassilda"
+                }
+            ]
+        },
+        "math-display": {
+            "name": "markup.math.display.cassilda",
+            "begin": "\\$\\$",
+            "end": "\\$\\$",
+            "beginCaptures": {
+                "0": { "name": "punctuation.definition.math.begin.cassilda" }
+            },
+            "endCaptures": {
+                "0": { "name": "punctuation.definition.math.end.cassilda" }
+            },
+            "patterns": [
+                { "include": "#math-content" }
+            ]
+        },
+        "macro-parameter": {
+            "comment": "Macro parameter reference ${name} - must be before math-inline",
+            "name": "variable.parameter.cassilda",
+            "match": "\\$\\{[^}]*\\}"
+        },
+        "math-inline": {
+            "name": "markup.math.inline.cassilda",
+            "begin": "\\$(?!\\{)",
+            "end": "\\$",
+            "beginCaptures": {
+                "0": { "name": "punctuation.definition.math.begin.cassilda" }
+            },
+            "endCaptures": {
+                "0": { "name": "punctuation.definition.math.end.cassilda" }
+            },
+            "patterns": [
+                { "include": "#math-content" }
+            ]
+        },
+        "math-content": {
+            "patterns": [
+                {
+                    "comment": "Delimiters and style commands (keywords/purple in Monaco)",
+                    "name": "keyword.control",
+                    "match": "\\\\(left|right|big|Big|bigg|Bigg|begin|end|langle|rangle|lfloor|rfloor|lceil|rceil|lvert|rvert|lVert|rVert|lbrace|rbrace|lbrack|rbrack|mathbf|mathbb|mathcal|mathfrak|mathsf|mathtt|mathrm|mathit|boldsymbol|text|textbf|textit|textrm|textsf|texttt|fn|hat|bar|vec|dot|ddot|dddot|tilde|widetilde|widehat|overline|underline|overbrace|underbrace|overrightarrow|overleftarrow|check|breve|acute|grave|ring)\\b"
+                },
+                {
+                    "comment": "All other TeX commands (yellow/function color like Monaco)",
+                    "name": "entity.name.function",
+                    "match": "\\\\[a-zA-Z]+"
+                },
+                {
+                    "comment": "Single letter variables (light blue)",
+                    "name": "variable.other",
+                    "match": "[a-zA-Z]"
+                },
+                {
+                    "comment": "Numbers (light green)",
+                    "name": "constant.numeric",
+                    "match": "[0-9]+\\.?[0-9]*"
+                },
+                {
+                    "comment": "Operators (gray/white)",
+                    "name": "keyword.operator",
+                    "match": "[+\\-*/=^_{}()\\[\\]&|<>!',;:]"
+                }
+            ]
+        },
+        "commands": {
+            "patterns": [
+                {
+                    "comment": "All backslash commands - single color like Monaco (blue/keyword.control)",
+                    "name": "keyword.control",
+                    "match": "\\\\[a-zA-Z]+"
+                }
+            ]
+        }
+    }
+}

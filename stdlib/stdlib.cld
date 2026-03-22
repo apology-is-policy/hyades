@@ -1,0 +1,702 @@
+% Hyades Standard Library Macros
+% These macros are compiled into the binary and available by default.
+% Format: standard \macro definitions, one per block
+
+\macro<\hint_font{name}>{%
+    \if{\unicode}{%
+        \if{\streq{${name},julia}}{%
+            \setsym{SYM_SIGMA1_L2}{╱__}
+            \setsym{SYM_SIGMA2_L4}{╱____}
+            \setsym{SYM_SIGMA3_L6}{╱_____}
+        }%
+    }%
+}
+
+\macro<\ascii>{\sub{\unicode,1}}
+
+\macro<\boosty[state=sleeping, indent]{text}>{%
+    \assign<sleeping>{\verb#
+  |\      _,,,---,,_
+  /,`.-'`'    -.  ;-;;,_
+ |,4-  ) )-,_. ,\ (  `'-'
+'---''(_/--'  `-'\_)#}
+    \assign<awake>{\verb#
+_                ___       _.--.
+\`.|\..----...-'`   `-._.-'_.-'`
+/  ' `         ,       __.--'
+)/' _/     \   `-_,   /
+`-'" `"\_  ,_.-;_.-\_ ',
+    _.-'_./   {_.'   ; /
+   {_.-``-'         {_/#}
+
+    \measureref<\ref<x>,\ref<width>,\ref<height>,\ref<awake>>
+    \assign<textbox>{\frame[\valueof<width>]{${text}}}
+
+    \let<is_sleeping>{\streq{${state},sleeping}}
+    \let<is_awake>{\streq{${state},awake}}
+    \let<known_state>{
+        \add{% = OR
+            \valueof<is_sleeping>,
+            \valueof<is_awake>}
+    }
+
+    \if{\valueof<known_state>}{%
+        \recall<${state}> \\
+        \recall<textbox>
+    }\else{%
+        $
+        \text{Error: Boosty only has 2 states: }
+        \cases{
+            \text{sleeping} \\
+            \text{awake}
+        }
+        $
+    }
+}
+
+% ============================================================================
+% Layout & Alignment
+% ============================================================================
+
+\macro<\hyades>{\if{\unicode}{𝐻𝑦𝑎δες}\else{HYADES}{}}
+
+\macro<\center{content}>{
+    \begin{vbox}
+        \child[center]{${content}}
+    \end{vbox}
+}
+
+\macro<\hcenter[w]{content}>{
+    \begin{hbox}
+        \child[auto]{}
+        \child[${w}]{${content}}
+        \child[auto]{}
+    \end{hbox}
+}
+
+\macro<\centerrule[w]>{
+    \hcenter[${w}]{\hrule}
+}
+
+\macro<\indent[amount=4]{content}>{
+    \begin{hbox}
+        \child[${amount}]{}
+        \child{${content}}
+    \end{hbox}
+}
+
+\macro<\columns[pad=1]{left}{right}>{
+    \begin{hbox}
+        \child{${left}}
+        \child[${pad}]{}
+        \child{${right}}
+    \end{hbox}
+}
+
+% ============================================================================
+% Boxes & Callouts
+% ============================================================================
+
+    \macro<\identity{x}>{${x}}
+
+    % \frame - Draw a box frame around content
+    %
+    % Parameters:
+    %   width        - Outer frame width (default: auto, expands to content)
+    %   content_width- Content width; auto-calculates outer width from this
+    %                  Use when you've measured content with \measure<c,w,h>
+    %                  Example: \frame[content_width=\valueof<w>]{\recall<c>}
+    %   pad          - Padding inside frame (default: {l:1,r:1,t:0,b:0})
+    %   style        - Frame style: single, double, rounded, custom
+    %   custom       - Custom characters: {h:.,v:.,tl:+,tr:+,bl:+,br:+}
+    %
+    \macro<\frame[width=auto,%
+                  content_width=0,%
+                  pad={l:1,r:1,t:0,b:0},%
+                  style=single,%
+                  custom={h:.,v:.,tl:+,tr:+,bl:+,bl:+}%
+                 ]{content}>{%
+        % If content_width is specified (non-zero), calculate outer width
+        % outer_width = content_width + 2 (borders) + pad.l + pad.r
+        \assign<frame_width>{\if{\gt{${content_width},0}}{\add{\add{${content_width},2},\add{${pad.l},${pad.r}}}}\else{${width}}}
+        \assign<vchar>{ }
+        \assign<hchar>{ }
+        \let<do_intersect>{0}
+        \if{\streq{${style},single}}{%
+            \let<do_intersect>{1}
+            \assign<vchar>{\if{\unicode}{│}\else{|}}
+            \assign<hchar>{\if{\unicode}{─}\else{-}}
+            \assign<tl>{\if{\ascii}{+}}
+            \assign<tr>{\if{\ascii}{+}}
+            \assign<bl>{\if{\ascii}{+}}
+            \assign<br>{\if{\ascii}{+}}
+        }
+        \else{\if{\streq{${style},rounded}}{%
+            \assign<vchar>{\if{\unicode}{│}\else{|}}
+            \assign<hchar>{\if{\unicode}{─}\else{-}}
+            \assign<tl>{\if{\unicode}{╭}\else{/}}
+            \assign<tr>{\if{\unicode}{╮}\else{\textbackslash}}
+            \assign<bl>{\if{\unicode}{╰}\else{\textbackslash}}
+            \assign<br>{\if{\unicode}{╯}\else{/}}
+        }
+        \else{\if{\streq{${style},double}}{%
+            \let<do_intersect>{1}
+            \assign<vchar>{\if{\unicode}{║}\else{#}}
+            \assign<hchar>{\if{\unicode}{═}\else{=}}
+            \assign<tl>{\if{\ascii}{#}}
+            \assign<tr>{\if{\ascii}{#}}
+            \assign<bl>{\if{\ascii}{#}}
+            \assign<br>{\if{\ascii}{#}}
+        }
+        \else{\if{\streq{${style},custom}}{
+            \assign<vchar>{${custom.v}}
+            \assign<hchar>{${custom.h}}
+            \assign<tl>{${custom.tl}}
+            \assign<tr>{${custom.tr}}
+            \assign<bl>{${custom.bl}}
+            \assign<br>{${custom.br}}
+        }}}}
+
+        \let<tcnt>{0}
+        \let<bcnt>{0}
+
+        \assign<body>{%
+            \begin[\recall<frame_width>]{hbox}
+                \child[1]{\vrule[auto]{\recall<tl>}{\recall<vchar>}{\recall<bl>}}
+                \child{
+                    \begin{vbox}
+                        \child{\hrule[auto]{}{\recall<hchar>}{}}
+                        \if{\gt{${pad.t},0}}{
+                            \begin{loop}
+                                \exit_when{\ge{\valueof<\ref<tcnt>>,${pad.t}}}
+                                \inc<\ref<tcnt>>
+                                \child{}
+                            \end{loop}
+                        }
+                        \child{%
+                            \begin{hbox}
+                                \if{\gt{${pad.l},0}}{
+                                    \child[${pad.l}]{}
+                                }
+                                \child{${content}}
+                                \if{\gt{${pad.r},0}}{
+                                    \child[${pad.r}]{} % padding
+                                }
+                            \end{hbox}
+                        }
+                        \if{\gt{${pad.b},0}}{
+                            \begin{loop}
+                                \exit_when{\ge{\valueof<\ref<bcnt>>,${pad.b}}}
+                                \inc<\ref<bcnt>>
+                                \child{}
+                            \end{loop}
+                        }
+                        \child{\hrule[auto]{}{\recall<hchar>}{}}
+                    \end{vbox}
+                }
+                \child[1]{\vrule[auto]{\recall<tr>}{\recall<vchar>}{\recall<br>}}
+            \end{hbox}%
+        }
+
+        \assign<wrapper>{\if{\valueof<do_intersect>}{\intersect_rules}\else{\identity}}
+        \recall<wrapper>{\recall<body>}
+    }
+
+    \macro<\supertitle[desc=]{content}>{%
+        \begin{vbox}
+            \child[center]{${desc}}
+            \child{${content}}
+        \end{vbox}
+    }
+
+    \macro<\subtitle[subtitle=x,tpad=1]{content}>{%
+        \let<tcnt>{0}%
+        \begin{vbox}
+            \child{${content}}
+            \begin{loop}
+                \exit_when{\ge{\valueof<\ref<tcnt>>,${tpad}}}%
+                \inc<\ref<tcnt>>%
+                \child{}
+            \end{loop}%
+            \child[center]{${subtitle}}
+        \end{vbox}
+    }
+
+    \macro<\ssubtitle[subtitle=x]{content}>{
+        \table[width:auto][frame:none]{
+            \row{\col[auto][align:c]{${content}}}
+            \row{\col[auto][align:c]{${subtitle}}}
+        }
+    }
+
+    \macro<\boxed[desc]{content}>{
+        \measure<cc,ww,hh>{${content}}
+        \assign<framed>{\frame[content_width:\valueof<ww>]{\recall<cc>}}
+        \if{\streq{${desc},}}{\recall<framed>}\else{\ssubtitle[${desc}]{\recall<framed>}}
+    }
+
+    \macro<\Boxed[desc]{content}>{
+        \measure<c,w,h>{\Tightframe{${content}}}
+        \if{\streq{${desc},}}{\recall<c>}\else{\ssubtitle[${desc}]{\recall<c>}}
+    }
+
+    \macro<\titleframe[percent=100, align=c, pad={t:0,b:0,l:1,r:1}]{content}>{
+        \table[width:\div{\mul{\width,${percent}},100}][frame:single][pad:${pad}]{
+            \row{\col[auto][align:${align}]{${content}}}
+        }
+    }
+    \macro<\Titleframe[percent=100, align=c, pad={t:0,b:0,l:1,r:1}]{content}>{
+        \table[width:\div{\mul{\width,${percent}},100}][frame:double][pad:${pad}]{
+            \row{\col[auto][align:${align}]{${content}}}
+        }
+    }
+
+    \macro<\namedtitleframe[name, percent=100, align=c, pad={t:0,b:0,l:1,r:1}]{content}>{
+        \table[width:\div{\mul{\width,${percent}},100}][frame:single][pad:${pad}]{
+            \row[frame:{b:single}]{\col[auto][align:${align}][frame]{${name}}}
+            \row{\col[auto][align:${align}]{${content}}}
+        }
+    }
+    \macro<\Namedtitleframe[name, percent=100, align=c, pad={t:0,b:0,l:1,r:1}]{content}>{
+        \table[width:\div{\mul{\width,${percent}},100}][frame:double][pad:${pad}]{
+            \row[frame:{b:double}]{\col[auto][align:${align}][frame]{${name}}}
+            \row{\col[auto][align:${align}]{${content}}}
+        }
+    }
+
+    \macro<\tightframe[pad={t:0,b:0,l:1,r:1}]{content}>{
+        \measure<c,w,h>{${content}}
+        \table[width:\add{\valueof<w>,\add{2,\add{${pad.l},${pad.r}}}}][frame:single][pad:${pad}]{
+            \row{\col[auto]{${content}}}
+        }
+    }
+
+    \macro<\Tightframe[pad={t:0,b:0,l:1,r:1}]{content}>{
+        \measure<c,w,h>{${content}}
+        \table[width:\add{\valueof<w>,\add{2,\add{${pad.l},${pad.r}}}}][frame:double][pad:${pad}]{
+            \row{\col[auto]{${content}}}
+        }
+    }
+
+% ============================================================================
+% Math Delimiters
+% ============================================================================
+
+\macro<\abs{x}>{\left|${x}\right|}
+
+\macro<\norm{x}>{\left\Vert ${x}\right\Vert}
+
+\macro<\ceil{x}>{\left\lceil ${x}\right\rceil}
+
+\macro<\floor{x}>{\left\lfloor ${x}\right\rfloor}
+
+\macro<\set{x}>{\left\lbrace ${x}\right\rbrace}
+
+\macro<\avg{x}>{\left\langle ${x}\right\rangle}
+
+\macro<\paren{x}>{\left(${x}\right)}
+
+\macro<\bracket{x}>{\left[${x}\right]}
+
+% ============================================================================
+% Math Shortcuts
+% ============================================================================
+
+\macro<\deriv[var=x]{f}>{\frac{d${f}}{d${var}}}
+
+\macro<\pderiv[var=x]{f}>{\frac{\partial ${f}}{\partial ${var}}}
+
+\macro<\eval[from,to]{expr}>{${expr}|_{${from}}^{${to}}}
+
+% ============================================================================
+% Document Structure
+% ============================================================================
+
+\macro<\section{title}>{
+${title}
+\hrule
+}
+
+\macro<\subsection{title}>{
+${title}
+}
+
+\macro<\title{text}>{
+    \center{
+${text}
+
+\hrule
+    }
+}
+
+\macro<\culn[pad=0,char=─,lterm,rterm]{x}>{
+    \measure<c,w,h>{${x}}
+    \center{
+        ${x}\\
+        \center{\hrule[\add{\valueof<w>, \mul{${pad}, 2}}]{${lterm}}{${char}}{${rterm}}}
+    }
+}
+\macro<\Culn[pad=0,char=═,lterm,rterm]{x}>{
+    \culn[pad:${pad},char:${char},lterm:${lterm},rterm:${rterm}]{${x}}
+}
+\macro<\fculn{x}>{
+    \culn[pad:2,char:═,lterm:o,rterm:o]{${x}}
+}
+
+\macro<\uln[pad=0,char=─,lterm,rterm]{x}>{
+    \measure<c,w,h>{${x}}
+        ${x}\\
+        \center{\hrule[\add{\valueof<w>, ${pad}}]{${lterm}}{${char}}{${rterm}}}
+}
+\macro<\Uln[pad=0,char=═,lterm,rterm]{x}>{
+    \uln[pad:${pad},char:${char},lterm:${lterm},rterm:${rterm}]{${x}}
+}
+
+
+% Programmability
+
+
+\macro<\numbering[indent=2,maxlndigits=3]{c}{n}>{
+    \measure<nn,wn,hn>{${n}}
+    \hskip{${indent}}${n}:\hskip{\sub{${maxlndigits},\valueof<wn>}}\if{\unicode}{│\hskip{2}}${c}
+}
+
+\macro<\listing{c}>{
+    \lineroutine<numbering>{${c}}
+}
+
+\macro<\fancylisting{c}>{
+    \titleframe[pad:0]{\lineroutine<numbering>{${c}}}
+}
+
+\macro<\fancylist[indent=2]{content}>{
+    \assign<uni>{\list[indent:${indent}, point1:●, point2:○, point3:○, ragged:1]{${content}}}
+    \assign<asc>{\list[indent:${indent}, point1:-, point2:-, point3:-, ragged:1]{${content}}}
+    \if{\unicode}{\recall<uni>}\else{\recall<asc>}
+}
+
+\macro<\raggedright{content}>{%
+        \assign<tmp>{\getlinebreaker}%
+        \linebreaker{raggedright}
+        ${content}
+        \linebreaker{\recall<tmp>}
+    }
+
+% ============================================================================
+% Table2: New table syntax (Proposal A)
+% ============================================================================
+
+% Helper to get frame character for a style
+\macro<\T_framechar[style=single, dir=h]>{\if{\streq{${style},single}}{\if{\streq{${dir},h}}{─}\else{│}}\else{\if{\streq{${style},double}}{\if{\streq{${dir},h}}{═}\else{║}}\else{\if{\streq{${style},bold}}{\if{\streq{${dir},h}}{━}\else{┃}}\else{ }}}}
+
+% Parse column spec and store in arrays
+% Format: left(18) | right | center
+% Stores into: T_ALIGN[], T_WIDTH[], T_NCOLS counter
+\macro<\T_parsecolspec{spec}>{%
+    \assign<t_discard>{\split<T_COLSPECS>{${spec}}{|}}%
+    \let<T_NCOLS>{\len<T_COLSPECS>}%
+    %
+    \begin<T_COLSPECS>[\ref<t_i>,\ref<t_col>]{enumerate}%
+        \assign<t_colspec>{\trim{\recall<t_col>}}%
+        %
+        \let<t_paren_idx>{\indexof{\recall<t_colspec>,(}}%
+        \if{\ge{\valueof<t_paren_idx>,0}}{%
+            \assign<t_align_part>{\trim{\substr{\recall<t_colspec>,0,\valueof<t_paren_idx>}}}%
+            \let<t_after_paren>{\add{\valueof<t_paren_idx>,1}}%
+            \let<t_close_idx>{\indexof{\recall<t_colspec>,)}}%
+            \let<t_width_len>{\sub{\valueof<t_close_idx>,\valueof<t_after_paren>}}%
+            \assign<t_width_part>{\substr{\recall<t_colspec>,\valueof<t_after_paren>,\valueof<t_width_len>}}%
+            \push<T_WIDTH>{\recall<t_width_part>}%
+        }\else{%
+            \push<T_WIDTH>{auto}%
+            \assign<t_align_part>{\trim{\recall<t_colspec>}}%
+        }%
+        %
+        \if{\startswith{\recall<t_align_part>,l}}{%
+            \push<T_ALIGN>{l}%
+        }\else{\if{\startswith{\recall<t_align_part>,r}}{%
+            \push<T_ALIGN>{r}%
+        }\else{\if{\startswith{\recall<t_align_part>,c}}{%
+            \push<T_ALIGN>{c}%
+        }\else{%
+            \push<T_ALIGN>{l}%
+        }}}%
+    \end{enumerate}%
+}
+
+% Render a single table row with cells separated by &
+\macro<\T_row[frame=single, pad=1]{cells}>{%
+    \assign<t_discard>{\split<T_CELLS>{${cells}}{ & }}%
+    \let<t_cell_idx>{0}%
+    \assign<t_vchar>{\T_framechar[style:${frame},dir:v]}%
+    \begin[top]{hbox}%
+        \child[1]{\vrule[auto]{}{\recall<t_vchar>}{}}%
+        \begin<T_CELLS>[\ref<t_ri>,\ref<t_cell>]{enumerate}%
+            \assign<t_w>{\recall<T_WIDTH>[\valueof<t_cell_idx>]}%
+            \assign<t_a>{\recall<T_ALIGN>[\valueof<t_cell_idx>]}%
+            \if{\streq{\recall<t_w>,auto}}{%
+                \child[\recall<t_a>]{%
+                    \begin{hbox}%
+                        \child[${pad}]{}%
+                        \child{\recall<t_cell>}%
+                        \child[${pad}]{}%
+                    \end{hbox}%
+                }%
+            }\else{%
+                \child[\recall<t_w>][\recall<t_a>]{%
+                    \begin{hbox}%
+                        \child[${pad}]{}%
+                        \child{\recall<t_cell>}%
+                        \child[${pad}]{}%
+                    \end{hbox}%
+                }%
+            }%
+            \if{\lt{\add{\valueof<t_ri>,1},\valueof<T_NCOLS>}}{%
+                \child[1]{\vrule[auto]{}{\recall<t_vchar>}{}}%
+            }%
+            \inc<t_cell_idx>%
+        \end{enumerate}%
+        \child[1]{\vrule[auto]{}{\recall<t_vchar>}{}}%
+    \end{hbox}%
+}
+
+% Horizontal rule for table
+\macro<\T_hrule[frame=single]>{%
+    \assign<t_hchar>{\T_framechar[style:${frame},dir:h]}%
+    \hrule[auto]{}{\recall<t_hchar>}{}%
+}
+
+% Main table2 macro
+% Usage: \table2[width=40, frame=single, pad=1]{\T_cols{l(20)|r|r} ... }
+% Note: width must be specified explicitly (sum of column widths + padding + borders)
+\macro<\table2[width=auto, frame=single, pad=1]{content}>{%
+    \intersect_rules{%
+        \if{\streq{${width},auto}}{%
+            \begin{vbox}%
+                ${content}%
+            \end{vbox}%
+        }\else{%
+            \begin[${width}]{vbox}%
+                ${content}%
+            \end{vbox}%
+        }%
+    }%
+}
+
+% Column spec declaration
+\macro<\T_cols{spec}>{%
+    \T_parsecolspec{${spec}}%
+}
+
+% Header row (with hrule below)
+\macro<\T_header[frame=single, pad=1]{cells}>{%
+    \child{\T_hrule[frame=${frame}]}%
+    \child{\T_row[frame=${frame},pad=${pad}]{${cells}}}%
+    \child{\T_hrule[frame=${frame}]}%
+}
+
+% Data row
+\macro<\T_datarow[frame=single, pad=1]{cells}>{%
+    \child{\T_row[frame=${frame},pad=${pad}]{${cells}}}%
+}
+
+% Horizontal line
+\macro<\T_hline[frame=single]>{%
+    \child{\T_hrule[frame=${frame}]}%
+}
+
+% Footer (hrule above, then row)
+\macro<\T_footer[frame=single, pad=1]{cells}>{%
+    \child{\T_hrule[frame=${frame}]}%
+    \child{\T_row[frame=${frame},pad=${pad}]{${cells}}}%
+    \child{\T_hrule[frame=${frame}]}%
+}
+
+% =============================================================================
+% NEW TABLE MACRO - Clean syntax with arbitrary cell content
+% =============================================================================
+% Usage:
+%   \table[frame=single, cols={l(15)|r(10)|c(10)}]{
+%       Header 1 & Header 2 & Header 3 \\
+%       \hline[double]
+%       Data 1 & Data 2 & Data 3 \\
+%       {Multi-line
+%       cell} & Simple & Done \\
+%   }
+
+% Helper: Process a single cell - strips braces if present
+\macro<\T_cell[width=auto, align=l, pad=1]{content}>{%
+    \assign<t_cell_content>{\stripbraces{\trim{${content}}}}%
+    \if{\streq{${width},auto}}{%
+        \child[${align}]{%
+            \begin{hbox}%
+                \child[${pad}]{}%
+                \child{\recall<t_cell_content>}%
+                \child[${pad}]{}%
+            \end{hbox}%
+        }%
+    }\else{%
+        \child[${width}][${align}]{%
+            \begin{hbox}%
+                \child[${pad}]{}%
+                \child{\recall<t_cell_content>}%
+                \child[${pad}]{}%
+            \end{hbox}%
+        }%
+    }%
+}
+
+% Helper: Render a table row with cells separated by vrules
+\macro<\T_tablerow[frame=single, pad=1]{cells}>{%
+    \assign<t_discard>{\split<T_ROW_CELLS>{${cells}}{ & }}%
+    \let<t_row_idx>{0}%
+    \assign<t_vchar>{\T_framechar[style:${frame},dir:v]}%
+    \begin[top]{hbox}%
+        \child[1]{\vrule[auto]{}{\recall<t_vchar>}{}}%
+        \begin<T_ROW_CELLS>[\ref<t_ri>,\ref<t_cell>]{enumerate}%
+            \assign<t_w>{\recall<T_WIDTH>[\valueof<t_row_idx>]}%
+            \assign<t_a>{\recall<T_ALIGN>[\valueof<t_row_idx>]}%
+            \T_cell[width:\recall<t_w>,align:\recall<t_a>,pad:${pad}]{\recall<t_cell>}%
+            \if{\lt{\add{\valueof<t_ri>,1},\valueof<T_NCOLS>}}{%
+                \child[1]{\vrule[auto]{}{\recall<t_vchar>}{}}%
+            }%
+            \inc<t_row_idx>%
+        \end{enumerate}%
+        \child[1]{\vrule[auto]{}{\recall<t_vchar>}{}}%
+    \end{hbox}%
+}
+
+% Helper: Check if a trimmed row is an hline
+\macro<\T_is_hline{row}>{%
+    \if{\startswith{\trim{${row}},\textbackslash hline}}{1}\else{0}%
+}
+
+% Helper: Extract hline style if present (e.g., \hline[double] -> double)
+\macro<\T_hline_style{row}>{%
+    \assign<t_row_trimmed>{\trim{${row}}}%
+    \if{\contains{\recall<t_row_trimmed>,[}}{%
+        \assign<t_idx>{\indexof{\recall<t_row_trimmed>,[}}%
+        \assign<t_after_bracket>{\substr{\recall<t_row_trimmed>,\add{\recall<t_idx>,1}}}%
+        \assign<t_end_idx>{\indexof{\recall<t_after_bracket>,]}}%
+        \substr{\recall<t_after_bracket>,0,\recall<t_end_idx>}%
+    }\else{single}%
+}
+
+% Main \newtable macro (new clean syntax)
+% Usage: \newtable[frame=single, cols={l(15)|r(10)|c(10)}, width=39]{rows ||| separated ||| by triple pipe}
+% Note: Currently all rows are treated as data rows. Use \hline for separators.
+\macro<\newtable[frame=single, cols=l|r|c, width=39]{content}>{%
+    % Parse column spec
+    \T_parsecolspec{${cols}}%
+    % Split content on ||| to get rows
+    \assign<t_discard>{\split<T_TABLE_ROWS>{${content}}{|||}}%
+    \let<T_NROWS>{\len<T_TABLE_ROWS>}%
+    \let<t_row_idx>{0}%
+    % Render table with explicit width (auto-width not yet supported in newtable)
+    \intersect_rules{%
+        \begin[${width}]{vbox}%
+            % Top border
+            \child{\T_hrule[frame=${frame}]}%
+            % Process each row
+            \begin{loop}%
+                \exit_when{\ge{\valueof<\ref<t_row_idx>>,\valueof<T_NROWS>}}%
+                \assign<t_row_content>{\recall<T_TABLE_ROWS>[\valueof<t_row_idx>]}%
+                \assign<t_row_clean>{\trim{\recall<t_row_content>}}%
+                % Render data row (T_row uses enumerate internally)
+                \child{\T_row[frame=${frame}]{\recall<t_row_clean>}}%
+                \inc<t_row_idx>%
+            \end{loop}%
+            % Bottom border
+            \child{\T_hrule[frame=${frame}]}%
+        \end{vbox}%
+    }%
+}
+
+% ============================================================================
+% Terminal Colors (ANSI escape sequences)
+% ============================================================================
+% Usage: \term_fg[red]{text} or \term_bg[blue]{text}
+% Colors: black, red, green, yellow, blue, magenta, cyan, white
+% Bright variants: bright_black, bright_red, bright_green, etc.
+%
+% These produce ANSI escape codes, which only work in terminal output.
+% In the web playground or non-terminal contexts, these will be stripped
+% or rendered as-is.
+
+% Foreground color lookup (returns ANSI code for color name)
+\macro<\T_fg_code[color=white]>{%
+    \if{\streq{${color},black}}{30}\else{%
+    \if{\streq{${color},red}}{31}\else{%
+    \if{\streq{${color},green}}{32}\else{%
+    \if{\streq{${color},yellow}}{33}\else{%
+    \if{\streq{${color},blue}}{34}\else{%
+    \if{\streq{${color},magenta}}{35}\else{%
+    \if{\streq{${color},cyan}}{36}\else{%
+    \if{\streq{${color},white}}{37}\else{%
+    \if{\streq{${color},bright_black}}{90}\else{%
+    \if{\streq{${color},bright_red}}{91}\else{%
+    \if{\streq{${color},bright_green}}{92}\else{%
+    \if{\streq{${color},bright_yellow}}{93}\else{%
+    \if{\streq{${color},bright_blue}}{94}\else{%
+    \if{\streq{${color},bright_magenta}}{95}\else{%
+    \if{\streq{${color},bright_cyan}}{96}\else{%
+    \if{\streq{${color},bright_white}}{97}\else{%
+    37}}}}}}}}}}}}}}}}%
+}
+
+% Background color lookup (returns ANSI code for color name)
+\macro<\T_bg_code[color=black]>{%
+    \if{\streq{${color},black}}{40}\else{%
+    \if{\streq{${color},red}}{41}\else{%
+    \if{\streq{${color},green}}{42}\else{%
+    \if{\streq{${color},yellow}}{43}\else{%
+    \if{\streq{${color},blue}}{44}\else{%
+    \if{\streq{${color},magenta}}{45}\else{%
+    \if{\streq{${color},cyan}}{46}\else{%
+    \if{\streq{${color},white}}{47}\else{%
+    \if{\streq{${color},bright_black}}{100}\else{%
+    \if{\streq{${color},bright_red}}{101}\else{%
+    \if{\streq{${color},bright_green}}{102}\else{%
+    \if{\streq{${color},bright_yellow}}{103}\else{%
+    \if{\streq{${color},bright_blue}}{104}\else{%
+    \if{\streq{${color},bright_magenta}}{105}\else{%
+    \if{\streq{${color},bright_cyan}}{106}\else{%
+    \if{\streq{${color},bright_white}}{107}\else{%
+    40}}}}}}}}}}}}}}}}%
+}
+
+% Set foreground color for text
+% Usage: \term_fg[red]{Hello World}
+\macro<\term_fg[color=white]{text}>{%
+    \ansi{\T_fg_code[color:${color}]}${text}\ansi_reset%
+}
+
+% Set background color for text
+% Usage: \term_bg[blue]{Hello World}
+\macro<\term_bg[color=black]{text}>{%
+    \ansi{\T_bg_code[color:${color}]}${text}\ansi_reset%
+}
+
+% Set both foreground and background colors
+% Usage: \term_color[fg=white, bg=blue]{Hello World}
+\macro<\term_color[fg=white, bg=black]{text}>{%
+    \ansi{\T_fg_code[color:${fg}];\T_bg_code[color:${bg}]}${text}\ansi_reset%
+}
+
+% Bold text (ANSI code 1)
+\macro<\term_bold{text}>{\ansi{1}${text}\ansi_reset}
+
+% Dim/faint text (ANSI code 2)
+\macro<\term_dim{text}>{\ansi{2}${text}\ansi_reset}
+
+% Italic text (ANSI code 3) - not widely supported
+\macro<\term_italic{text}>{\ansi{3}${text}\ansi_reset}
+
+% Underline text (ANSI code 4)
+\macro<\term_underline{text}>{\ansi{4}${text}\ansi_reset}
+
+% Inverse/reverse video (ANSI code 7)
+\macro<\term_inverse{text}>{\ansi{7}${text}\ansi_reset}
+
+% Strikethrough (ANSI code 9) - not widely supported
+\macro<\term_strike{text}>{\ansi{9}${text}\ansi_reset}

@@ -1,0 +1,3875 @@
+% @category: Advanced Programmability & Terminal
+% @name: Computational Lambdas
+% @description: A powerful compiled language within Hyades
+@cassilda: cl_guide
+  Hyades has two programmability systems. The first – macros – is a text substitu-
+  tion  engine,  the  subject  of  a separate  guide. The  second is Computational
+  Lambdas (CL), a fully typed  computational layer compiled to bytecode and execu-
+  ted by the  Subnivean virtual machine. Where macros  transform text, CL computes
+  values:  integers, strings, arrays, hash maps, heap memory, and  terminal output
+  fast enough for interactive applications.
+  
+  This guide builds progressively from a first lambda to complete programs. By the
+  end  you will  understand every  feature CL offers – and you  will have  seen it
+  drive  Conway’s Game of Life and a Matrix Digital Rain, both running live inside
+  a typesetting engine.
+  
+  The  sections build on each  other, so reading  front to back is recommended.  A
+  Quick Reference table at the end covers every command in one place.
+  
+  𝐘𝐨𝐮𝐫 𝐅𝐢𝐫𝐬𝐭 𝐋𝐚𝐦𝐛𝐝𝐚
+  ────────────────────────────────────────────────────────────────────────────────
+  A 𝑙𝑎𝑚𝑏𝑑𝑎 is a named function. The simplest form takes no parameters  and returns
+  a constant:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<greet>#{                                                      │
+  │ 2:  │      \return{42}                                                       │
+  │ 3:  │  }                                                                     │
+  │ 4:  │                                                                        │
+  │ 5:  │  Result: \invoke<greet>[]                                              │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Result: 42                                                           ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Three things to notice.  First, the # before the opening brace – it tells Hyades
+  to compile  this body to Subnivean  bytecode instead of interpreting it as text.
+  Second, \𝑟𝑒𝑡𝑢𝑟𝑛  provides the value  that flows  back to the  call site.  Third,
+  \𝑖𝑛𝑣𝑜𝑘𝑒<name>[args] is the calling  convention: the name goes in angle brackets,
+  arguments in square brackets (empty here because 𝑔𝑟𝑒𝑒𝑡 takes none).
+  
+  Without the #, the body would be treated as a macro – text substitution, not co-
+  mputation. The # is the gateway to everything in this guide.
+  
+            ............................................................
+                                TWO KINDS OF LAMBDA
+  
+            A lambda  body in plain braces {…} is interpreted as text by
+            the macro engine. A lambda body in #{…} is compiled to byte-
+            code by Subnivean.  Both are defined with  \𝑙𝑎𝑚𝑏𝑑𝑎, but they
+            live in different worlds. This guide covers #{} exclusively.
+            ............................................................
+  
+  
+  𝐅𝐮𝐧𝐜𝐭𝐢𝐨𝐧𝐬 𝐰𝐢𝐭𝐡 𝐏𝐚𝐫𝐚𝐦𝐞𝐭𝐞𝐫𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Lambdas accept typed parameters in square brackets:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<ADD>[a:int, b:int]#{                                          │
+  │ 2:  │      \return{\add{${a}, ${b}}}                                         │
+  │ 3:  │  }                                                                     │
+  │ 4:  │                                                                        │
+  │ 5:  │  \invoke<ADD>[3, 4] \\                                                 │
+  │ 6:  │  \invoke<ADD>[100, 200]                                                │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   7                                                                    ░│
+     │   300                                                                  ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Each parameter carries a type  annotation: 𝑎:𝑖𝑛𝑡 declares a parameter named 𝑎 of
+  type 𝑖𝑛𝑡. The available types are covered in the next section.
+  
+  Functions can call other functions. Because each lambda is a named, global enti-
+  ty, any lambda can invoke any other:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<SQUARE>[x:int]#{                                              │
+  │ 2:  │      \return{\mul{${x}, ${x}}}                                         │
+  │ 3:  │  }                                                                     │
+  │ 4:  │                                                                        │
+  │ 5:  │  \lambda<SUM_OF_SQUARES>[a:int, b:int]#{                               │
+  │ 6:  │      \return{\add{                                                     │
+  │ 7:  │          \invoke<SQUARE>[${a}],                                        │
+  │ 8:  │          \invoke<SQUARE>[${b}]                                         │
+  │ 9:  │      }}                                                                │
+  │ 10: │  }                                                                     │
+  │ 11: │                                                                        │
+  │ 12: │  $3^2 + 4^2$ = \invoke<SUM_OF_SQUARES>[3, 4]                           │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │    2    2                                                              ░│
+     │   3  + 4  = 25                                                         ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  \𝑖𝑛𝑣𝑜𝑘𝑒 calls nest freely. Here 𝑆𝑈𝑀_𝑂𝐹_𝑆𝑄𝑈𝐴𝑅𝐸𝑆 calls 𝑆𝑄𝑈𝐴𝑅𝐸 twice, and the resu-
+  lts flow back through the \𝑎𝑑𝑑.
+  
+  
+  𝐓𝐡𝐞 𝐓𝐲𝐩𝐞 𝐒𝐲𝐬𝐭𝐞𝐦
+  ────────────────────────────────────────────────────────────────────────────────
+  CL has six types. Every variable must be typed on its first  declaration; subse-
+  quent reassignments may omit the type:
+  
+    ● 𝐢𝐧𝐭 – 64-bit signed integer, the workhorse type
+    ● 𝐬𝐭𝐫𝐢𝐧𝐠 – immutable UTF-8 text
+    ● 𝐢𝐧𝐭[] – mutable integer array
+    ● 𝐬𝐭𝐫𝐢𝐧𝐠[] – mutable string array
+    ● 𝐦𝐚𝐩 – Robin Hood hash map (integer keys and values)
+    ● 𝐚𝐝𝐝𝐫𝐞𝐬𝐬 – a handle to a collection, for passing by reference
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<TYPES>[]#{                                                    │
+  │ 2:  │      \let<x:int>{42}                                                   │
+  │ 3:  │      \let<s:string>{hello}                                             │
+  │ 4:  │      \let<arr:int[]>{[10, 20, 30]}                                     │
+  │ 5:  │      \let<m:map>{|1->100, 2->200|}                                     │
+  │ 6:  │                                                                        │
+  │ 7:  │      \let<x>{99}   % reassign: type already known                      │
+  │ 8:  │      \return{${x}}                                                     │
+  │ 9:  │  }                                                                     │
+  │ 10: │                                                                        │
+  │ 11: │  \invoke<TYPES>[]                                                      │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   99                                                                   ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Variable  access is always {name} – the same syntax as the macro  system, so mu-
+  scle memory transfers directly.
+  
+            ............................................................
+                                OLD SYNTAX IS BANNED
+  
+            Inside #{} blocks, the old \𝑣𝑎𝑙𝑢𝑒𝑜𝑓<x> and \𝑟𝑒𝑐𝑎𝑙𝑙<x> comma-
+            nds are rejected by the parser with helpful error  messages.
+            This  keeps CL code  clean and  unambiguous. The old  syntax
+            still works in regular macro bodies.
+            ............................................................
+                           Type Annotations on Parameters
+                         o════════════════════════════════o
+  
+  Parameters carry the same type annotations. The type goes after a colon:
+  
+  ┌────────────────────┬─────────────────────────────────────────────────────────┐
+  │                1:  │  \lambda<fn>[name:type, name:type]#{ ... }              │
+  └────────────────────┴─────────────────────────────────────────────────────────┘
+  
+  The type tells Subnivean how to allocate storage and which operations are valid.
+  Passing  the wrong type  causes a runtime  coercion – integers  convert to their
+  string  representation, strings parse to integers  when possible  (defaulting to
+  0).
+  
+                                    Reassignment
+                                  o══════════════o
+  
+  After the first \𝑙𝑒𝑡 with a type, later assignments omit it:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \let<x:int>{1}        % first time: typed                             │
+  │ 2:  │  \let<x>{2}            % reassign: type known                          │
+  │ 3:  │  \let<x>{\add{${x},3}} % computed reassignment                         │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  Attempting to re-declare the type is harmless but unnecessary.
+  
+  
+  𝐀𝐫𝐢𝐭𝐡𝐦𝐞𝐭𝐢𝐜, 𝐂𝐨𝐦𝐩𝐚𝐫𝐢𝐬𝐨𝐧, 𝐚𝐧𝐝 𝐋𝐨𝐠𝐢𝐜
+  ────────────────────────────────────────────────────────────────────────────────
+  CL provides the same  operators available in the macro system. Inside #{} blocks
+  they  compile to direct  bytecode  operations instead of text  expansion, making
+  them substantially faster.
+  
+                                     Arithmetic
+                                   o════════════o
+    ● \𝑎𝑑𝑑{a,b}:  addition
+    ● \𝑠𝑢𝑏{a,b}:  subtraction
+    ● \𝑚𝑢𝑙{a,b}:  multiplication
+    ● \𝑑𝑖𝑣{a,b}:  integer division (rounds toward zero)
+    ● \𝑚𝑜𝑑{a,b}:  remainder after division
+    ● \𝑛𝑒𝑔{a}:  negation (-𝑎)
+    ● \𝑚𝑎𝑥{a,b}:  the larger value
+    ● \𝑚𝑖𝑛{a,b}:  the smaller value
+    ● \𝑟𝑎𝑛𝑑{n}:  random integer in [0, 𝑛)
+                                    Comparisons
+                                  o═════════════o
+  
+  All comparisons return 1 for true, 0 for false:
+  
+    ● \𝑒𝑞{a,b}, \𝑛𝑒{a,b}:  equal, not equal
+    ● \𝑙𝑡{a,b}, \𝑙𝑒{a,b}:  less than, less-or-equal
+    ● \𝑔𝑡{a,b}, \𝑔𝑒{a,b}:  greater than, greater-or-equal
+                                       Logic
+                                     o═══════o
+    ● \𝑎𝑛𝑑{a,b}:  logical AND (1 iff both nonzero)
+    ● \𝑜𝑟{a,b}:  logical OR (1 iff either nonzero)
+    ● \𝑛𝑜𝑡{a}:  logical NOT (1 if zero, 0 if nonzero)
+  
+  These nest naturally. A condition like “x is between 1 and 100” reads:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<IN_RANGE>[x:int]#{                                            │
+  │ 2:  │      \return{\and{\ge{${x}, 1}, \le{${x}, 100}}}                       │
+  │ 3:  │  }                                                                     │
+  │ 4:  │                                                                        │
+  │ 5:  │  in range: \invoke<IN_RANGE>[42] \\                                    │
+  │ 6:  │  out of range: \invoke<IN_RANGE>[200]                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   in range: 1                                                          ░│
+     │   out of range: 0                                                      ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  
+  𝐂𝐨𝐧𝐭𝐫𝐨𝐥 𝐅𝐥𝐨𝐰
+  ────────────────────────────────────────────────────────────────────────────────
+                                    Conditionals
+                                  o══════════════o
+  
+  The \𝑖𝑓/\𝑒𝑙𝑠𝑒 structure works identically to the macro system:
+  
+  ┌─────────────────┬────────────────────────────────────────────────────────────┐
+  │             1:  │  \if{condition}{true branch}\else{false branch}            │
+  └─────────────────┴────────────────────────────────────────────────────────────┘
+  
+  Zero is false, every other  integer is true. The \𝑒𝑙𝑠𝑒  branch is optional.  The
+  placement rule applies here too: \𝑒𝑙𝑠𝑒 must immediately follow the closing brace
+  of the true branch with no intervening whitespace.
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<ABS>[x:int]#{                                                 │
+  │ 2:  │      \if{\lt{${x}, 0}}{                                                │
+  │ 3:  │          \return{\sub{0, ${x}}}                                        │
+  │ 4:  │      }\else{                                                           │
+  │ 5:  │          \return{${x}}                                                 │
+  │ 6:  │      }                                                                 │
+  │ 7:  │  }                                                                     │
+  │ 8:  │                                                                        │
+  │ 9:  │  abs(-42) = \invoke<ABS>[-42] \\                                       │
+  │ 10: │  abs(7) = \invoke<ABS>[7]                                              │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   abs(-42) = 42                                                        ░│
+     │   abs(7) = 7                                                           ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Conditionals  nest for multi-way  branching. A nested  chain acts  like a switch
+  statement:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<CLASSIFY>[n:int]#{                                            │
+  │ 2:  │      \if{\lt{${n}, 0}}{                                                │
+  │ 3:  │          \return{-1}                                                   │
+  │ 4:  │      }\else{\if{\eq{${n}, 0}}{                                         │
+  │ 5:  │          \return{0}                                                    │
+  │ 6:  │      }\else{                                                           │
+  │ 7:  │          \return{1}                                                    │
+  │ 8:  │      }}                                                                │
+  │ 9:  │  }                                                                     │
+  │ 10: │                                                                        │
+  │ 11: │  sign(-5) = \invoke<CLASSIFY>[-5] \\                                   │
+  │ 12: │  sign(0) = \invoke<CLASSIFY>[0] \\                                     │
+  │ 13: │  sign(99) = \invoke<CLASSIFY>[99]                                      │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   sign(-5) = -1                                                        ░│
+     │   sign(0) = 0                                                          ░│
+     │   sign(99) = 1                                                         ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+                                       Loops
+                                     o═══════o
+  
+  The loop construct runs a body repeatedly until an exit condition fires:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \begin{loop}                                                          │
+  │ 2:  │      \exit_when{condition}                                             │
+  │ 3:  │      body                                                              │
+  │ 4:  │  \end{loop}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  \𝑒𝑥𝑖𝑡_𝑤ℎ𝑒𝑛  checks its condition at the top of every  iteration. When the condi-
+  tion becomes true, control jumps past \𝑒𝑛𝑑{loop} immediately – the body does not
+  execute for that iteration.
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<FACTORIAL>[n:int]#{                                           │
+  │ 2:  │      \let<result:int>{1}                                               │
+  │ 3:  │      \let<i:int>{${n}}                                                 │
+  │ 4:  │      \begin{loop}                                                      │
+  │ 5:  │          \exit_when{\le{${i}, 1}}                                      │
+  │ 6:  │          \let<result>{\mul{${result}, ${i}}}                           │
+  │ 7:  │          \dec<i>                                                       │
+  │ 8:  │      \end{loop}                                                        │
+  │ 9:  │      \return{${result}}                                                │
+  │ 10: │  }                                                                     │
+  │ 11: │                                                                        │
+  │ 12: │  5! = \invoke<FACTORIAL>[5] \\                                         │
+  │ 13: │  10! = \invoke<FACTORIAL>[10]                                          │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   5! = 120                                                             ░│
+     │   10! = 3628800                                                        ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Loops are the primary iteration  mechanism. There is no for loop or while loop –
+  \𝑏𝑒𝑔𝑖𝑛{loop} with \𝑒𝑥𝑖𝑡_𝑤ℎ𝑒𝑛 covers all cases. The pattern is always: initialize
+  a counter before the loop, test it with \𝑒𝑥𝑖𝑡_𝑤ℎ𝑒𝑛, and advance it in the body.
+  
+  Here is the iterative Fibonacci sequence, an accumulator pattern:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<FIB>[n:int]#{                                                 │
+  │ 2:  │      \if{\le{${n}, 1}}{                                                │
+  │ 3:  │          \return{${n}}                                                 │
+  │ 4:  │      }                                                                 │
+  │ 5:  │      \let<a:int>{0}                                                    │
+  │ 6:  │      \let<b:int>{1}                                                    │
+  │ 7:  │      \let<i:int>{2}                                                    │
+  │ 8:  │      \begin{loop}                                                      │
+  │ 9:  │          \exit_when{\gt{${i}, ${n}}}                                   │
+  │ 10: │          \let<temp:int>{${b}}                                          │
+  │ 11: │          \let<b>{\add{${a}, ${b}}}                                     │
+  │ 12: │          \let<a>{${temp}}                                              │
+  │ 13: │          \inc<i>                                                       │
+  │ 14: │      \end{loop}                                                        │
+  │ 15: │      \return{${b}}                                                     │
+  │ 16: │  }                                                                     │
+  │ 17: │                                                                        │
+  │ 18: │  fib(0) = \invoke<FIB>[0] \\                                           │
+  │ 19: │  fib(1) = \invoke<FIB>[1] \\                                           │
+  │ 20: │  fib(10) = \invoke<FIB>[10]                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   fib(0) = 0                                                           ░│
+     │   fib(1) = 1                                                           ░│
+     │   fib(10) = 55                                                         ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  The guard  clause at the top  handles the base cases with an early  \𝑟𝑒𝑡𝑢𝑟𝑛. The
+  accumulator  loop then slides two variables forward through the sequence without
+  recursion.
+  
+  One more classic: the Euclidean GCD.
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<GCD>[a:int, b:int]#{                                          │
+  │ 2:  │      \let<x:int>{${a}}                                                 │
+  │ 3:  │      \let<y:int>{${b}}                                                 │
+  │ 4:  │      \begin{loop}                                                      │
+  │ 5:  │          \exit_when{\eq{${y}, 0}}                                      │
+  │ 6:  │          \let<temp:int>{\mod{${x}, ${y}}}                              │
+  │ 7:  │          \let<x>{${y}}                                                 │
+  │ 8:  │          \let<y>{${temp}}                                              │
+  │ 9:  │      \end{loop}                                                        │
+  │ 10: │      \return{${x}}                                                     │
+  │ 11: │  }                                                                     │
+  │ 12: │                                                                        │
+  │ 13: │  gcd(48, 18) = \invoke<GCD>[48, 18] \\                                 │
+  │ 14: │  gcd(100, 25) = \invoke<GCD>[100, 25]                                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   gcd(48, 18) = 6                                                      ░│
+     │   gcd(100, 25) = 25                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  The algorithm repeatedly replaces the pair (𝑥, 𝑦) with (𝑦, 𝑥 mod 𝑦) until 𝑦 rea-
+  ches zero. At that point 𝑥 holds the greatest common divisor.
+  
+            ............................................................
+                                    EARLY RETURN
+  
+            \𝑟𝑒𝑡𝑢𝑟𝑛 is not  limited to the  end of a function.  It exits
+            the  current lambda  immediately from  wherever it appears –
+            inside a loop, inside a conditional,  anywhere. This is use-
+            ful for guard clauses:
+  
+            ┌─────┬─────────────────────────────────────────────────────
+            │ 1:  │  \lambda<SAFE_DIV>[a:int, b:int]#{
+            │ 2:  │      \if{\eq{${b}, 0}}{\return{0}}
+            │ 3:  │      \return{\div{${a}, ${b}}}
+            │ 4:  │  }
+            └─────┴─────────────────────────────────────────────────────
+            ............................................................
+  
+  
+  𝐀𝐫𝐫𝐚𝐲𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Arrays  are ordered, mutable  sequences with O(1) random  access. Declare one by
+  appending [] to the type name:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<ARRAY_SUM>[]#{                                                │
+  │ 2:  │      \let<nums:int[]>{[10, 20, 30, 40, 50]}                            │
+  │ 3:  │      \let<sum:int>{0}                                                  │
+  │ 4:  │      \let<i:int>{0}                                                    │
+  │ 5:  │      \begin{loop}                                                      │
+  │ 6:  │          \exit_when{\ge{${i}, \len<nums>}}                             │
+  │ 7:  │          \let<sum>{\add{${sum}, \at<nums>[${i}]}}                      │
+  │ 8:  │          \inc<i>                                                       │
+  │ 9:  │      \end{loop}                                                        │
+  │ 10: │      \return{${sum}}                                                   │
+  │ 11: │  }                                                                     │
+  │ 12: │                                                                        │
+  │ 13: │  Sum: \invoke<ARRAY_SUM>[]                                             │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Sum: 150                                                             ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  The key operations:
+  
+    ● \𝑎𝑡<arr>[index] – read an element
+    ● \𝑠𝑒𝑡<arr>[index]{value} – write an element
+    ● \𝑙𝑒𝑛<arr> – the number of elements
+  
+  Array indices are  zero-based. Reading past the end  returns 0; writing past the
+  end is silently ignored.
+  
+                                 Finding a Maximum
+                               o═══════════════════o
+  
+  A common pattern: iterate an array tracking the best value seen so far.
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<FIND_MAX>[]#{                                                 │
+  │ 2:  │      \let<arr:int[]>{[34, 12, 78, 5, 91, 23]}                          │
+  │ 3:  │      \let<best:int>{\at<arr>[0]}                                       │
+  │ 4:  │      \let<i:int>{1}                                                    │
+  │ 5:  │      \begin{loop}                                                      │
+  │ 6:  │          \exit_when{\ge{${i}, \len<arr>}}                              │
+  │ 7:  │          \if{\gt{\at<arr>[${i}], ${best}}}{                            │
+  │ 8:  │              \let<best>{\at<arr>[${i}]}                                │
+  │ 9:  │          }                                                             │
+  │ 10: │          \inc<i>                                                       │
+  │ 11: │      \end{loop}                                                        │
+  │ 12: │      \return{${best}}                                                  │
+  │ 13: │  }                                                                     │
+  │ 14: │                                                                        │
+  │ 15: │  Maximum: \invoke<FIND_MAX>[]                                          │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Maximum: 91                                                          ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+                                 Modifying Elements
+                               o════════════════════o
+  
+  \𝑠𝑒𝑡 writes a value at a given index:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<ARR_MODIFY>[]#{                                               │
+  │ 2:  │      \let<arr:int[]>{[1, 2, 3]}                                        │
+  │ 3:  │      \set<arr>[1]{99}                                                  │
+  │ 4:  │      \return{\at<arr>[1]}                                              │
+  │ 5:  │  }                                                                     │
+  │ 6:  │                                                                        │
+  │ 7:  │  After set: \invoke<ARR_MODIFY>[]                                      │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   After set: 99                                                        ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+                                   String Arrays
+                                 o═══════════════o
+  
+  Arrays can also hold strings:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<STR_ARR>[]#{                                                  │
+  │ 2:  │      \let<words:string[]>{[hello, world, CL]}                          │
+  │ 3:  │      \return{\at<words>[2]}                                            │
+  │ 4:  │  }                                                                     │
+  │ 5:  │                                                                        │
+  │ 6:  │  Third word: \invoke<STR_ARR>[]                                        │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Third word: CL                                                       ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  String arrays use 𝑠𝑡𝑟𝑖𝑛𝑔[] as the type. Access and mutation work  identically to
+  integer arrays.
+  
+                                  Stack Operations
+                                o══════════════════o
+  
+  Arrays double as stacks with LIFO (last-in, first-out) semantics:
+  
+    ● \𝑝𝑢𝑠ℎ<arr>{value} – append to end
+    ● \𝑝𝑜𝑝<arr> – remove and return the last element
+    ● \𝑝𝑒𝑒𝑘<arr> – read the last element without removing
+    ● \𝑙𝑒𝑛<arr> – the current depth
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \push<COLORS>{red}                                                    │
+  │ 2:  │  \push<COLORS>{green}                                                  │
+  │ 3:  │  \push<COLORS>{blue}                                                   │
+  │ 4:  │                                                                        │
+  │ 5:  │  Peek: \peek<COLORS> \\                                                │
+  │ 6:  │  Pop: \pop<COLORS>, \pop<COLORS>, \pop<COLORS> \\                      │
+  │ 7:  │  Length after: \len<COLORS>                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Peek: blue                                                           ░│
+     │   Pop: blue, green, red                                                ░│
+     │   Length after: 0                                                      ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Popping  and peeking an empty stack  returns an empty  string. This makes stacks
+  safe to drain in a loop without bounds checking.
+  
+                                  Queue Operations
+                                o══════════════════o
+  
+  For FIFO (first-in, first-out) ordering, use the queue interface:
+  
+    ● \𝑒𝑛𝑞𝑢𝑒𝑢𝑒<arr>{value} – append to back
+    ● \𝑑𝑒𝑞𝑢𝑒𝑢𝑒<arr> – remove and return from the front
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \enqueue<TASKS>{compile}                                              │
+  │ 2:  │  \enqueue<TASKS>{link}                                                 │
+  │ 3:  │  \enqueue<TASKS>{test}                                                 │
+  │ 4:  │                                                                        │
+  │ 5:  │  Order: \dequeue<TASKS>, \dequeue<TASKS>, \dequeue<TASKS>              │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Order: compile, link, test                                           ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+            ............................................................
+                                  STACK vs. QUEUE
+  
+            Both operate on the same underlying array. The only differe-
+            nce is which end the removal draws from: \𝑝𝑜𝑝 takes from the
+            back (LIFO),  \𝑑𝑒𝑞𝑢𝑒𝑢𝑒 takes from the front  (FIFO). You can
+            freely  mix \𝑝𝑢𝑠ℎ with  either \𝑝𝑜𝑝 or \𝑑𝑒𝑞𝑢𝑒𝑢𝑒 on the  same
+            array if your algorithm calls for it.
+            ............................................................
+  
+  
+  𝐌𝐚𝐩𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Maps are  Robin Hood hash tables  mapping integer  keys to integer  values. They
+  provide O(1)  average-case lookup, insertion,  and deletion.  Maps are  declared
+  with pipe-delimited literal syntax:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<MAP_DEMO>[]#{                                                 │
+  │ 2:  │      \let<m:map>{|1->100, 2->200, 3->300|}                             │
+  │ 3:  │      \return{\at<m>[2]}                                                │
+  │ 4:  │  }                                                                     │
+  │ 5:  │                                                                        │
+  │ 6:  │  Value at key 2: \invoke<MAP_DEMO>[]                                   │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Value at key 2: 200                                                  ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  The operations mirror array access with additional map-specific commands:
+  
+    ● \𝑎𝑡<m>[key] – read the value for a key
+    ● \𝑠𝑒𝑡<m>[key]{value} – write a value for a key
+    ● \𝑙𝑒𝑛<m> – the number of entries
+    ● \𝑚𝑎𝑝_ℎ𝑎𝑠<m>[key] – 1 if the key exists, 0 otherwise
+    ● \𝑚𝑎𝑝_𝑑𝑒𝑙<m>[key] – delete a key-value pair
+    ● \𝑚𝑎𝑝_𝑘𝑒𝑦𝑠<m> – all keys as a heap array
+  
+  An empty map is written as ||.
+  
+            ............................................................
+                                 VERBATIM AND MAPS
+  
+            Map  literals use pipe  characters, which conflict  with the
+            default \𝑣𝑒𝑟𝑏 delimiter. When showing map code in a verbatim
+            block,        use        a       different        delimiter:
+            \𝑣𝑒𝑟𝑏\textasciitilde…\textasciitilde works well.
+            ............................................................
+                              Membership and Deletion
+                            o═════════════════════════o
+  
+  \𝑚𝑎𝑝_ℎ𝑎𝑠  tests whether a key exists without reading its value. \𝑚𝑎𝑝_𝑑𝑒𝑙 removes
+  a key entirely:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<MAP_OPS>[]#{                                                  │
+  │ 2:  │      \let<m:map>{|10->1, 20->2, 30->3|}                                │
+  │ 3:  │      \let<before:int>{\map_has<m>[20]}                                 │
+  │ 4:  │      \map_del<m>[20]                                                   │
+  │ 5:  │      \let<after:int>{\map_has<m>[20]}                                  │
+  │ 6:  │      \return{\add{\mul{${before}, 10}, ${after}}}                      │
+  │ 7:  │  }                                                                     │
+  │ 8:  │                                                                        │
+  │ 9:  │  before=1, after=0 encoded as: \invoke<MAP_OPS>[]                      │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   before=1, after=0 encoded as: 10                                     ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  The  return value 10 encodes both  results: \𝑚𝑎𝑝_ℎ𝑎𝑠 returned 1 before  deletion
+  and 0 after.
+  
+                                Iterating over a Map
+                              o══════════════════════o
+  
+  Maps have no built-in iterator. Instead, extract the keys with  \𝑚𝑎𝑝_𝑘𝑒𝑦𝑠, which
+  returns a heap-allocated array of all keys:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<MAP_SUM>[]#{                                                  │
+  │ 2:  │      \let<m:map>{|1->10, 2->20, 3->30|}                                │
+  │ 3:  │      \let<keys:int>{\map_keys<m>}                                      │
+  │ 4:  │      \let<n:int>{\mem_len{${keys}}}                                    │
+  │ 5:  │      \let<sum:int>{0}                                                  │
+  │ 6:  │      \let<i:int>{0}                                                    │
+  │ 7:  │      \begin{loop}                                                      │
+  │ 8:  │          \exit_when{\ge{${i}, ${n}}}                                   │
+  │ 9:  │          \let<key:int>{\mem_load{${keys}, ${i}}}                       │
+  │ 10: │          \let<sum>{\add{${sum}, \at<m>[${key}]}}                       │
+  │ 11: │          \inc<i>                                                       │
+  │ 12: │      \end{loop}                                                        │
+  │ 13: │      \return{${sum}}                                                   │
+  │ 14: │  }                                                                     │
+  │ 15: │                                                                        │
+  │ 16: │  Map value sum: \invoke<MAP_SUM>[]                                     │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Map value sum: 60                                                    ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Notice that  \𝑚𝑎𝑝_𝑘𝑒𝑦𝑠 returns a ℎ𝑒𝑎𝑝  𝑎𝑑𝑑𝑟𝑒𝑠𝑠, not a regular array. This is why
+  we use \𝑚𝑒𝑚_𝑙𝑜𝑎𝑑 to access  individual keys and \𝑚𝑒𝑚_𝑙𝑒𝑛 for the count. Heap me-
+  mory is explained in detail in its own section below.
+  
+                                A Frequency Counter
+                              o═════════════════════o
+  
+  Maps excel at counting.  Here is a frequency counter that tallies how many times
+  each value appears in an array:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<FREQ>[]#{                                                     │
+  │ 2:  │      \let<data:int[]>{[3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]}               │
+  │ 3:  │      \let<freq:map>{||}                                                │
+  │ 4:  │      \let<i:int>{0}                                                    │
+  │ 5:  │      \begin{loop}                                                      │
+  │ 6:  │          \exit_when{\ge{${i}, \len<data>}}                             │
+  │ 7:  │          \let<val:int>{\at<data>[${i}]}                                │
+  │ 8:  │          \if{\map_has<freq>[${val}]}{                                  │
+  │ 9:  │              \set<freq>[${val}]{\add{\at<freq>[${val}], 1}}            │
+  │ 10: │          }\else{                                                       │
+  │ 11: │              \set<freq>[${val}]{1}                                     │
+  │ 12: │          }                                                             │
+  │ 13: │          \inc<i>                                                       │
+  │ 14: │      \end{loop}                                                        │
+  │ 15: │      \return{\at<freq>[5]}                                             │
+  │ 16: │  }                                                                     │
+  │ 17: │                                                                        │
+  │ 18: │  Count of 5: \invoke<FREQ>[]                                           │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Count of 5: 3                                                        ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  The value 5 appears  three times in the input, so the count is 3. The  pattern –
+  check  with  \𝑚𝑎𝑝_ℎ𝑎𝑠, then either  increment or initialize  –  is the  standard
+  approach for map-based accumulators.
+  
+  
+  𝐀𝐝𝐝𝐫𝐞𝐬𝐬 𝐏𝐚𝐬𝐬𝐢𝐧𝐠
+  ────────────────────────────────────────────────────────────────────────────────
+  By default,  collections passed to a lambda are copied. When you need a function
+  to modify the caller’s array or map, pass an 𝑎𝑑𝑑𝑟𝑒𝑠𝑠 instead:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<FILL>[addr:address, n:int, val:int]#{                         │
+  │ 2:  │      \let<i:int>{0}                                                    │
+  │ 3:  │      \begin{loop}                                                      │
+  │ 4:  │          \exit_when{\ge{${i}, ${n}}}                                   │
+  │ 5:  │          \set<*addr>[${i}]{${val}}                                     │
+  │ 6:  │          \inc<i>                                                       │
+  │ 7:  │      \end{loop}                                                        │
+  │ 8:  │  }                                                                     │
+  │ 9:  │                                                                        │
+  │ 10: │  \lambda<DEMO_ADDR>[]#{                                                │
+  │ 11: │      \let<arr:int[]>{[0, 0, 0, 0, 0]}                                  │
+  │ 12: │      \invoke<FILL>[\addressof<arr>, 5, 42]                             │
+  │ 13: │      \return{\at<arr>[2]}                                              │
+  │ 14: │  }                                                                     │
+  │ 15: │                                                                        │
+  │ 16: │  After fill: \invoke<DEMO_ADDR>[]                                      │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   After fill: 42                                                       ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  The key pieces:
+  
+    ● \𝑎𝑑𝑑𝑟𝑒𝑠𝑠𝑜𝑓<name> – obtains the address of a collection
+    ● \𝑎𝑡<*addr>[i] – dereferences the address to read
+    ● \𝑠𝑒𝑡<*addr>[i]{v} – dereferences the address to write
+  
+  The  asterisk in <*addr> is the  dereference operator, analogous to C’s  pointer
+  dereference.  When 𝐹𝐼𝐿𝐿 writes through  <*addr>, it modifies the original 𝑎𝑟𝑟 in
+  the caller’s scope.
+  
+            ............................................................
+                              TWO KINDS OF INDIRECTION
+  
+            CL supports two dereference patterns. \𝑎𝑑𝑑𝑟𝑒𝑠𝑠𝑜𝑓 gives a ha-
+            ndle  to  a collection  –  suitable  for  arrays  and  maps.
+            String-based  indirection  lets a string  variable hold  the
+            𝑛𝑎𝑚𝑒 of another  variable:  \𝑖𝑛𝑐<*name> increments  whatever
+            variable  the string names. Both use the * prefix,  but they
+            operate at different levels.
+            ............................................................
+  
+  
+  𝐃𝐲𝐧𝐚𝐦𝐢𝐜 𝐕𝐚𝐫𝐢𝐚𝐛𝐥𝐞 𝐍𝐚𝐦𝐞𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Sometimes you need to address variables whose names are  constructed at runtime.
+  CL supports nested {} expressions for computed names:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<DYN_ACCESS>[]#{                                               │
+  │ 2:  │      \let<item0:int>{100}                                              │
+  │ 3:  │      \let<item1:int>{200}                                              │
+  │ 4:  │      \let<item2:int>{300}                                              │
+  │ 5:  │      \let<i:int>{1}                                                    │
+  │ 6:  │      \return{${item${i}}}                                              │
+  │ 7:  │  }                                                                     │
+  │ 8:  │                                                                        │
+  │ 9:  │  Item 1: \invoke<DYN_ACCESS>[]                                         │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Item 1: 200                                                          ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  The expression  ${item${i}} first evaluates the inner ${i} to get 1, then conca-
+  tenates to form 𝑖𝑡𝑒𝑚1, and  finally looks up that  variable. This is essentially
+  computed variable names.
+  
+  The pattern extends to multiple indices. A 2D grid stored in flat variables:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<GRID_2D>[]#{                                                  │
+  │ 2:  │      \let<cell00:int>{11}                                              │
+  │ 3:  │      \let<cell01:int>{12}                                              │
+  │ 4:  │      \let<cell10:int>{21}                                              │
+  │ 5:  │      \let<cell11:int>{22}                                              │
+  │ 6:  │      \let<sum:int>{0}                                                  │
+  │ 7:  │      \let<r:int>{0}                                                    │
+  │ 8:  │      \begin{loop}                                                      │
+  │ 9:  │          \exit_when{\ge{${r}, 2}}                                      │
+  │ 10: │          \let<c:int>{0}                                                │
+  │ 11: │          \begin{loop}                                                  │
+  │ 12: │              \exit_when{\ge{${c}, 2}}                                  │
+  │ 13: │              \let<sum>{\add{${sum}, ${cell${r}${c}}}}                  │
+  │ 14: │              \inc<c>                                                   │
+  │ 15: │          \end{loop}                                                    │
+  │ 16: │          \inc<r>                                                       │
+  │ 17: │      \end{loop}                                                        │
+  │ 18: │      \return{${sum}}                                                   │
+  │ 19: │  }                                                                     │
+  │ 20: │                                                                        │
+  │ 21: │  Grid sum: \invoke<GRID_2D>[]                                          │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Grid sum: 66                                                         ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  ${cell${r}${c}}  resolves both indices:  when 𝑟 = 1 and 𝑐 = 0 it becomes 𝑐𝑒𝑙𝑙10,
+  yielding 21.
+  
+                                  Dynamic Mutation
+                                o══════════════════o
+  
+  Dynamic names also work with mutators. \inc<${slot${target}}> increments whiche-
+  ver variable the index resolves to:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<DYN_INC>[]#{                                                  │
+  │ 2:  │      \let<slot0:int>{0}                                                │
+  │ 3:  │      \let<slot1:int>{0}                                                │
+  │ 4:  │      \let<slot2:int>{0}                                                │
+  │ 5:  │      \let<i:int>{0}                                                    │
+  │ 6:  │      \begin{loop}                                                      │
+  │ 7:  │          \exit_when{\ge{${i}, 30}}                                     │
+  │ 8:  │          \let<target:int>{\mod{${i}, 3}}                               │
+  │ 9:  │          \inc<${slot${target}}>                                        │
+  │ 10: │          \inc<i>                                                       │
+  │ 11: │      \end{loop}                                                        │
+  │ 12: │      \return{\add{\add{${slot0}, ${slot1}}, ${slot2}}}                 │
+  │ 13: │  }                                                                     │
+  │ 14: │                                                                        │
+  │ 15: │  30 across 3 slots: \invoke<DYN_INC>[]                                 │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   30 across 3 slots: 30                                                ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Each iteration  increments a different slot based on 𝑖 mod 3. After 30 iteratio-
+  ns, each slot holds 10, and the total is 30.
+  
+                              String-Based Indirection
+                            o══════════════════════════o
+  
+  A separate  pattern uses a string variable that holds the name of another varia-
+  ble. The * prefix dereferences the name:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<STR_DEREF>[]#{                                                │
+  │ 2:  │      \let<counter:int>{0}                                              │
+  │ 3:  │      \let<name:string>{counter}                                        │
+  │ 4:  │      \inc<*name>                                                       │
+  │ 5:  │      \inc<*name>                                                       │
+  │ 6:  │      \inc<*name>                                                       │
+  │ 7:  │      \return{${counter}}                                               │
+  │ 8:  │  }                                                                     │
+  │ 9:  │                                                                        │
+  │ 10: │  Result: \invoke<STR_DEREF>[]                                          │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Result: 3                                                            ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  \𝑖𝑛𝑐<*name> looks up the string stored in 𝑛𝑎𝑚𝑒 – which is "counter" – and incre-
+  ments that variable. Three increments bring 𝑐𝑜𝑢𝑛𝑡𝑒𝑟 from 0 to 3.
+  
+  
+  𝐇𝐞𝐚𝐩 𝐌𝐞𝐦𝐨𝐫𝐲
+  ────────────────────────────────────────────────────────────────────────────────
+  CL provides manual heap  allocation for data that needs to persist across lambda
+  calls  or  that is too  large for the scope  system. The heap is a flat  address
+  space of integer slots:
+  
+    ● \𝑚𝑒𝑚_𝑎𝑙𝑙𝑜𝑐{size} – allocate a block, returns an address
+    ● \𝑚𝑒𝑚_𝑠𝑡𝑜𝑟𝑒{addr, index, value} – write to a slot
+    ● \𝑚𝑒𝑚_𝑙𝑜𝑎𝑑{addr, index} – read from a slot
+    ● \𝑚𝑒𝑚_𝑙𝑒𝑛{addr} – the number of slots in the block
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<HEAP_DEMO>[]#{                                                │
+  │ 2:  │      \let<buf:int>{\mem_alloc{5}}                                      │
+  │ 3:  │      \mem_store{${buf}, 0, 42}                                         │
+  │ 4:  │      \mem_store{${buf}, 1, 99}                                         │
+  │ 5:  │      \return{\add{                                                     │
+  │ 6:  │          \mem_load{${buf}, 0},                                         │
+  │ 7:  │          \mem_load{${buf}, 1}                                          │
+  │ 8:  │      }}                                                                │
+  │ 9:  │  }                                                                     │
+  │ 10: │                                                                        │
+  │ 11: │  Heap sum: \invoke<HEAP_DEMO>[]                                        │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+     ╭─────────────────────────────────────────────────────────────────────────╮
+  ╭──┴────────────╮                                                            │
+  │ 𝐻𝑦𝑎δες Output │|··························································|│
+  ╰──┬────────────╯                                                            │
+     │   Heap sum: 141                                                        ░│
+     ╰─────────────────────────────────────────────────────────────────────────╯
+  
+  Heap blocks persist for the document’s lifetime. Once allocated, the address can
+  be stored in a variable and passed between lambdas. The Matrix Digital Rain exa-
+  mple later in this guide uses the heap as a virtual screen buffer – each cell is
+  a packed integer holding both a character index and a color tier.
+  
+  You already  encountered heap memory indirectly: \𝑚𝑎𝑝_𝑘𝑒𝑦𝑠 returns a heap addre-
+  ss. That is why the map  iteration pattern uses \𝑚𝑒𝑚_𝑙𝑜𝑎𝑑 and \𝑚𝑒𝑚_𝑙𝑒𝑛 to trave-
+  rse the key array.
+  
+            ............................................................
+                                  HEAP vs. ARRAYS
+  
+            Arrays  (\𝑙𝑒𝑡<arr:int[]>{…}) live in the  VM’s scope  system
+            and are garbage-collected when their scope ends. Heap blocks
+            (\𝑚𝑒𝑚_𝑎𝑙𝑙𝑜𝑐) persist globally. Use arrays for local data wi-
+            thin a single  lambda; use the  heap when data must  survive
+            across calls or when you need to share large buffers between
+            lambdas.
+            ............................................................
+  
+  
+  𝐎𝐮𝐭𝐩𝐮𝐭 𝐎𝐩𝐞𝐫𝐚𝐭𝐢𝐨𝐧𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  Most lambdas compute and return values. But CL also supports direct terminal ou-
+  tput for building interactive applications:
+  
+    ● \𝑒𝑚𝑖𝑡{expr} – output a value as text
+    ● \𝑐𝑢𝑟𝑠𝑜𝑟{row, col} – move the terminal cursor (1-based)
+    ● \𝑎𝑛𝑠𝑖{codes} – emit an ANSI escape sequence
+  
+  These commands bypass the normal  typesetting pipeline and write directly to the
+  terminal. They are the foundation of real-time programs like Matrix Digital Rain
+  and Game of Life.
+  
+                                  ANSI Color Codes
+                                o══════════════════o
+  
+  \𝑎𝑛𝑠𝑖 accepts standard ANSI SGR codes:
+  
+    ┌────────────────────────┬───────────────────────┐
+    │ Code                   │ Effect                │
+    ╞════════════════════════╪═══════════════════════╡
+    │ 0                      │ Reset all attributes  │
+    ╞════════════════════════╪═══════════════════════╡
+    │ 1                      │ Bold                  │
+    ╞════════════════════════╪═══════════════════════╡
+    │ 3                      │ Italic                │
+    ╞════════════════════════╪═══════════════════════╡
+    │ 4                      │ Underline             │
+    ╞════════════════════════╪═══════════════════════╡
+    │ 31–37                  │ Foreground     colors │
+    │                        │ (red..white)          │
+    ╞════════════════════════╪═══════════════════════╡
+    │ 90–97                  │ Bright foreground co- │
+    │                        │ lors                  │
+    ╞════════════════════════╪═══════════════════════╡
+    │ 40–47                  │ Background colors     │
+    └────────────────────────┴───────────────────────┘
+  
+  Multiple  codes can be combined with semicolons:  \𝑎𝑛𝑠𝑖{92;40} sets bright green
+  foreground on black background.
+  
+  The stdlib also provides friendlier wrappers:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \term_fg[red]{text}                                                   │
+  │ 2:  │  \term_bg[blue]{text}                                                  │
+  │ 3:  │  \term_color[fg=white,bg=red]{text}                                    │
+  │ 4:  │  \term_bold{text}                                                      │
+  │ 5:  │  \term_underline{text}                                                 │
+  │ 6:  │  \term_inverse{text}                                                   │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+                                   Cursor Control
+                                 o════════════════o
+  
+  Beyond \𝑐𝑢𝑟𝑠𝑜𝑟{row, col}, a full suite of positioning commands is available:
+  
+    ┌────────────────────────┬───────────────────────┐
+    │ Command                │ Effect                │
+    ╞════════════════════════╪═══════════════════════╡
+    │ \𝑐𝑢𝑟𝑠𝑜𝑟_𝑢𝑝{n}          │ Move up n lines       │
+    ╞════════════════════════╪═══════════════════════╡
+    │ \𝑐𝑢𝑟𝑠𝑜𝑟_𝑑𝑜𝑤𝑛{n}        │ Move down n lines     │
+    ╞════════════════════════╪═══════════════════════╡
+    │ \𝑐𝑢𝑟𝑠𝑜𝑟_𝑙𝑒𝑓𝑡{n}        │ Move left n columns   │
+    ╞════════════════════════╪═══════════════════════╡
+    │ \𝑐𝑢𝑟𝑠𝑜𝑟_𝑟𝑖𝑔ℎ𝑡{n}       │ Move right n columns  │
+    ╞════════════════════════╪═══════════════════════╡
+    │ \𝑐𝑢𝑟𝑠𝑜𝑟_𝑠𝑎𝑣𝑒           │ Save cursor position  │
+    ╞════════════════════════╪═══════════════════════╡
+    │ \𝑐𝑢𝑟𝑠𝑜𝑟_𝑟𝑒𝑠𝑡𝑜𝑟𝑒        │ Restore  saved  posi- │
+    │                        │ tion                  │
+    ╞════════════════════════╪═══════════════════════╡
+    │ \𝑐𝑢𝑟𝑠𝑜𝑟_ℎ𝑖𝑑𝑒         / │ Toggle cursor visibi- │
+    │ \𝑐𝑢𝑟𝑠𝑜𝑟_𝑠ℎ𝑜𝑤           │ lity                  │
+    ╞════════════════════════╪═══════════════════════╡
+    │ \𝑐𝑙𝑒𝑎𝑟_𝑠𝑐𝑟𝑒𝑒𝑛          │ Clear entire screen   │
+    ╞════════════════════════╪═══════════════════════╡
+    │ \𝑐𝑙𝑒𝑎𝑟_𝑙𝑖𝑛𝑒          / │ Clear  current line / │
+    │ \𝑐𝑙𝑒𝑎𝑟_𝑡𝑜_𝑒𝑜𝑙          │ to end                │
+    ╞════════════════════════╪═══════════════════════╡
+    │ \𝑡𝑒𝑟𝑚_𝑟𝑜𝑤𝑠           / │ Terminal dimensions   │
+    │ \𝑡𝑒𝑟𝑚_𝑐𝑜𝑙𝑠             │                       │
+    └────────────────────────┴───────────────────────┘
+  
+  
+  𝐓𝐡𝐞 𝐌𝐚𝐢𝐧 𝐋𝐨𝐨𝐩
+  ────────────────────────────────────────────────────────────────────────────────
+  Interactive  programs  use  \𝑚𝑎𝑖𝑛{body}. This puts  the terminal into  alternate
+  screen mode and runs the body in an infinite  loop, clearing the screen  between
+  frames:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \main{                                                                │
+  │ 2:  │      % Process input                                                   │
+  │ 3:  │      \if{\haskey}{                                                     │
+  │ 4:  │          \let<k>{\getkey}                                              │
+  │ 5:  │          \if{\streq{${k},q}}{\exit}                                    │
+  │ 6:  │      }                                                                 │
+  │ 7:  │      % Compute                                                         │
+  │ 8:  │      \invoke<UPDATE>[...]                                              │
+  │ 9:  │      % Render                                                          │
+  │ 10: │      \invoke<DRAW>[...]                                                │
+  │ 11: │      \wait{30}   % ~33 fps                                             │
+  │ 12: │  }                                                                     │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  The  architecture is always: read input, compute the next state, render the fra-
+  me, sleep. Input commands include:
+  
+    ● \ℎ𝑎𝑠𝑘𝑒𝑦 – 1 if a keypress is waiting
+    ● \𝑔𝑒𝑡𝑘𝑒𝑦 – consume and return the next key
+    ● \𝑔𝑒𝑡𝑚𝑜𝑢𝑠𝑒𝑋, \𝑔𝑒𝑡𝑚𝑜𝑢𝑠𝑒𝑌 – mouse position
+    ● \𝑔𝑒𝑡𝑚𝑜𝑢𝑠𝑒𝑏𝑢𝑡𝑡𝑜𝑛 – mouse button state (1=left, 3=right)
+    ● \𝑒𝑥𝑖𝑡 – quit the program
+    ● \𝑤𝑎𝑖𝑡{ms} – pause for milliseconds
+  
+  The \𝑚𝑎𝑖𝑛 loop manages the terminal lifecycle automatically: it enters alternate
+  screen mode,  enables raw  input, and  restores the  terminal on exit.  You just
+  write the frame logic.
+  
+            ............................................................
+                          CURSOR POSITIONING WITHOUT MAIN
+  
+            You do not need  \𝑚𝑎𝑖𝑛 for simple cursor  tricks. The cursor
+            commands work in regular documents too – useful for progress
+            bars or status updates that overwrite themselves in place.
+            ............................................................
+  
+  
+  𝐓𝐡𝐞 𝐈𝐧𝐭𝐞𝐫𝐩𝐫𝐞𝐭𝐞𝐫/𝐂𝐋 𝐁𝐫𝐢𝐝𝐠𝐞
+  ────────────────────────────────────────────────────────────────────────────────
+  Programs do not  have to be pure CL. The most  powerful pattern in Hyades is mi-
+  xing the text  interpreter with compiled  lambdas – letting each do what it does
+  best. The interpreter handles  initialization, configuration,  and string proce-
+  ssing. CL handles  computation-heavy inner loops. The bridge between them is the
+  𝑝𝑒𝑟𝑠𝑖𝑠𝑡𝑒𝑛𝑡 𝑠𝑡𝑜𝑟𝑒: heap blocks, maps, and arrays that both sides can access.
+  
+                          Allocating from the Interpreter
+                        o═════════════════════════════════o
+  
+  Heap memory and maps can only be 𝑐𝑟𝑒𝑎𝑡𝑒𝑑 inside a #{} block (they are  Subnivean
+  operations).  But you can wrap the  allocation in a tiny lambda and call it from
+  the interpreter:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  %%% Create a helper lambda that allocates and returns a heap address  │
+  │ 2:  │  \lambda<ALLOC>[size:int]#{\return{\mem_alloc{${size}}}}               │
+  │ 3:  │                                                                        │
+  │ 4:  │  %%% Interpreter allocates a buffer through the helper                 │
+  │ 5:  │  \let<buf>{\invoke<ALLOC>[\mul{${COLS}, ${ROWS}}]}                     │
+  │ 6:  │                                                                        │
+  │ 7:  │  %%% Maps are allocated with pipe literals inside #{}                  │
+  │ 8:  │  \let<pos_map>#{||}                                                    │
+  │ 9:  │  \let<spd_map>#{||}                                                    │
+  │ 10: │                                                                        │
+  │ 11: │  %%% Arrays can be allocated directly with data                        │
+  │ 12: │  \let<grid>#{[0,0,1,0,0,1,1,1,0]}                                      │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  After  these  lines, ${buf},  ${pos_map}, ${spd_map}, and  ${grid} are  ordinary
+  integer addresses that the  interpreter can store, pass, and hand to CL lambdas.
+  The array form is especially  convenient – the non-sparse Game of Life uses \le-
+  t<grid>#{[0,0,1,...]} to create its initial board directly from the interpreter,
+  yielding a heap  array that  CL  lambdas  can read  and write via  \𝑚𝑒𝑚_𝑙𝑜𝑎𝑑 and
+  \𝑚𝑒𝑚_𝑠𝑡𝑜𝑟𝑒.
+  
+                         Initialization in the Interpreter
+                       o═══════════════════════════════════o
+  
+  The  interpreter is often more  convenient for  setup code. Matrix  Digital Rain
+  initializes its column state with a simple loop in interpreter mode:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  %%% Initialize columns with random starting positions                 │
+  │ 2:  │  \let<c>{0}                                                            │
+  │ 3:  │  \begin{loop}                                                          │
+  │ 4:  │      \exit_when{\ge{${c}, ${COLS}}}                                    │
+  │ 5:  │      \map_set<pos_map>{${c}, \sub{0, \rand{${ROWS}}}}                  │
+  │ 6:  │      \map_set<spd_map>{${c}, \add{1, \rand{3}}}                        │
+  │ 7:  │      \map_set<trail_map>{${c}, \add{8, \rand{24}}}                     │
+  │ 8:  │      \inc<c>                                                           │
+  │ 9:  │  \end{loop}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  This loop runs in the text interpreter – no #{}, no type  annotations. It writes
+  directly into the persistent maps using \𝑚𝑎𝑝_𝑠𝑒𝑡. Those same maps are later read
+  by the compiled COMPUTE lambda through address dereferences (\at<*addr>[key]).
+  
+                         Passing State Across the Boundary
+                       o═══════════════════════════════════o
+  
+  The main loop ties everything together by passing  persistent-store addresses as
+  lambda parameters:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \main{                                                                │
+  │ 2:  │      \invoke<COMPUTE>[${COLS}, ${ROWS}, ${frame},                      │
+  │ 3:  │          ${buf}, ${pos_map}, ${spd_map},                               │
+  │ 4:  │          ${trail_map}, ${chr_map}]                                     │
+  │ 5:  │      \invoke<RENDER>[${COLS}, ${ROWS}, ${buf}, ${K}]                   │
+  │ 6:  │      \inc<frame>                                                       │
+  │ 7:  │      \wait{60}                                                         │
+  │ 8:  │  }                                                                     │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  The interpreter owns the addresses; the CL lambdas receive them as plain intege-
+  rs. Inside the lambda,  \at<*addr>[key] reads through  the address and  \set<*a-
+  ddr>[key]{val}  writes back.  Because both sides  reference the same  persistent
+  store, changes made by COMPUTE are  instantly visible to RENDER – no copying re-
+  quired.
+  
+                                 External Callbacks
+                               o════════════════════o
+  
+  How does this work under the hood? When a CL lambda dereferences an address, the
+  Subnivean VM uses 𝑒𝑥𝑡𝑒𝑟𝑛𝑎𝑙 𝑐𝑎𝑙𝑙𝑏𝑎𝑐𝑘𝑠 to reach into the interpreter:
+  
+    ● 𝐚𝐫𝐫𝐚𝐲_𝐥𝐨𝐨𝐤𝐮𝐩: fetches an array by name from the interpreter’s scope
+    ● 𝐚𝐫𝐫𝐚𝐲_𝐬𝐞𝐭: writes an element to an interpreter-owned array
+    ● 𝐥𝐚𝐦𝐛𝐝𝐚_𝐜𝐨𝐦𝐩𝐢𝐥𝐞: compiles another lambda on demand when first referenced
+  
+  These callbacks fire transparently. When a CL lambda calls \invoke<OTHER_LAMBDA-
+  >[...] and  OTHER_LAMBDA has not yet been compiled, the VM asks the  interpreter
+  to compile it, caches the result, and calls it at bytecode speed from then on.
+  
+            ............................................................
+                               THE DESIGN PHILOSOPHY
+  
+            The  interpreter/CL split mirrors how CPU and GPU  cooperate
+            in graphics programming: the CPU (interpreter) sets up state
+            and  issues  commands; the GPU  (Subnivean VM) executes  the
+            heavy  parallel work. You  don’t compile your  configuration
+            files  to  SPIR-V;  you don’t  write your  physics engine in
+            shell script. Use each tool where it shines.
+            ............................................................
+  
+  
+  𝐓𝐡𝐞 𝐒𝐮𝐛𝐧𝐢𝐯𝐞𝐚𝐧 𝐕𝐢𝐫𝐭𝐮𝐚𝐥 𝐌𝐚𝐜𝐡𝐢𝐧𝐞
+  ────────────────────────────────────────────────────────────────────────────────
+  Every #{} body is compiled to bytecode and executed by the Subnivean VM – a sta-
+  ck-based virtual machine designed for mutable cells, lexical scopes, and closure
+  semantics.  Understanding Subnivean is not  required for writing CL, but knowing
+  what  happens behind the scenes helps explain why CL is fast and why certain pa-
+  tterns perform better than others.
+  
+                                     Why a VM?
+                                   o═══════════o
+  
+  The text  interpreter processes macros by string  expansion: each \𝑣𝑎𝑙𝑢𝑒𝑜𝑓  call
+  generates text, that text is spliced into the document, and the result is re-pa-
+  rsed. This is elegant for typesetting but catastrophically slow for computation.
+  A simple loop running 10{,}000 iterations generates and parses 10{,}000 strings.
+  
+  Subnivean  bypasses text entirely.  The compiler  parses CL syntax  into an AST,
+  translates  that AST into bytecode, and the VM executes the bytecode with a sta-
+  ck, scope chain, and  register-like cells. There is no string generation, no re-
+  -parsing, no macro expansion overhead.
+  
+  The result is a 𝟔𝟓× 𝐬𝐩𝐞𝐞𝐝𝐮𝐩. Conway’s Game of Life on a 5×5 grid for 1000 itera-
+  tions:
+  
+    ┌───────────────────┬──────────────────┐
+    │ Engine            │             Time │
+    ╞═══════════════════╪══════════════════╡
+    │ Text interpreter  │            7.63s │
+    ╞═══════════════════╪══════════════════╡
+    │ Subnivean VM      │           0.118s │
+    └───────────────────┴──────────────────┘
+  
+  This is what makes interactive  applications possible. Without Subnivean, Matrix
+  Digital Rain could not maintain a usable frame rate.
+  
+                              The Compilation Pipeline
+                            o══════════════════════════o
+  
+  When Hyades encounters #{…}, it:
+  
+    ● Parses the CL syntax into an abstract syntax tree (AST)
+    ● Compiles the AST to Subnivean bytecode instructions
+    ● Stores the bytecode in a function object
+    ● On each \𝑖𝑛𝑣𝑜𝑘𝑒, the VM executes the bytecode directly
+  
+  The  compilation happens once at definition  time. Subsequent calls run the pre-
+  -compiled bytecode with zero parsing overhead. This is analogous to how an ahea-
+  d-of-time compiler works.
+  
+                                The Execution Model
+                              o═════════════════════o
+  
+  The VM maintains five components:
+  
+    ● A 𝐯𝐚𝐥𝐮𝐞 𝐬𝐭𝐚𝐜𝐤 for operand computation
+    ● A 𝐜𝐚𝐥𝐥 𝐬𝐭𝐚𝐜𝐤 for function activation records
+    ● A 𝐬𝐜𝐨𝐩𝐞 𝐜𝐡𝐚𝐢𝐧 for lexical variable resolution
+    ● A 𝐬𝐲𝐦𝐛𝐨𝐥 𝐭𝐚𝐛𝐥𝐞 for interned identifiers
+    ● An 𝐨𝐮𝐭𝐩𝐮𝐭 𝐛𝐮𝐟𝐟𝐞𝐫 for \𝑒𝑚𝑖𝑡 results
+  
+  Variables  in  CL are  stored in 𝑐𝑒𝑙𝑙𝑠 – mutable  boxes that  live in the  scope
+  chain.  When  you write  \𝑙𝑒𝑡<x:int>{5}, the compiler  emits: push the  value 5,
+  create a new cell  containing it, and bind the cell to the symbol “x” in the cu-
+  rrent  scope.  When you  write {x},  it  emits:  look up the cell  bound to “x”,
+  extract its value. Mutation  (\𝑖𝑛𝑐<x>) finds the cell and modifies it in place –
+  no allocation, no copying.
+  
+                             Closures and Scope Capture
+                           o════════════════════════════o
+  
+  Closures  capture the scope at definition  time. A lambda  defined inside a loop
+  captures the  per-iteration scope, which means each closure gets its own copy of
+  the loop  variable. This is the same  semantics as modern  JavaScript’s 𝑙𝑒𝑡 in a
+  for loop – each  iteration creates a fresh scope, and each closure  captures its
+  own version.
+  
+                                 External Callbacks
+                               o════════════════════o
+  
+  The VM communicates  with the host Hyades  interpreter through three  callbacks:
+  array lookup, array write, and lambda compilation. When CL code references a va-
+  riable  that  does  not  exist  in  the  VM’s  scope,  the  callback checks  the
+  interpreter’s  variable store. This is how lambdas access  document-level varia-
+  bles – counters,  arrays, and maps defined outside any #{} block are  transpare-
+  ntly available inside it.
+  
+            ............................................................
+                               PERFORMANCE: INLINING
+  
+            Function calls in Subnivean  have overhead: scope  creation,
+            argument  copying, stack frame setup. In tight inner loops –
+            thousands of iterations  per frame – this  adds up. Both the
+            Game of Life and Matrix Digital Rain inline their inner-loop
+            logic rather than  calling helper lambdas. When  performance
+            matters, prefer one large lambda over many small ones in hot
+            paths.
+            ............................................................
+  
+  
+  𝐒𝐭𝐚𝐧𝐝𝐚𝐫𝐝 𝐋𝐢𝐛𝐫𝐚𝐫𝐲 𝐅𝐮𝐧𝐜𝐭𝐢𝐨𝐧𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  The  standard  library includes  pre-built CL functions in the STD::  namespace.
+  These cover common patterns so you do not have to write them yourself:
+  
+                                  Array Generators
+                                o══════════════════o
+    ● STD::RANGE[start, end] – integers from start to end-1
+    ● STD::IOTA[n] – integers from 0 to n-1
+    ● STD::REPEAT[n, val] – n copies of a value
+                                     Aggregates
+                                   o════════════o
+    ● STD::SUM, STD::PRODUCT – reduce an array
+    ● STD::MIN, STD::MAX, STD::AVG – statistics
+    ● STD::LEN, STD::COUNT – count elements
+                                  Transformations
+                                o═════════════════o
+    ● STD::REVERSE, STD::MAP, STD::FILTER
+    ● STD::TAKE, STD::DROP, STD::SLICE
+    ● STD::SORT, STD::SORT_DESC, STD::JOIN
+                                   Math Utilities
+                                 o════════════════o
+    ● STD::ABS, STD::SIGN, STD::CLAMP
+    ● STD::POW, STD::FACTORIAL, STD::GCD, STD::LCM, STD::FIB
+                                     Formatting
+                                   o════════════o
+    ● STD::ORDINAL – 1 \textrightarrow “1st”, 2 \textrightarrow “2nd”
+    ● STD::ROMAN – 42 \textrightarrow “XLII”
+                                     Predicates
+                                   o════════════o
+    ● STD::IS_POSITIVE, STD::IS_NEGATIVE, STD::IS_ZERO
+    ● STD::IS_EVEN, STD::IS_ODD
+  
+  
+  𝐈𝐧 𝐏𝐫𝐚𝐜𝐭𝐢𝐜𝐞: 𝐆𝐚𝐦𝐞 𝐨𝐟 𝐋𝐢𝐟𝐞
+  ────────────────────────────────────────────────────────────────────────────────
+  Conway’s Game of Life is the  canonical test of a computational  system’s expre-
+  ssiveness.  The rules are  simple: cells on a grid are either alive or dead, and
+  their fate  depends on how many  neighbors they have. With just these rules, the
+  system is Turing-complete – capable of universal computation.
+  
+  The Hyades implementation uses a 𝑠𝑝𝑎𝑟𝑠𝑒  representation. Instead of allocating a
+  huge 2D array,  only live cells are stored in a map. The key is an encoded  coo-
+  rdinate: row × 10000 + column.
+  
+                                Encoding Coordinates
+                              o══════════════════════o
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<ENCODE_KEY>[row:int, col:int]#{                               │
+  │ 2:  │      \return{\add{\mul{${row}, 10000}, ${col}}}                        │
+  │ 3:  │  }                                                                     │
+  │ 4:  │                                                                        │
+  │ 5:  │  \lambda<DECODE_ROW>[key:int]#{                                        │
+  │ 6:  │      \return{\div{${key}, 10000}}                                      │
+  │ 7:  │  }                                                                     │
+  │ 8:  │                                                                        │
+  │ 9:  │  \lambda<DECODE_COL>[key:int]#{                                        │
+  │ 10: │      \return{\mod{${key}, 10000}}                                      │
+  │ 11: │  }                                                                     │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  A glider – the simplest moving pattern – is initialized as five map entries:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \let<grid>#{|10002->1, 20003->1, 30001->1, 30002->1, 30003->1|}       │
+  │ 2:  │  \let<temp>#{||}                                                       │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+                                 The Step Function
+                               o═══════════════════o
+  
+  The simulation step is the heart of the program. It works in three phases:
+  
+    ● 𝐁𝐮𝐢𝐥𝐝 𝐜𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞𝐬: gather all live cells and their neighbors into a set. Only
+      these cells can change state.
+    ● 𝐄𝐯𝐚𝐥𝐮𝐚𝐭𝐞: for each candidate, count its live neighbors and apply the rules
+      (survive with 2–3 neighbors, birth with exactly 3).
+    ● 𝐒𝐰𝐚𝐩: clear the current grid and copy the results from a temporary map.
+  
+  The neighbor-counting loop iterates the 3×3 neighborhood with toroidal wrapping:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  %%% Count neighbors (inlined for performance)                         │
+  │ 2:  │  \let<count:int>{0}                                                    │
+  │ 3:  │  \let<dr:int>{-1}                                                      │
+  │ 4:  │  \begin{loop}                                                          │
+  │ 5:  │      \exit_when{\gt{${dr}, 1}}                                         │
+  │ 6:  │      \let<dc:int>{-1}                                                  │
+  │ 7:  │      \begin{loop}                                                      │
+  │ 8:  │          \exit_when{\gt{${dc}, 1}}                                     │
+  │ 9:  │          \if{\and{\eq{${dr}, 0}, \eq{${dc}, 0}}}{}                     │
+  │ 10: │          \else{                                                        │
+  │ 11: │              \let<nr:int>{\mod{\add{\add{${row}, ${dr}},               │
+  │ 12: │                  ${height}}, ${height}}}                               │
+  │ 13: │              \let<nc:int>{\mod{\add{\add{${col}, ${dc}},               │
+  │ 14: │                  ${width}}, ${width}}}                                 │
+  │ 15: │              \let<nkey:int>{\add{\mul{${nr}, 10000}, ${nc}}}           │
+  │ 16: │              \if{\map_has{${grid_map}, ${nkey}}}{\inc<count>}          │
+  │ 17: │          }                                                             │
+  │ 18: │          \inc<dc>                                                      │
+  │ 19: │      \end{loop}                                                        │
+  │ 20: │      \inc<dr>                                                          │
+  │ 21: │  \end{loop}                                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  The double \𝑚𝑜𝑑 with the added  height/width ensures coordinates wrap around the
+  grid  edges – a standard torus  topology. The \𝑚𝑎𝑝_ℎ𝑎𝑠  check is O(1)  thanks to
+  Robin Hood hashing.
+  
+                                The Next-State Rule
+                              o═════════════════════o
+  
+  The Game of Life rule fits in a single conditional:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \let<next:int>{                                                       │
+  │ 2:  │      \if{${current}}{                                                  │
+  │ 3:  │          \if{\or{\eq{${count}, 2},                                     │
+  │ 4:  │                  \eq{${count}, 3}}}{1}                                 │
+  │ 5:  │          \else{0}                                                      │
+  │ 6:  │      }\else{                                                           │
+  │ 7:  │          \if{\eq{${count}, 3}}{1}                                      │
+  │ 8:  │          \else{0}                                                      │
+  │ 9:  │      }                                                                 │
+  │ 10: │  }                                                                     │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  If a cell is alive, it survives  with 2 or 3 neighbors. If dead, it is born with
+  exactly 3. Everything else dies or stays dead.
+  
+                                     Rendering
+                                   o═══════════o
+  
+  Each frame, the display lambda  iterates every visible  cell, queries the sparse
+  map, and emits a colored block character:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \if{${is_hover}}{                                                     │
+  │ 2:  │      \if{${alive}}{\ansi{93}\emit{block}\ansi{0}}                      │
+  │ 3:  │      \else{\ansi{43;30}\emit{block}\ansi{0}}                           │
+  │ 4:  │  }\else{                                                               │
+  │ 5:  │      \if{${alive}}{\ansi{92}\emit{block}\ansi{0}}                      │
+  │ 6:  │      \else{\ansi{90}\emit{block}\ansi{0}}                              │
+  │ 7:  │  }                                                                     │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  Alive cells are  green; dead cells are dim gray; the cell under the mouse cursor
+  is highlighted in yellow. The full  implementation supports pausing, mouse inte-
+  raction for toggling cells, and runs at 30+ fps on a standard terminal.
+  
+            ............................................................
+                                TURING COMPLETENESS
+  
+            The  Game of Life is famously  Turing-complete: any computa-
+            tion that a Turing machine can perform, a sufficiently large
+            Life grid can also  perform. The fact that Hyades can imple-
+            ment Life in CL – with maps, loops, functions, and conditio-
+            nals – demonstrates  that CL itself  has  the  computational
+            power to express arbitrary algorithms.
+            ............................................................
+  
+  
+  𝐈𝐧 𝐏𝐫𝐚𝐜𝐭𝐢𝐜𝐞: 𝐌𝐚𝐭𝐫𝐢𝐱 𝐃𝐢𝐠𝐢𝐭𝐚𝐥 𝐑𝐚𝐢𝐧
+  ────────────────────────────────────────────────────────────────────────────────
+  The Matrix Digital Rain is a more visually ambitious example. It renders falling
+  columns of Katakana  characters in green,  mimicking the iconic  effect from the
+  film. This program exercises nearly every CL feature: arrays, maps, heap memory,
+  address passing, ANSI colors, and cursor positioning.
+  
+                                    Architecture
+                                  o══════════════o
+  
+  The program splits into two compiled lambdas:
+  
+    ● 𝐂𝐎𝐌𝐏𝐔𝐓𝐄: runs the physics simulation. For each column, it calculates which
+      cells should be lit and at what brightness, writing packed values into a
+      heap buffer.
+    ● 𝐑𝐄𝐍𝐃𝐄𝐑: reads the heap buffer and emits ANSI-colored Katakana characters at
+      the correct screen positions.
+  
+  This separation keeps computation pure and rendering straightforward.
+  
+                             The Virtual Screen Buffer
+                           o═══════════════════════════o
+  
+  Rather than  emitting characters during  computation (which would mix logic with
+  output), the program allocates a heap buffer sized to the terminal:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<ALLOC_BUF>[size:int]#{                                        │
+  │ 2:  │      \return{\mem_alloc{${size}}}                                      │
+  │ 3:  │  }                                                                     │
+  │ 4:  │                                                                        │
+  │ 5:  │  \let<buf>{\invoke<ALLOC_BUF>[\mul{${COLS},${ROWS}}]}                  │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  Each  cell in the  buffer stores a packed integer:  𝑐ℎ𝑎𝑟_𝑖𝑛𝑑𝑒𝑥 × 4 + 𝑐𝑜𝑙𝑜𝑟_𝑡𝑖𝑒𝑟.
+  The COMPUTE lambda writes these packed values; the RENDER lambda unpacks them.
+  
+                                 The Compute Lambda
+                               o════════════════════o
+  
+  COMPUTE takes eight parameters – all by address so it can modify the shared sta-
+  te:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \lambda<COMPUTE>[cols:int, rows:int, frm:int,                         │
+  │ 2:  │      buf_addr:int, pos_addr:int, spd_addr:int,                         │
+  │ 3:  │      trail_addr:int, chr_addr:int]#{                                   │
+  │ 4:  │      ...                                                               │
+  │ 5:  │  }                                                                     │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  For each column, it:
+  
+    ● Reads the current drop position and trail length from maps
+    ● Iterates the trail cells, calculating a color tier (bright white head
+      \textrightarrow bright green \textrightarrow dark green \textrightarrow dim
+      gray tail)
+    ● Picks a pseudo-random Katakana character for each cell
+    ● Packs the character index and color into a single integer
+    ● Writes the packed value into the heap buffer
+    ● Advances the drop position and resets when it scrolls off-screen
+  
+  The  key  technique  is  𝑏𝑖𝑡-𝑝𝑎𝑐𝑘𝑖𝑛𝑔: a single  integer encodes two  values. The
+  RENDER side unpacks with division and modulo:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \let<ch:int>{\div{${packed}, 4}}                                      │
+  │ 2:  │  \let<clr:int>{\mod{${packed}, 4}}                                     │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+                                 The Render Lambda
+                               o═══════════════════o
+  
+  RENDER  reads the heap buffer and emits only  non-zero cells. For each lit cell,
+  it positions  the cursor, selects the ANSI color, and emits the  Katakana chara-
+  cter by indexing into a string array:
+  
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \if{\eq{${clr}, 0}}{\ansi{97;40}}       % bright white head           │
+  │ 2:  │  \else{\if{\eq{${clr}, 1}}{\ansi{92;40}} % bright green                │
+  │ 3:  │  \else{\if{\eq{${clr}, 2}}{\ansi{32;40}} % dark green                  │
+  │ 4:  │  \else{\ansi{90;40}}}}                    % dim gray                   │
+  │ 5:  │  \emit{\at<*k_addr>[${ch}]}                                            │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  The  <*k_addr>  dereference reads  from the  Katakana array  that was  passed by
+  address from the main loop.
+  
+                                   The Main Loop
+                                 o═══════════════o
+  ┌─────┬────────────────────────────────────────────────────────────────────────┐
+  │ 1:  │  \main{                                                                │
+  │ 2:  │      \if{\haskey}{\let<k>{\getkey}                                     │
+  │ 3:  │          \if{\streq{${k},q}}{\exit}                                    │
+  │ 4:  │          \if{\streq{${k},Q}}{\exit}}                                   │
+  │ 5:  │      \invoke<COMPUTE>[${COLS},${ROWS},${frame},                        │
+  │ 6:  │          ${buf},${pos_map},${spd_map},                                 │
+  │ 7:  │          ${trail_map},${chr_map}]                                      │
+  │ 8:  │      \invoke<RENDER>[${COLS},${ROWS},${buf},${K}]                      │
+  │ 9:  │      \inc<frame>                                                       │
+  │ 10: │      \wait{60}                                                         │
+  │ 11: │  }                                                                     │
+  └─────┴────────────────────────────────────────────────────────────────────────┘
+  
+  Each frame: check for quit, run the  physics, draw the result, sleep 60 millise-
+  conds. Maps  (positions, speeds, trail lengths,  character seeds) are  passed by
+  address to COMPUTE, which updates them in place.
+  
+            ............................................................
+                                  BUFFER STRATEGY
+  
+            The  heap  buffer acts as a “virtual  framebuffer” – COMPUTE
+            writes  packed  cell  data,  RENDER reads  it. This  pattern
+            avoids  interleaving  computation with  terminal I/O,  which
+            would be both  slower and harder to reason about. The buffer
+            also enables selective  rendering: only non-zero  cells emit
+            characters, so empty space costs nothing.
+            ............................................................
+  
+  
+  𝐍𝐚𝐦𝐢𝐧𝐠 𝐂𝐨𝐧𝐯𝐞𝐧𝐭𝐢𝐨𝐧𝐬
+  ────────────────────────────────────────────────────────────────────────────────
+  CL follows a consistent naming scheme:
+  
+    ┌─────────────────┬─────────────────┬─────────────────┐
+    │ Category        │ Convention      │ Example         │
+    ╞═════════════════╪═════════════════╪═════════════════╡
+    │ Multi-word  co- │ snake_case      │ \𝑒𝑥𝑖𝑡_𝑤ℎ𝑒𝑛,     │
+    │ mmands          │                 │ \𝑚𝑎𝑝_ℎ𝑎𝑠        │
+    ╞═════════════════╪═════════════════╪═════════════════╡
+    │ Single-word co- │ lowercase       │ \𝑙𝑒𝑡, \𝑎𝑡, \𝑠𝑒𝑡 │
+    │ mmands          │                 │                 │
+    ╞═════════════════╪═════════════════╪═════════════════╡
+    │ User     lambda │ UPPER_CASE      │ COMPUTE, GCD    │
+    │ names           │                 │                 │
+    ╞═════════════════╪═════════════════╪═════════════════╡
+    │ User  local va- │ lower_case      │ count, row, i   │
+    │ riables         │                 │                 │
+    └─────────────────┴─────────────────┴─────────────────┘
+  
+  Uppercase  names are global – they  persist between lambda calls and are visible
+  everywhere.  Lowercase names are  local – they exist only within their  lambda’s
+  scope and are freed when the call returns.
+  
+  This is the same convention as the macro system, and for the same reason: Hyades
+  uses casing to determine scope without requiring explicit scope annotations.
+  
+  
+  𝐐𝐮𝐢𝐜𝐤 𝐑𝐞𝐟𝐞𝐫𝐞𝐧𝐜𝐞
+  ────────────────────────────────────────────────────────────────────────────────
+    ┌───────────────────────────────────┬────────────────────────────────┐
+    │ Command                           │ Description                    │
+    ╞═══════════════════════════════════╪════════════════════════════════╡
+    │ 𝐷𝑒𝑓𝑖𝑛𝑖𝑡𝑖𝑜𝑛𝑠 & 𝐶𝑎𝑙𝑙𝑠               │                                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑙𝑎𝑚𝑏𝑑𝑎<name>[p:type]#{body}      │ Define a compiled function     │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑖𝑛𝑣𝑜𝑘𝑒<name>[args]               │ Call a lambda                  │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑟𝑒𝑡𝑢𝑟𝑛{value}                    │ Return from a lambda           │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ 𝑉𝑎𝑟𝑖𝑎𝑏𝑙𝑒𝑠                         │                                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑙𝑒𝑡<name:type>{value}            │ Declare a typed variable       │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ {name}                            │ Read a variable                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑖𝑛𝑐<x> / \𝑑𝑒𝑐<x>                 │ Increment / decrement          │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ 𝐴𝑟𝑖𝑡ℎ𝑚𝑒𝑡𝑖𝑐                        │                                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑎𝑑𝑑 \𝑠𝑢𝑏 \𝑚𝑢𝑙 \𝑑𝑖𝑣 \𝑚𝑜𝑑          │ Basic arithmetic               │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑛𝑒𝑔{a}                           │ Negation                       │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑚𝑎𝑥{a,b} / \𝑚𝑖𝑛{a,b}             │ Maximum / minimum              │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑟𝑎𝑛𝑑{n}                          │ Random integer in [0, n)       │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ 𝐶𝑜𝑚𝑝𝑎𝑟𝑖𝑠𝑜𝑛𝑠 & 𝐿𝑜𝑔𝑖𝑐               │                                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑒𝑞 \𝑛𝑒 \𝑙𝑡 \𝑙𝑒 \𝑔𝑡 \𝑔𝑒           │ Comparisons (return 0/1)       │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑎𝑛𝑑{a,b} / \𝑜𝑟{a,b} / \𝑛𝑜𝑡{a}    │ Logic operators                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ 𝐶𝑜𝑛𝑡𝑟𝑜𝑙 𝐹𝑙𝑜𝑤                      │                                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑖𝑓{cond}{then}\𝑒𝑙𝑠𝑒{else}        │ Conditional                    │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑏𝑒𝑔𝑖𝑛{loop}…\𝑒𝑛𝑑{loop}           │ Loop                           │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑒𝑥𝑖𝑡_𝑤ℎ𝑒𝑛{condition}             │ Break from loop                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ 𝐶𝑜𝑙𝑙𝑒𝑐𝑡𝑖𝑜𝑛𝑠                       │                                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑎𝑡<arr>[i] / \𝑠𝑒𝑡<arr>[i]{v}     │ Array/map read/write           │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑙𝑒𝑛<arr>                         │ Collection length              │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑚𝑎𝑝_ℎ𝑎𝑠<m>[k]                    │ Map membership test            │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑚𝑎𝑝_𝑑𝑒𝑙<m>[k]                    │ Delete map entry               │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑚𝑎𝑝_𝑘𝑒𝑦𝑠<m>                      │ All keys (heap array)          │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑝𝑢𝑠ℎ<arr>{v} / \𝑝𝑜𝑝<arr>         │ Stack (LIFO) push/pop          │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑝𝑒𝑒𝑘<arr>                        │ Read top without removing      │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑒𝑛𝑞𝑢𝑒𝑢𝑒<arr>{v} / \𝑑𝑒𝑞𝑢𝑒𝑢𝑒<arr>  │ Queue (FIFO) add/remove        │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ 𝐴𝑑𝑑𝑟𝑒𝑠𝑠 𝑃𝑎𝑠𝑠𝑖𝑛𝑔                   │                                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑎𝑑𝑑𝑟𝑒𝑠𝑠𝑜𝑓<name>                  │ Get collection address         │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑎𝑡<*a>[i] / \𝑠𝑒𝑡<*a>[i]{v}       │ Dereference read/write         │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ 𝐻𝑒𝑎𝑝 𝑀𝑒𝑚𝑜𝑟𝑦                       │                                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑚𝑒𝑚_𝑎𝑙𝑙𝑜𝑐{n}                     │ Allocate heap block            │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑚𝑒𝑚_𝑙𝑜𝑎𝑑{addr, i}                │ Read from heap                 │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑚𝑒𝑚_𝑠𝑡𝑜𝑟𝑒{addr, i, v}            │ Write to heap                  │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑚𝑒𝑚_𝑙𝑒𝑛{addr}                    │ Heap block length              │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ 𝑇𝑒𝑟𝑚𝑖𝑛𝑎𝑙 𝑂𝑢𝑡𝑝𝑢𝑡                   │                                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑒𝑚𝑖𝑡{text}                       │ Output a value                 │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑐𝑢𝑟𝑠𝑜𝑟{row, col}                 │ Position cursor                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑎𝑛𝑠𝑖{codes}                      │ ANSI escape sequence           │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑚𝑎𝑖𝑛{body}                       │ Interactive main loop          │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ 𝐷𝑦𝑛𝑎𝑚𝑖𝑐 𝑁𝑎𝑚𝑒𝑠                     │                                │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ ${prefix${i}suffix}               │ Computed variable name         │
+    ├───────────────────────────────────┼────────────────────────────────┤
+    │ \𝑖𝑛𝑐<*name>                       │ String-based indirection       │
+    └───────────────────────────────────┴────────────────────────────────┘
+
+@label cl_guide
+    Hyades has two programmability systems. The first -- macros -- is a text
+    substitution engine, the subject of a separate guide. The second is
+    Computational Lambdas (CL), a fully typed computational layer compiled to
+    bytecode and executed by the Subnivean virtual machine. Where macros
+    transform text, CL computes values: integers, strings, arrays, hash maps,
+    heap memory, and terminal output fast enough for interactive applications.
+
+    This guide builds progressively from a first lambda to complete programs.
+    By the end you will understand every feature CL offers -- and you will
+    have seen it drive Conway's Game of Life and a Matrix Digital Rain, both
+    running live inside a typesetting engine.
+
+    The sections build on each other, so reading front to back is recommended.
+    A Quick Reference table at the end covers every command in one place.
+
+
+    \section{\textbf{Your First Lambda}}
+
+    A \textit{lambda} is a named function. The simplest form takes no
+    parameters and returns a constant:
+
+    \hylst{\verb|
+\lambda<greet>#{
+    \return{42}
+}
+
+Result: \invoke<greet>[]
+|}{%
+    \lambda<greet>#{
+        \return{42}
+    }
+    \indented{
+        Result: \invoke<greet>[]
+    }
+}
+
+    Three things to notice. First, the \# before the opening brace -- it
+    tells Hyades to compile this body to Subnivean bytecode instead of
+    interpreting it as text. Second, \cmd{return} provides the value that
+    flows back to the call site. Third, \cmd{invoke}\<name\>[args] is the
+    calling convention: the name goes in angle brackets, arguments in square
+    brackets (empty here because \textit{greet} takes none).
+
+    Without the \#, the body would be treated as a macro -- text substitution,
+    not computation. The \# is the gateway to everything in this guide.
+
+    \begin{didyouknow}
+    \center{TWO KINDS OF LAMBDA}
+    A lambda body in plain braces \{...\} is interpreted as text by the
+    macro engine. A lambda body in \#\{...\} is compiled to bytecode by
+    Subnivean. Both are defined with \cmd{lambda}, but they live in
+    different worlds. This guide covers \#\{\} exclusively.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Functions with Parameters}}
+
+    Lambdas accept typed parameters in square brackets:
+
+    \hylst{\verb|
+\lambda<ADD>[a:int, b:int]#{
+    \return{\add{${a}, ${b}}}
+}
+
+\invoke<ADD>[3, 4] \\
+\invoke<ADD>[100, 200]
+|}{%
+    \lambda<ADD>[a:int, b:int]#{
+        \return{\add{${a}, ${b}}}
+    }
+    \indented{
+        \invoke<ADD>[3, 4] \\
+        \invoke<ADD>[100, 200]
+    }
+}
+
+    Each parameter carries a type annotation: \textit{a:int} declares a
+    parameter named \textit{a} of type \textit{int}. The available types
+    are covered in the next section.
+
+    Functions can call other functions. Because each lambda is a named, global
+    entity, any lambda can invoke any other:
+
+    \hylst{\verb|
+\lambda<SQUARE>[x:int]#{
+    \return{\mul{${x}, ${x}}}
+}
+
+\lambda<SUM_OF_SQUARES>[a:int, b:int]#{
+    \return{\add{
+        \invoke<SQUARE>[${a}],
+        \invoke<SQUARE>[${b}]
+    }}
+}
+
+$3^2 + 4^2$ = \invoke<SUM_OF_SQUARES>[3, 4]
+|}{%
+    \lambda<SQUARE>[x:int]#{
+        \return{\mul{${x}, ${x}}}
+    }
+    \lambda<SUM_OF_SQUARES>[a:int, b:int]#{
+        \return{\add{
+            \invoke<SQUARE>[${a}],
+            \invoke<SQUARE>[${b}]
+        }}
+    }
+    \indented{
+        $3^2 + 4^2$ = \invoke<SUM_OF_SQUARES>[3, 4]
+    }
+}
+
+    \cmd{invoke} calls nest freely. Here \textit{SUM\_OF\_SQUARES} calls
+    \textit{SQUARE} twice, and the results flow back through the \cmd{add}.
+
+
+    {}\\
+    \section{\textbf{The Type System}}
+
+    CL has six types. Every variable must be typed on its first declaration;
+    subsequent reassignments may omit the type:
+
+    \indented{\fancylist{
+        - \textbf{int} -- 64-bit signed integer, the workhorse type
+        - \textbf{string} -- immutable UTF-8 text
+        - \textbf{int[]} -- mutable integer array
+        - \textbf{string[]} -- mutable string array
+        - \textbf{map} -- Robin Hood hash map (integer keys and values)
+        - \textbf{address} -- a handle to a collection, for passing by reference
+    }}
+
+    \hylst{\verb~
+\lambda<TYPES>[]#{
+    \let<x:int>{42}
+    \let<s:string>{hello}
+    \let<arr:int[]>{[10, 20, 30]}
+    \let<m:map>{|1->100, 2->200|}
+
+    \let<x>{99}   % reassign: type already known
+    \return{${x}}
+}
+
+\invoke<TYPES>[]
+~}{%
+    \lambda<TYPES>[]#{
+        \let<x:int>{42}
+        \let<s:string>{hello}
+        \let<arr:int[]>{[10, 20, 30]}
+        \let<m:map>{|1->100, 2->200|}
+        \let<x>{99}
+        \return{${x}}
+    }
+    \indented{
+        \invoke<TYPES>[]
+    }
+}
+
+    Variable access is always \$\{name\} -- the same syntax as the macro
+    system, so muscle memory transfers directly.
+
+    \begin{didyouknow}
+    \center{OLD SYNTAX IS BANNED}
+    Inside \#\{\} blocks, the old \cmd{valueof}\<x\> and \cmd{recall}\<x\>
+    commands are rejected by the parser with helpful error messages. This
+    keeps CL code clean and unambiguous. The old syntax still works in
+    regular macro bodies.
+    \end{didyouknow}
+
+    \fculn{Type Annotations on Parameters}
+
+    Parameters carry the same type annotations. The type goes after a colon:
+
+    \fancylisting{\verb|
+\lambda<fn>[name:type, name:type]#{ ... }
+|}
+
+    The type tells Subnivean how to allocate storage and which operations
+    are valid. Passing the wrong type causes a runtime coercion -- integers
+    convert to their string representation, strings parse to integers when
+    possible (defaulting to 0).
+
+    \fculn{Reassignment}
+
+    After the first \cmd{let} with a type, later assignments omit it:
+
+    \fancylisting{\verb|
+\let<x:int>{1}        % first time: typed
+\let<x>{2}            % reassign: type known
+\let<x>{\add{${x},3}} % computed reassignment
+|}
+
+    Attempting to re-declare the type is harmless but unnecessary.
+
+
+    {}\\
+    \section{\textbf{Arithmetic, Comparison, and Logic}}
+
+    CL provides the same operators available in the macro system. Inside
+    \#\{\} blocks they compile to direct bytecode operations instead of
+    text expansion, making them substantially faster.
+
+    \fculn{Arithmetic}
+
+    \indented{\fancylist{
+        - \cmd{add}\{a,b\}:\quad addition
+        - \cmd{sub}\{a,b\}:\quad subtraction
+        - \cmd{mul}\{a,b\}:\quad multiplication
+        - \cmd{div}\{a,b\}:\quad integer division (rounds toward zero)
+        - \cmd{mod}\{a,b\}:\quad remainder after division
+        - \cmd{neg}\{a\}:\quad negation ($-a$)
+        - \cmd{max}\{a,b\}:\quad the larger value
+        - \cmd{min}\{a,b\}:\quad the smaller value
+        - \cmd{rand}\{n\}:\quad random integer in [0, $n$)
+    }}
+
+    \fculn{Comparisons}
+
+    All comparisons return 1 for true, 0 for false:
+
+    \indented{\fancylist{
+        - \cmd{eq}\{a,b\}, \cmd{ne}\{a,b\}:\quad equal, not equal
+        - \cmd{lt}\{a,b\}, \cmd{le}\{a,b\}:\quad less than, less-or-equal
+        - \cmd{gt}\{a,b\}, \cmd{ge}\{a,b\}:\quad greater than, greater-or-equal
+    }}
+
+    \fculn{Logic}
+
+    \indented{\fancylist{
+        - \cmd{and}\{a,b\}:\quad logical AND (1 iff both nonzero)
+        - \cmd{or}\{a,b\}:\quad logical OR (1 iff either nonzero)
+        - \cmd{not}\{a\}:\quad logical NOT (1 if zero, 0 if nonzero)
+    }}
+
+    These nest naturally. A condition like "x is between 1 and 100" reads:
+
+    \hylst{\verb|
+\lambda<IN_RANGE>[x:int]#{
+    \return{\and{\ge{${x}, 1}, \le{${x}, 100}}}
+}
+
+in range: \invoke<IN_RANGE>[42] \\
+out of range: \invoke<IN_RANGE>[200]
+|}{%
+    \lambda<IN_RANGE>[x:int]#{
+        \return{\and{\ge{${x}, 1}, \le{${x}, 100}}}
+    }
+    \indented{
+        in range: \invoke<IN_RANGE>[42] \\
+        out of range: \invoke<IN_RANGE>[200]
+    }
+}
+
+
+    {}\\
+    \section{\textbf{Control Flow}}
+
+    \fculn{Conditionals}
+
+    The \cmd{if}/\cmd{else} structure works identically to the macro system:
+
+    \fancylisting{\verb|
+\if{condition}{true branch}\else{false branch}
+|}
+
+    Zero is false, every other integer is true. The \cmd{else} branch is
+    optional. The placement rule applies here too: \cmd{else} must
+    immediately follow the closing brace of the true branch with no
+    intervening whitespace.
+
+    \hylst{\verb|
+\lambda<ABS>[x:int]#{
+    \if{\lt{${x}, 0}}{
+        \return{\sub{0, ${x}}}
+    }\else{
+        \return{${x}}
+    }
+}
+
+abs(-42) = \invoke<ABS>[-42] \\
+abs(7) = \invoke<ABS>[7]
+|}{%
+    \lambda<ABS>[x:int]#{
+        \if{\lt{${x}, 0}}{
+            \return{\sub{0, ${x}}}
+        }\else{
+            \return{${x}}
+        }
+    }
+    \indented{
+        abs(-42) = \invoke<ABS>[-42] \\
+        abs(7) = \invoke<ABS>[7]
+    }
+}
+
+    Conditionals nest for multi-way branching. A nested chain acts like a
+    switch statement:
+
+    \hylst{\verb|
+\lambda<CLASSIFY>[n:int]#{
+    \if{\lt{${n}, 0}}{
+        \return{-1}
+    }\else{\if{\eq{${n}, 0}}{
+        \return{0}
+    }\else{
+        \return{1}
+    }}
+}
+
+sign(-5) = \invoke<CLASSIFY>[-5] \\
+sign(0) = \invoke<CLASSIFY>[0] \\
+sign(99) = \invoke<CLASSIFY>[99]
+|}{%
+    \lambda<CLASSIFY>[n:int]#{
+        \if{\lt{${n}, 0}}{
+            \return{-1}
+        }\else{\if{\eq{${n}, 0}}{
+            \return{0}
+        }\else{
+            \return{1}
+        }}
+    }
+    \indented{
+        sign(-5) = \invoke<CLASSIFY>[-5] \\
+        sign(0) = \invoke<CLASSIFY>[0] \\
+        sign(99) = \invoke<CLASSIFY>[99]
+    }
+}
+
+    \fculn{Loops}
+
+    The loop construct runs a body repeatedly until an exit condition fires:
+
+    \fancylisting{\verb|
+\begin{loop}
+    \exit_when{condition}
+    body
+\end{loop}
+|}
+
+    \cmd{exit\_when} checks its condition at the top of every iteration.
+    When the condition becomes true, control jumps past \cmd{end}\{loop\}
+    immediately -- the body does not execute for that iteration.
+
+    \hylst{\verb|
+\lambda<FACTORIAL>[n:int]#{
+    \let<result:int>{1}
+    \let<i:int>{${n}}
+    \begin{loop}
+        \exit_when{\le{${i}, 1}}
+        \let<result>{\mul{${result}, ${i}}}
+        \dec<i>
+    \end{loop}
+    \return{${result}}
+}
+
+5! = \invoke<FACTORIAL>[5] \\
+10! = \invoke<FACTORIAL>[10]
+|}{%
+    \lambda<FACTORIAL>[n:int]#{
+        \let<result:int>{1}
+        \let<i:int>{${n}}
+        \begin{loop}
+            \exit_when{\le{${i}, 1}}
+            \let<result>{\mul{${result}, ${i}}}
+            \dec<i>
+        \end{loop}
+        \return{${result}}
+    }
+    \indented{
+        5! = \invoke<FACTORIAL>[5] \\
+        10! = \invoke<FACTORIAL>[10]
+    }
+}
+
+    Loops are the primary iteration mechanism. There is no for loop or
+    while loop -- \cmd{begin}\{loop\} with \cmd{exit\_when} covers all
+    cases. The pattern is always: initialize a counter before the loop,
+    test it with \cmd{exit\_when}, and advance it in the body.
+
+    Here is the iterative Fibonacci sequence, an accumulator pattern:
+
+    \hylst{\verb|
+\lambda<FIB>[n:int]#{
+    \if{\le{${n}, 1}}{
+        \return{${n}}
+    }
+    \let<a:int>{0}
+    \let<b:int>{1}
+    \let<i:int>{2}
+    \begin{loop}
+        \exit_when{\gt{${i}, ${n}}}
+        \let<temp:int>{${b}}
+        \let<b>{\add{${a}, ${b}}}
+        \let<a>{${temp}}
+        \inc<i>
+    \end{loop}
+    \return{${b}}
+}
+
+fib(0) = \invoke<FIB>[0] \\
+fib(1) = \invoke<FIB>[1] \\
+fib(10) = \invoke<FIB>[10]
+|}{%
+    \lambda<FIB>[n:int]#{
+        \if{\le{${n}, 1}}{
+            \return{${n}}
+        }
+        \let<a:int>{0}
+        \let<b:int>{1}
+        \let<i:int>{2}
+        \begin{loop}
+            \exit_when{\gt{${i}, ${n}}}
+            \let<temp:int>{${b}}
+            \let<b>{\add{${a}, ${b}}}
+            \let<a>{${temp}}
+            \inc<i>
+        \end{loop}
+        \return{${b}}
+    }
+    \indented{
+        fib(0) = \invoke<FIB>[0] \\
+        fib(1) = \invoke<FIB>[1] \\
+        fib(10) = \invoke<FIB>[10]
+    }
+}
+
+    The guard clause at the top handles the base cases with an early
+    \cmd{return}. The accumulator loop then slides two variables forward
+    through the sequence without recursion.
+
+    One more classic: the Euclidean GCD.
+
+    \hylst{\verb|
+\lambda<GCD>[a:int, b:int]#{
+    \let<x:int>{${a}}
+    \let<y:int>{${b}}
+    \begin{loop}
+        \exit_when{\eq{${y}, 0}}
+        \let<temp:int>{\mod{${x}, ${y}}}
+        \let<x>{${y}}
+        \let<y>{${temp}}
+    \end{loop}
+    \return{${x}}
+}
+
+gcd(48, 18) = \invoke<GCD>[48, 18] \\
+gcd(100, 25) = \invoke<GCD>[100, 25]
+|}{%
+    \lambda<GCD>[a:int, b:int]#{
+        \let<x:int>{${a}}
+        \let<y:int>{${b}}
+        \begin{loop}
+            \exit_when{\eq{${y}, 0}}
+            \let<temp:int>{\mod{${x}, ${y}}}
+            \let<x>{${y}}
+            \let<y>{${temp}}
+        \end{loop}
+        \return{${x}}
+    }
+    \indented{
+        gcd(48, 18) = \invoke<GCD>[48, 18] \\
+        gcd(100, 25) = \invoke<GCD>[100, 25]
+    }
+}
+
+    The algorithm repeatedly replaces the pair ($x$, $y$) with ($y$,
+    $x \bmod y$) until $y$ reaches zero. At that point $x$ holds the
+    greatest common divisor.
+
+    \begin{didyouknow}
+    \center{EARLY RETURN}
+    \cmd{return} is not limited to the end of a function. It exits the
+    current lambda immediately from wherever it appears -- inside a loop,
+    inside a conditional, anywhere. This is useful for guard clauses:
+
+    \fancylisting{\verb|
+\lambda<SAFE_DIV>[a:int, b:int]#{
+    \if{\eq{${b}, 0}}{\return{0}}
+    \return{\div{${a}, ${b}}}
+}
+|}
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Arrays}}
+
+    Arrays are ordered, mutable sequences with O(1) random access. Declare
+    one by appending [] to the type name:
+
+    \hylst{\verb|
+\lambda<ARRAY_SUM>[]#{
+    \let<nums:int[]>{[10, 20, 30, 40, 50]}
+    \let<sum:int>{0}
+    \let<i:int>{0}
+    \begin{loop}
+        \exit_when{\ge{${i}, \len<nums>}}
+        \let<sum>{\add{${sum}, \at<nums>[${i}]}}
+        \inc<i>
+    \end{loop}
+    \return{${sum}}
+}
+
+Sum: \invoke<ARRAY_SUM>[]
+|}{%
+    \lambda<ARRAY_SUM>[]#{
+        \let<nums:int[]>{[10, 20, 30, 40, 50]}
+        \let<sum:int>{0}
+        \let<i:int>{0}
+        \begin{loop}
+            \exit_when{\ge{${i}, \len<nums>}}
+            \let<sum>{\add{${sum}, \at<nums>[${i}]}}
+            \inc<i>
+        \end{loop}
+        \return{${sum}}
+    }
+    \indented{
+        Sum: \invoke<ARRAY_SUM>[]
+    }
+}
+
+    The key operations:
+
+    \indented{\fancylist{
+        - \cmd{at}\<arr\>[index] -- read an element
+        - \cmd{set}\<arr\>[index]\{value\} -- write an element
+        - \cmd{len}\<arr\> -- the number of elements
+    }}
+
+    Array indices are zero-based. Reading past the end returns 0; writing
+    past the end is silently ignored.
+
+    \fculn{Finding a Maximum}
+
+    A common pattern: iterate an array tracking the best value seen so far.
+
+    \hylst{\verb|
+\lambda<FIND_MAX>[]#{
+    \let<arr:int[]>{[34, 12, 78, 5, 91, 23]}
+    \let<best:int>{\at<arr>[0]}
+    \let<i:int>{1}
+    \begin{loop}
+        \exit_when{\ge{${i}, \len<arr>}}
+        \if{\gt{\at<arr>[${i}], ${best}}}{
+            \let<best>{\at<arr>[${i}]}
+        }
+        \inc<i>
+    \end{loop}
+    \return{${best}}
+}
+
+Maximum: \invoke<FIND_MAX>[]
+|}{%
+    \lambda<FIND_MAX>[]#{
+        \let<arr:int[]>{[34, 12, 78, 5, 91, 23]}
+        \let<best:int>{\at<arr>[0]}
+        \let<i:int>{1}
+        \begin{loop}
+            \exit_when{\ge{${i}, \len<arr>}}
+            \if{\gt{\at<arr>[${i}], ${best}}}{
+                \let<best>{\at<arr>[${i}]}
+            }
+            \inc<i>
+        \end{loop}
+        \return{${best}}
+    }
+    \indented{
+        Maximum: \invoke<FIND_MAX>[]
+    }
+}
+
+    \fculn{Modifying Elements}
+
+    \cmd{set} writes a value at a given index:
+
+    \hylst{\verb|
+\lambda<ARR_MODIFY>[]#{
+    \let<arr:int[]>{[1, 2, 3]}
+    \set<arr>[1]{99}
+    \return{\at<arr>[1]}
+}
+
+After set: \invoke<ARR_MODIFY>[]
+|}{%
+    \lambda<ARR_MODIFY>[]#{
+        \let<arr:int[]>{[1, 2, 3]}
+        \set<arr>[1]{99}
+        \return{\at<arr>[1]}
+    }
+    \indented{
+        After set: \invoke<ARR_MODIFY>[]
+    }
+}
+
+    \fculn{String Arrays}
+
+    Arrays can also hold strings:
+
+    \hylst{\verb|
+\lambda<STR_ARR>[]#{
+    \let<words:string[]>{[hello, world, CL]}
+    \return{\at<words>[2]}
+}
+
+Third word: \invoke<STR_ARR>[]
+|}{%
+    \lambda<STR_ARR>[]#{
+        \let<words:string[]>{[hello, world, CL]}
+        \return{\at<words>[2]}
+    }
+    \indented{
+        Third word: \invoke<STR_ARR>[]
+    }
+}
+
+    String arrays use \textit{string[]} as the type. Access and mutation
+    work identically to integer arrays.
+
+    \fculn{Stack Operations}
+
+    Arrays double as stacks with LIFO (last-in, first-out) semantics:
+
+    \indented{\fancylist{
+        - \cmd{push}\<arr\>\{value\} -- append to end
+        - \cmd{pop}\<arr\> -- remove and return the last element
+        - \cmd{peek}\<arr\> -- read the last element without removing
+        - \cmd{len}\<arr\> -- the current depth
+    }}
+
+    \hylst{\verb|
+\push<COLORS>{red}
+\push<COLORS>{green}
+\push<COLORS>{blue}
+
+Peek: \peek<COLORS> \\
+Pop: \pop<COLORS>, \pop<COLORS>, \pop<COLORS> \\
+Length after: \len<COLORS>
+|}{%
+    \push<COLORS>{red}
+    \push<COLORS>{green}
+    \push<COLORS>{blue}
+    \indented{
+        Peek: \peek<COLORS> \\
+        Pop: \pop<COLORS>, \pop<COLORS>, \pop<COLORS> \\
+        Length after: \len<COLORS>
+    }
+}
+
+    Popping and peeking an empty stack returns an empty string. This
+    makes stacks safe to drain in a loop without bounds checking.
+
+    \fculn{Queue Operations}
+
+    For FIFO (first-in, first-out) ordering, use the queue interface:
+
+    \indented{\fancylist{
+        - \cmd{enqueue}\<arr\>\{value\} -- append to back
+        - \cmd{dequeue}\<arr\> -- remove and return from the front
+    }}
+
+    \hylst{\verb|
+\enqueue<TASKS>{compile}
+\enqueue<TASKS>{link}
+\enqueue<TASKS>{test}
+
+Order: \dequeue<TASKS>, \dequeue<TASKS>, \dequeue<TASKS>
+|}{%
+    \enqueue<TASKS>{compile}
+    \enqueue<TASKS>{link}
+    \enqueue<TASKS>{test}
+    \indented{
+        Order: \dequeue<TASKS>, \dequeue<TASKS>, \dequeue<TASKS>
+    }
+}
+
+    \begin{didyouknow}
+    \center{STACK vs. QUEUE}
+    Both operate on the same underlying array. The only difference is
+    which end the removal draws from: \cmd{pop} takes from the back
+    (LIFO), \cmd{dequeue} takes from the front (FIFO). You can freely
+    mix \cmd{push} with either \cmd{pop} or \cmd{dequeue} on the same
+    array if your algorithm calls for it.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Maps}}
+
+    Maps are Robin Hood hash tables mapping integer keys to integer values.
+    They provide O(1) average-case lookup, insertion, and deletion. Maps
+    are declared with pipe-delimited literal syntax:
+
+    \hylst{\verb~
+\lambda<MAP_DEMO>[]#{
+    \let<m:map>{|1->100, 2->200, 3->300|}
+    \return{\at<m>[2]}
+}
+
+Value at key 2: \invoke<MAP_DEMO>[]
+~}{%
+    \lambda<MAP_DEMO>[]#{
+        \let<m:map>{|1->100, 2->200, 3->300|}
+        \return{\at<m>[2]}
+    }
+    \indented{
+        Value at key 2: \invoke<MAP_DEMO>[]
+    }
+}
+
+    The operations mirror array access with additional map-specific
+    commands:
+
+    \indented{\fancylist{
+        - \cmd{at}\<m\>[key] -- read the value for a key
+        - \cmd{set}\<m\>[key]\{value\} -- write a value for a key
+        - \cmd{len}\<m\> -- the number of entries
+        - \cmd{map\_has}\<m\>[key] -- 1 if the key exists, 0 otherwise
+        - \cmd{map\_del}\<m\>[key] -- delete a key-value pair
+        - \cmd{map\_keys}\<m\> -- all keys as a heap array
+    }}
+
+    An empty map is written as \verb~||~.
+
+    \begin{didyouknow}
+    \center{VERBATIM AND MAPS}
+    Map literals use pipe characters, which conflict with the default
+    \cmd{verb} delimiter. When showing map code in a verbatim block,
+    use a different delimiter: \cmd{verb}\textasciitilde{}...\textasciitilde{} works well.
+    \end{didyouknow}
+
+    \fculn{Membership and Deletion}
+
+    \cmd{map\_has} tests whether a key exists without reading its value.
+    \cmd{map\_del} removes a key entirely:
+
+    \hylst{\verb~
+\lambda<MAP_OPS>[]#{
+    \let<m:map>{|10->1, 20->2, 30->3|}
+    \let<before:int>{\map_has<m>[20]}
+    \map_del<m>[20]
+    \let<after:int>{\map_has<m>[20]}
+    \return{\add{\mul{${before}, 10}, ${after}}}
+}
+
+before=1, after=0 encoded as: \invoke<MAP_OPS>[]
+~}{%
+    \lambda<MAP_OPS>[]#{
+        \let<m:map>{|10->1, 20->2, 30->3|}
+        \let<before:int>{\map_has<m>[20]}
+        \map_del<m>[20]
+        \let<after:int>{\map_has<m>[20]}
+        \return{\add{\mul{${before}, 10}, ${after}}}
+    }
+    \indented{
+        before=1, after=0 encoded as: \invoke<MAP_OPS>[]
+    }
+}
+
+    The return value 10 encodes both results: \cmd{map\_has} returned 1
+    before deletion and 0 after.
+
+    \fculn{Iterating over a Map}
+
+    Maps have no built-in iterator. Instead, extract the keys with
+    \cmd{map\_keys}, which returns a heap-allocated array of all keys:
+
+    \hylst{\verb~
+\lambda<MAP_SUM>[]#{
+    \let<m:map>{|1->10, 2->20, 3->30|}
+    \let<keys:int>{\map_keys<m>}
+    \let<n:int>{\mem_len{${keys}}}
+    \let<sum:int>{0}
+    \let<i:int>{0}
+    \begin{loop}
+        \exit_when{\ge{${i}, ${n}}}
+        \let<key:int>{\mem_load{${keys}, ${i}}}
+        \let<sum>{\add{${sum}, \at<m>[${key}]}}
+        \inc<i>
+    \end{loop}
+    \return{${sum}}
+}
+
+Map value sum: \invoke<MAP_SUM>[]
+~}{%
+    \lambda<MAP_SUM>[]#{
+        \let<m:map>{|1->10, 2->20, 3->30|}
+        \let<keys:int>{\map_keys<m>}
+        \let<n:int>{\mem_len{${keys}}}
+        \let<sum:int>{0}
+        \let<i:int>{0}
+        \begin{loop}
+            \exit_when{\ge{${i}, ${n}}}
+            \let<key:int>{\mem_load{${keys}, ${i}}}
+            \let<sum>{\add{${sum}, \at<m>[${key}]}}
+            \inc<i>
+        \end{loop}
+        \return{${sum}}
+    }
+    \indented{
+        Map value sum: \invoke<MAP_SUM>[]
+    }
+}
+
+    Notice that \cmd{map\_keys} returns a \textit{heap address}, not a
+    regular array. This is why we use \cmd{mem\_load} to access individual
+    keys and \cmd{mem\_len} for the count. Heap memory is explained in
+    detail in its own section below.
+
+    \fculn{A Frequency Counter}
+
+    Maps excel at counting. Here is a frequency counter that tallies how
+    many times each value appears in an array:
+
+    \hylst{\verb~
+\lambda<FREQ>[]#{
+    \let<data:int[]>{[3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]}
+    \let<freq:map>{||}
+    \let<i:int>{0}
+    \begin{loop}
+        \exit_when{\ge{${i}, \len<data>}}
+        \let<val:int>{\at<data>[${i}]}
+        \if{\map_has<freq>[${val}]}{
+            \set<freq>[${val}]{\add{\at<freq>[${val}], 1}}
+        }\else{
+            \set<freq>[${val}]{1}
+        }
+        \inc<i>
+    \end{loop}
+    \return{\at<freq>[5]}
+}
+
+Count of 5: \invoke<FREQ>[]
+~}{%
+    \lambda<FREQ>[]#{
+        \let<data:int[]>{[3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]}
+        \let<freq:map>{||}
+        \let<i:int>{0}
+        \begin{loop}
+            \exit_when{\ge{${i}, \len<data>}}
+            \let<val:int>{\at<data>[${i}]}
+            \if{\map_has<freq>[${val}]}{
+                \set<freq>[${val}]{\add{\at<freq>[${val}], 1}}
+            }\else{
+                \set<freq>[${val}]{1}
+            }
+            \inc<i>
+        \end{loop}
+        \return{\at<freq>[5]}
+    }
+    \indented{
+        Count of 5: \invoke<FREQ>[]
+    }
+}
+
+    The value 5 appears three times in the input, so the count is 3. The
+    pattern -- check with \cmd{map\_has}, then either increment or
+    initialize -- is the standard approach for map-based accumulators.
+
+
+    {}\\
+    \section{\textbf{Address Passing}}
+
+    By default, collections passed to a lambda are copied. When you need a
+    function to modify the caller's array or map, pass an \textit{address}
+    instead:
+
+    \hylst{\verb|
+\lambda<FILL>[addr:address, n:int, val:int]#{
+    \let<i:int>{0}
+    \begin{loop}
+        \exit_when{\ge{${i}, ${n}}}
+        \set<*addr>[${i}]{${val}}
+        \inc<i>
+    \end{loop}
+}
+
+\lambda<DEMO_ADDR>[]#{
+    \let<arr:int[]>{[0, 0, 0, 0, 0]}
+    \invoke<FILL>[\addressof<arr>, 5, 42]
+    \return{\at<arr>[2]}
+}
+
+After fill: \invoke<DEMO_ADDR>[]
+|}{%
+    \lambda<FILL>[addr:address, n:int, val:int]#{
+        \let<i:int>{0}
+        \begin{loop}
+            \exit_when{\ge{${i}, ${n}}}
+            \set<*addr>[${i}]{${val}}
+            \inc<i>
+        \end{loop}
+    }
+    \lambda<DEMO_ADDR>[]#{
+        \let<arr:int[]>{[0, 0, 0, 0, 0]}
+        \invoke<FILL>[\addressof<arr>, 5, 42]
+        \return{\at<arr>[2]}
+    }
+    \indented{
+        After fill: \invoke<DEMO_ADDR>[]
+    }
+}
+
+    The key pieces:
+
+    \indented{\fancylist{
+        - \cmd{addressof}\<name\> -- obtains the address of a collection
+        - \cmd{at}\<*addr\>[i] -- dereferences the address to read
+        - \cmd{set}\<*addr\>[i]\{v\} -- dereferences the address to write
+    }}
+
+    The asterisk in \<*addr\> is the dereference operator, analogous to
+    C's pointer dereference. When \textit{FILL} writes through \<*addr\>,
+    it modifies the original \textit{arr} in the caller's scope.
+
+    \begin{didyouknow}
+    \center{TWO KINDS OF INDIRECTION}
+    CL supports two dereference patterns. \cmd{addressof} gives a handle
+    to a collection -- suitable for arrays and maps. String-based
+    indirection lets a string variable hold the \textit{name} of another
+    variable: \cmd{inc}\<*name\> increments whatever variable the string
+    names. Both use the * prefix, but they operate at different levels.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Dynamic Variable Names}}
+
+    Sometimes you need to address variables whose names are constructed at
+    runtime. CL supports nested \$\{\} expressions for computed names:
+
+    \hylst{\verb|
+\lambda<DYN_ACCESS>[]#{
+    \let<item0:int>{100}
+    \let<item1:int>{200}
+    \let<item2:int>{300}
+    \let<i:int>{1}
+    \return{${item${i}}}
+}
+
+Item 1: \invoke<DYN_ACCESS>[]
+|}{%
+    \lambda<DYN_ACCESS>[]#{
+        \let<item0:int>{100}
+        \let<item1:int>{200}
+        \let<item2:int>{300}
+        \let<i:int>{1}
+        \return{${item${i}}}
+    }
+    \indented{
+        Item 1: \invoke<DYN_ACCESS>[]
+    }
+}
+
+    The expression \verb|${item${i}}| first evaluates the inner
+    \verb|${i}| to get 1, then concatenates to form \textit{item1}, and
+    finally looks up that variable. This is essentially computed variable
+    names.
+
+    The pattern extends to multiple indices. A 2D grid stored in flat
+    variables:
+
+    \hylst{\verb|
+\lambda<GRID_2D>[]#{
+    \let<cell00:int>{11}
+    \let<cell01:int>{12}
+    \let<cell10:int>{21}
+    \let<cell11:int>{22}
+    \let<sum:int>{0}
+    \let<r:int>{0}
+    \begin{loop}
+        \exit_when{\ge{${r}, 2}}
+        \let<c:int>{0}
+        \begin{loop}
+            \exit_when{\ge{${c}, 2}}
+            \let<sum>{\add{${sum}, ${cell${r}${c}}}}
+            \inc<c>
+        \end{loop}
+        \inc<r>
+    \end{loop}
+    \return{${sum}}
+}
+
+Grid sum: \invoke<GRID_2D>[]
+|}{%
+    \lambda<GRID_2D>[]#{
+        \let<cell00:int>{11}
+        \let<cell01:int>{12}
+        \let<cell10:int>{21}
+        \let<cell11:int>{22}
+        \let<sum:int>{0}
+        \let<r:int>{0}
+        \begin{loop}
+            \exit_when{\ge{${r}, 2}}
+            \let<c:int>{0}
+            \begin{loop}
+                \exit_when{\ge{${c}, 2}}
+                \let<sum>{\add{${sum}, ${cell${r}${c}}}}
+                \inc<c>
+            \end{loop}
+            \inc<r>
+        \end{loop}
+        \return{${sum}}
+    }
+    \indented{
+        Grid sum: \invoke<GRID_2D>[]
+    }
+}
+
+    \verb|${cell${r}${c}}| resolves both indices: when $r=1$ and $c=0$
+    it becomes \textit{cell10}, yielding 21.
+
+    \fculn{Dynamic Mutation}
+
+    Dynamic names also work with mutators.
+    \verb|\inc<${slot${target}}>| increments whichever variable the
+    index resolves to:
+
+    \hylst{\verb|
+\lambda<DYN_INC>[]#{
+    \let<slot0:int>{0}
+    \let<slot1:int>{0}
+    \let<slot2:int>{0}
+    \let<i:int>{0}
+    \begin{loop}
+        \exit_when{\ge{${i}, 30}}
+        \let<target:int>{\mod{${i}, 3}}
+        \inc<${slot${target}}>
+        \inc<i>
+    \end{loop}
+    \return{\add{\add{${slot0}, ${slot1}}, ${slot2}}}
+}
+
+30 across 3 slots: \invoke<DYN_INC>[]
+|}{%
+    \lambda<DYN_INC>[]#{
+        \let<slot0:int>{0}
+        \let<slot1:int>{0}
+        \let<slot2:int>{0}
+        \let<i:int>{0}
+        \begin{loop}
+            \exit_when{\ge{${i}, 30}}
+            \let<target:int>{\mod{${i}, 3}}
+            \inc<${slot${target}}>
+            \inc<i>
+        \end{loop}
+        \return{\add{\add{${slot0}, ${slot1}}, ${slot2}}}
+    }
+    \indented{
+        30 across 3 slots: \invoke<DYN_INC>[]
+    }
+}
+
+    Each iteration increments a different slot based on
+    $i \bmod 3$. After 30 iterations, each slot holds 10, and the total
+    is 30.
+
+    \fculn{String-Based Indirection}
+
+    A separate pattern uses a string variable that holds the name of
+    another variable. The * prefix dereferences the name:
+
+    \hylst{\verb|
+\lambda<STR_DEREF>[]#{
+    \let<counter:int>{0}
+    \let<name:string>{counter}
+    \inc<*name>
+    \inc<*name>
+    \inc<*name>
+    \return{${counter}}
+}
+
+Result: \invoke<STR_DEREF>[]
+|}{%
+    \lambda<STR_DEREF>[]#{
+        \let<counter:int>{0}
+        \let<name:string>{counter}
+        \inc<*name>
+        \inc<*name>
+        \inc<*name>
+        \return{${counter}}
+    }
+    \indented{
+        Result: \invoke<STR_DEREF>[]
+    }
+}
+
+    \cmd{inc}\<*name\> looks up the string stored in \textit{name} --
+    which is \verb|"counter"| -- and increments that variable. Three
+    increments bring \textit{counter} from 0 to 3.
+
+
+    {}\\
+    \section{\textbf{Heap Memory}}
+
+    CL provides manual heap allocation for data that needs to persist
+    across lambda calls or that is too large for the scope system. The
+    heap is a flat address space of integer slots:
+
+    \indented{\fancylist{
+        - \cmd{mem\_alloc}\{size\} -- allocate a block, returns an address
+        - \cmd{mem\_store}\{addr, index, value\} -- write to a slot
+        - \cmd{mem\_load}\{addr, index\} -- read from a slot
+        - \cmd{mem\_len}\{addr\} -- the number of slots in the block
+    }}
+
+    \hylst{\verb|
+\lambda<HEAP_DEMO>[]#{
+    \let<buf:int>{\mem_alloc{5}}
+    \mem_store{${buf}, 0, 42}
+    \mem_store{${buf}, 1, 99}
+    \return{\add{
+        \mem_load{${buf}, 0},
+        \mem_load{${buf}, 1}
+    }}
+}
+
+Heap sum: \invoke<HEAP_DEMO>[]
+|}{%
+    \lambda<HEAP_DEMO>[]#{
+        \let<buf:int>{\mem_alloc{5}}
+        \mem_store{${buf}, 0, 42}
+        \mem_store{${buf}, 1, 99}
+        \return{\add{
+            \mem_load{${buf}, 0},
+            \mem_load{${buf}, 1}
+        }}
+    }
+    \indented{
+        Heap sum: \invoke<HEAP_DEMO>[]
+    }
+}
+
+    Heap blocks persist for the document's lifetime. Once allocated, the
+    address can be stored in a variable and passed between lambdas. The
+    Matrix Digital Rain example later in this guide uses the heap as a
+    virtual screen buffer -- each cell is a packed integer holding both a
+    character index and a color tier.
+
+    You already encountered heap memory indirectly: \cmd{map\_keys}
+    returns a heap address. That is why the map iteration pattern uses
+    \cmd{mem\_load} and \cmd{mem\_len} to traverse the key array.
+
+    \begin{didyouknow}
+    \center{HEAP vs. ARRAYS}
+    Arrays (\cmd{let}\<arr:int[]\>\{...\}) live in the VM's scope
+    system and are garbage-collected when their scope ends. Heap blocks
+    (\cmd{mem\_alloc}) persist globally. Use arrays for local data
+    within a single lambda; use the heap when data must survive across
+    calls or when you need to share large buffers between lambdas.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Output Operations}}
+
+    Most lambdas compute and return values. But CL also supports direct
+    terminal output for building interactive applications:
+
+    \indented{\fancylist{
+        - \cmd{emit}\{expr\} -- output a value as text
+        - \cmd{cursor}\{row, col\} -- move the terminal cursor (1-based)
+        - \cmd{ansi}\{codes\} -- emit an ANSI escape sequence
+    }}
+
+    These commands bypass the normal typesetting pipeline and write
+    directly to the terminal. They are the foundation of real-time
+    programs like Matrix Digital Rain and Game of Life.
+
+    \fculn{ANSI Color Codes}
+
+    \cmd{ansi} accepts standard ANSI SGR codes:
+
+    \indented{
+        \table[width:50,pad:{l:1,r:1},frame:single]{
+            \row[frame:{b:double}]{
+                \col{Code}
+                \col{Effect}
+            }
+            \row{
+                \col{0}
+                \col{Reset all attributes}
+            }
+            \row{
+                \col{1}
+                \col{Bold}
+            }
+            \row{
+                \col{3}
+                \col{Italic}
+            }
+            \row{
+                \col{4}
+                \col{Underline}
+            }
+            \row{
+                \col{31--37}
+                \col{Foreground colors (red..white)}
+            }
+            \row{
+                \col{90--97}
+                \col{Bright foreground colors}
+            }
+            \row{
+                \col{40--47}
+                \col{Background colors}
+            }
+        }
+    }
+
+    Multiple codes can be combined with semicolons:
+    \cmd{ansi}\{92;40\} sets bright green foreground on black background.
+
+    The stdlib also provides friendlier wrappers:
+
+    \fancylisting{\verb|
+\term_fg[red]{text}
+\term_bg[blue]{text}
+\term_color[fg=white,bg=red]{text}
+\term_bold{text}
+\term_underline{text}
+\term_inverse{text}
+|}
+
+    \fculn{Cursor Control}
+
+    Beyond \cmd{cursor}\{row, col\}, a full suite of positioning commands
+    is available:
+
+    \indented{
+        \table[width:50,pad:{l:1,r:1},frame:single]{
+            \row[frame:{b:double}]{
+                \col{Command}
+                \col{Effect}
+            }
+            \row{
+                \col{\cmd{cursor\_up}\{n\}}
+                \col{Move up n lines}
+            }
+            \row{
+                \col{\cmd{cursor\_down}\{n\}}
+                \col{Move down n lines}
+            }
+            \row{
+                \col{\cmd{cursor\_left}\{n\}}
+                \col{Move left n columns}
+            }
+            \row{
+                \col{\cmd{cursor\_right}\{n\}}
+                \col{Move right n columns}
+            }
+            \row{
+                \col{\cmd{cursor\_save}}
+                \col{Save cursor position}
+            }
+            \row{
+                \col{\cmd{cursor\_restore}}
+                \col{Restore saved position}
+            }
+            \row{
+                \col{\cmd{cursor\_hide} / \cmd{cursor\_show}}
+                \col{Toggle cursor visibility}
+            }
+            \row{
+                \col{\cmd{clear\_screen}}
+                \col{Clear entire screen}
+            }
+            \row{
+                \col{\cmd{clear\_line} / \cmd{clear\_to\_eol}}
+                \col{Clear current line / to end}
+            }
+            \row{
+                \col{\cmd{term\_rows} / \cmd{term\_cols}}
+                \col{Terminal dimensions}
+            }
+        }
+    }
+
+
+    {}\\
+    \section{\textbf{The Main Loop}}
+
+    Interactive programs use \cmd{main}\{body\}. This puts the terminal
+    into alternate screen mode and runs the body in an infinite loop,
+    clearing the screen between frames:
+
+    \fancylisting{\verb|
+\main{
+    % Process input
+    \if{\haskey}{
+        \let<k>{\getkey}
+        \if{\streq{${k},q}}{\exit}
+    }
+    % Compute
+    \invoke<UPDATE>[...]
+    % Render
+    \invoke<DRAW>[...]
+    \wait{30}   % ~33 fps
+}
+|}
+
+    The architecture is always: read input, compute the next state, render
+    the frame, sleep. Input commands include:
+
+    \indented{\fancylist{
+        - \cmd{haskey} -- 1 if a keypress is waiting
+        - \cmd{getkey} -- consume and return the next key
+        - \cmd{getmouseX}, \cmd{getmouseY} -- mouse position
+        - \cmd{getmousebutton} -- mouse button state (1=left, 3=right)
+        - \cmd{exit} -- quit the program
+        - \cmd{wait}\{ms\} -- pause for milliseconds
+    }}
+
+    The \cmd{main} loop manages the terminal lifecycle automatically:
+    it enters alternate screen mode, enables raw input, and restores the
+    terminal on exit. You just write the frame logic.
+
+    \begin{didyouknow}
+    \center{CURSOR POSITIONING WITHOUT MAIN}
+    You do not need \cmd{main} for simple cursor tricks. The cursor
+    commands work in regular documents too -- useful for progress bars
+    or status updates that overwrite themselves in place.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{The Interpreter/CL Bridge}}
+
+    Programs do not have to be pure CL. The most powerful pattern in
+    Hyades is mixing the text interpreter with compiled lambdas --
+    letting each do what it does best. The interpreter handles
+    initialization, configuration, and string processing. CL handles
+    computation-heavy inner loops. The bridge between them is the
+    \textit{persistent store}: heap blocks, maps, and arrays that both
+    sides can access.
+
+    \fculn{Allocating from the Interpreter}
+
+    Heap memory and maps can only be \textit{created} inside a
+    \verb|#{}| block (they are Subnivean operations). But you can wrap
+    the allocation in a tiny lambda and call it from the interpreter:
+
+    \fancylisting{\verb~
+%%% Create a helper lambda that allocates and returns a heap address
+\lambda<ALLOC>[size:int]#{\return{\mem_alloc{${size}}}}
+
+%%% Interpreter allocates a buffer through the helper
+\let<buf>{\invoke<ALLOC>[\mul{${COLS}, ${ROWS}}]}
+
+%%% Maps are allocated with pipe literals inside #{}
+\let<pos_map>#{||}
+\let<spd_map>#{||}
+
+%%% Arrays can be allocated directly with data
+\let<grid>#{[0,0,1,0,0,1,1,1,0]}
+~}
+
+    After these lines, \verb|${buf}|, \verb|${pos_map}|,
+    \verb|${spd_map}|, and \verb|${grid}| are ordinary integer
+    addresses that the interpreter can store, pass, and hand to CL
+    lambdas. The array form is especially convenient -- the non-sparse
+    Game of Life uses \verb|\let<grid>#{[0,0,1,...]}| to create its
+    initial board directly from the interpreter, yielding a heap array
+    that CL lambdas can read and write via \cmd{mem\_load} and
+    \cmd{mem\_store}.
+
+    \fculn{Initialization in the Interpreter}
+
+    The interpreter is often more convenient for setup code. Matrix
+    Digital Rain initializes its column state with a simple loop in
+    interpreter mode:
+
+    \fancylisting{\verb|
+%%% Initialize columns with random starting positions
+\let<c>{0}
+\begin{loop}
+    \exit_when{\ge{${c}, ${COLS}}}
+    \map_set<pos_map>{${c}, \sub{0, \rand{${ROWS}}}}
+    \map_set<spd_map>{${c}, \add{1, \rand{3}}}
+    \map_set<trail_map>{${c}, \add{8, \rand{24}}}
+    \inc<c>
+\end{loop}
+|}
+
+    This loop runs in the text interpreter -- no \verb|#{}|, no type
+    annotations. It writes directly into the persistent maps using
+    \cmd{map\_set}. Those same maps are later read by the compiled
+    COMPUTE lambda through address dereferences (\verb|\at<*addr>[key]|).
+
+    \fculn{Passing State Across the Boundary}
+
+    The main loop ties everything together by passing persistent-store
+    addresses as lambda parameters:
+
+    \fancylisting{\verb|
+\main{
+    \invoke<COMPUTE>[${COLS}, ${ROWS}, ${frame},
+        ${buf}, ${pos_map}, ${spd_map},
+        ${trail_map}, ${chr_map}]
+    \invoke<RENDER>[${COLS}, ${ROWS}, ${buf}, ${K}]
+    \inc<frame>
+    \wait{60}
+}
+|}
+
+    The interpreter owns the addresses; the CL lambdas receive them as
+    plain integers. Inside the lambda, \verb|\at<*addr>[key]| reads
+    through the address and \verb|\set<*addr>[key]{val}| writes back.
+    Because both sides reference the same persistent store, changes made
+    by COMPUTE are instantly visible to RENDER -- no copying required.
+
+    \fculn{External Callbacks}
+
+    How does this work under the hood? When a CL lambda dereferences an
+    address, the Subnivean VM uses \textit{external callbacks} to reach
+    into the interpreter:
+
+    \indented{\fancylist{
+        - \textbf{array\_lookup}: fetches an array by name from the
+          interpreter's scope
+        - \textbf{array\_set}: writes an element to an interpreter-owned
+          array
+        - \textbf{lambda\_compile}: compiles another lambda on demand
+          when first referenced
+    }}
+
+    These callbacks fire transparently. When a CL lambda calls
+    \verb|\invoke<OTHER_LAMBDA>[...]| and OTHER\_LAMBDA has not yet been
+    compiled, the VM asks the interpreter to compile it, caches the
+    result, and calls it at bytecode speed from then on.
+
+    \begin{didyouknow}
+    \center{THE DESIGN PHILOSOPHY}
+    The interpreter/CL split mirrors how CPU and GPU cooperate in
+    graphics programming: the CPU (interpreter) sets up state and issues
+    commands; the GPU (Subnivean VM) executes the heavy parallel work.
+    You don't compile your configuration files to SPIR-V; you don't
+    write your physics engine in shell script. Use each tool where it
+    shines.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{The Subnivean Virtual Machine}}
+
+    Every \#\{\} body is compiled to bytecode and executed by the Subnivean
+    VM -- a stack-based virtual machine designed for mutable cells, lexical
+    scopes, and closure semantics. Understanding Subnivean is not required
+    for writing CL, but knowing what happens behind the scenes helps
+    explain why CL is fast and why certain patterns perform better than
+    others.
+
+    \fculn{Why a VM?}
+
+    The text interpreter processes macros by string expansion: each
+    \cmd{valueof} call generates text, that text is spliced into the
+    document, and the result is re-parsed. This is elegant for typesetting
+    but catastrophically slow for computation. A simple loop running
+    10{,}000 iterations generates and parses 10{,}000 strings.
+
+    Subnivean bypasses text entirely. The compiler parses CL syntax into an
+    AST, translates that AST into bytecode, and the VM executes the
+    bytecode with a stack, scope chain, and register-like cells. There is
+    no string generation, no re-parsing, no macro expansion overhead.
+
+    The result is a \textbf{65× speedup}. Conway's Game of Life
+    on a 5×5 grid for 1000 iterations:
+
+    \indented{
+        \table[width:40,pad:{l:1,r:1},frame:single]{
+            \row[frame:{b:double}]{
+                \col{Engine}
+                \col[align:r]{Time}
+            }
+            \row{
+                \col{Text interpreter}
+                \col[align:r]{7.63s}
+            }
+            \row{
+                \col{Subnivean VM}
+                \col[align:r]{0.118s}
+            }
+        }
+    }
+
+    This is what makes interactive applications possible. Without
+    Subnivean, Matrix Digital Rain could not maintain a usable frame rate.
+
+    \fculn{The Compilation Pipeline}
+
+    When Hyades encounters \#\{...\}, it:
+
+    \indented{\fancylist{
+        - Parses the CL syntax into an abstract syntax tree (AST)
+        - Compiles the AST to Subnivean bytecode instructions
+        - Stores the bytecode in a function object
+        - On each \cmd{invoke}, the VM executes the bytecode directly
+    }}
+
+    The compilation happens once at definition time. Subsequent calls run
+    the pre-compiled bytecode with zero parsing overhead. This is
+    analogous to how an ahead-of-time compiler works.
+
+    \fculn{The Execution Model}
+
+    The VM maintains five components:
+
+    \indented{\fancylist{
+        - A \textbf{value stack} for operand computation
+        - A \textbf{call stack} for function activation records
+        - A \textbf{scope chain} for lexical variable resolution
+        - A \textbf{symbol table} for interned identifiers
+        - An \textbf{output buffer} for \cmd{emit} results
+    }}
+
+    Variables in CL are stored in \textit{cells} -- mutable boxes that
+    live in the scope chain. When you write \cmd{let}\<x:int\>\{5\}, the
+    compiler emits: push the value 5, create a new cell containing it,
+    and bind the cell to the symbol "x" in the current scope. When you
+    write \$\{x\}, it emits: look up the cell bound to "x", extract its
+    value. Mutation (\cmd{inc}\<x\>) finds the cell and modifies it in
+    place -- no allocation, no copying.
+
+    \fculn{Closures and Scope Capture}
+
+    Closures capture the scope at definition time. A lambda defined inside
+    a loop captures the per-iteration scope, which means each closure gets
+    its own copy of the loop variable. This is the same semantics as
+    modern JavaScript's \textit{let} in a for loop -- each iteration
+    creates a fresh scope, and each closure captures its own version.
+
+    \fculn{External Callbacks}
+
+    The VM communicates with the host Hyades interpreter through three
+    callbacks: array lookup, array write, and lambda compilation. When CL
+    code references a variable that does not exist in the VM's scope, the
+    callback checks the interpreter's variable store. This is how lambdas
+    access document-level variables -- counters, arrays, and maps defined
+    outside any \#\{\} block are transparently available inside it.
+
+    \begin{didyouknow}
+    \center{PERFORMANCE: INLINING}
+    Function calls in Subnivean have overhead: scope creation, argument
+    copying, stack frame setup. In tight inner loops -- thousands of
+    iterations per frame -- this adds up. Both the Game of Life and
+    Matrix Digital Rain inline their inner-loop logic rather than calling
+    helper lambdas. When performance matters, prefer one large lambda
+    over many small ones in hot paths.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Standard Library Functions}}
+
+    The standard library includes pre-built CL functions in the STD::
+    namespace. These cover common patterns so you do not have to write
+    them yourself:
+
+    \fculn{Array Generators}
+
+    \indented{\fancylist{
+        - STD::RANGE[start, end] -- integers from start to end-1
+        - STD::IOTA[n] -- integers from 0 to n-1
+        - STD::REPEAT[n, val] -- n copies of a value
+    }}
+
+    \fculn{Aggregates}
+
+    \indented{\fancylist{
+        - STD::SUM, STD::PRODUCT -- reduce an array
+        - STD::MIN, STD::MAX, STD::AVG -- statistics
+        - STD::LEN, STD::COUNT -- count elements
+    }}
+
+    \fculn{Transformations}
+
+    \indented{\fancylist{
+        - STD::REVERSE, STD::MAP, STD::FILTER
+        - STD::TAKE, STD::DROP, STD::SLICE
+        - STD::SORT, STD::SORT\_DESC, STD::JOIN
+    }}
+
+    \fculn{Math Utilities}
+
+    \indented{\fancylist{
+        - STD::ABS, STD::SIGN, STD::CLAMP
+        - STD::POW, STD::FACTORIAL, STD::GCD, STD::LCM, STD::FIB
+    }}
+
+    \fculn{Formatting}
+
+    \indented{\fancylist{
+        - STD::ORDINAL -- 1 \textrightarrow{} "1st", 2 \textrightarrow{} "2nd"
+        - STD::ROMAN -- 42 \textrightarrow{} "XLII"
+    }}
+
+    \fculn{Predicates}
+
+    \indented{\fancylist{
+        - STD::IS\_POSITIVE, STD::IS\_NEGATIVE, STD::IS\_ZERO
+        - STD::IS\_EVEN, STD::IS\_ODD
+    }}
+
+
+    {}\\
+    \section{\textbf{In Practice: Game of Life}}
+
+    Conway's Game of Life is the canonical test of a computational system's
+    expressiveness. The rules are simple: cells on a grid are either alive
+    or dead, and their fate depends on how many neighbors they have. With
+    just these rules, the system is Turing-complete -- capable of universal
+    computation.
+
+    The Hyades implementation uses a \textit{sparse} representation.
+    Instead of allocating a huge 2D array, only live cells are stored in a
+    map. The key is an encoded coordinate: row × 10000 + column.
+
+    \fculn{Encoding Coordinates}
+
+    \fancylisting{\verb|
+\lambda<ENCODE_KEY>[row:int, col:int]#{
+    \return{\add{\mul{${row}, 10000}, ${col}}}
+}
+
+\lambda<DECODE_ROW>[key:int]#{
+    \return{\div{${key}, 10000}}
+}
+
+\lambda<DECODE_COL>[key:int]#{
+    \return{\mod{${key}, 10000}}
+}
+|}
+
+    A glider -- the simplest moving pattern -- is initialized as five map
+    entries:
+
+    \fancylisting{\verb~
+\let<grid>#{|10002->1, 20003->1, 30001->1, 30002->1, 30003->1|}
+\let<temp>#{||}
+~}
+
+    \fculn{The Step Function}
+
+    The simulation step is the heart of the program. It works in three
+    phases:
+
+    \indented{\fancylist{
+        - \textbf{Build candidates}: gather all live cells and their
+          neighbors into a set. Only these cells can change state.
+        - \textbf{Evaluate}: for each candidate, count its live neighbors
+          and apply the rules (survive with 2--3 neighbors, birth with
+          exactly 3).
+        - \textbf{Swap}: clear the current grid and copy the results from
+          a temporary map.
+    }}
+
+    The neighbor-counting loop iterates the 3×3 neighborhood
+    with toroidal wrapping:
+
+    \fancylisting{\verb~
+%%% Count neighbors (inlined for performance)
+\let<count:int>{0}
+\let<dr:int>{-1}
+\begin{loop}
+    \exit_when{\gt{${dr}, 1}}
+    \let<dc:int>{-1}
+    \begin{loop}
+        \exit_when{\gt{${dc}, 1}}
+        \if{\and{\eq{${dr}, 0}, \eq{${dc}, 0}}}{}
+        \else{
+            \let<nr:int>{\mod{\add{\add{${row}, ${dr}},
+                ${height}}, ${height}}}
+            \let<nc:int>{\mod{\add{\add{${col}, ${dc}},
+                ${width}}, ${width}}}
+            \let<nkey:int>{\add{\mul{${nr}, 10000}, ${nc}}}
+            \if{\map_has{${grid_map}, ${nkey}}}{\inc<count>}
+        }
+        \inc<dc>
+    \end{loop}
+    \inc<dr>
+\end{loop}
+~}
+
+    The double \cmd{mod} with the added height/width ensures coordinates
+    wrap around the grid edges -- a standard torus topology. The
+    \cmd{map\_has} check is O(1) thanks to Robin Hood hashing.
+
+    \fculn{The Next-State Rule}
+
+    The Game of Life rule fits in a single conditional:
+
+    \fancylisting{\verb~
+\let<next:int>{
+    \if{${current}}{
+        \if{\or{\eq{${count}, 2},
+                \eq{${count}, 3}}}{1}
+        \else{0}
+    }\else{
+        \if{\eq{${count}, 3}}{1}
+        \else{0}
+    }
+}
+~}
+
+    If a cell is alive, it survives with 2 or 3 neighbors. If dead, it is
+    born with exactly 3. Everything else dies or stays dead.
+
+    \fculn{Rendering}
+
+    Each frame, the display lambda iterates every visible cell, queries the
+    sparse map, and emits a colored block character:
+
+    \fancylisting{\verb|
+\if{${is_hover}}{
+    \if{${alive}}{\ansi{93}\emit{block}\ansi{0}}
+    \else{\ansi{43;30}\emit{block}\ansi{0}}
+}\else{
+    \if{${alive}}{\ansi{92}\emit{block}\ansi{0}}
+    \else{\ansi{90}\emit{block}\ansi{0}}
+}
+|}
+
+    Alive cells are green; dead cells are dim gray; the cell under the
+    mouse cursor is highlighted in yellow. The full implementation supports
+    pausing, mouse interaction for toggling cells, and runs at 30+ fps on
+    a standard terminal.
+
+    \begin{didyouknow}
+    \center{TURING COMPLETENESS}
+    The Game of Life is famously Turing-complete: any computation that a
+    Turing machine can perform, a sufficiently large Life grid can also
+    perform. The fact that Hyades can implement Life in CL -- with maps,
+    loops, functions, and conditionals -- demonstrates that CL itself has
+    the computational power to express arbitrary algorithms.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{In Practice: Matrix Digital Rain}}
+
+    The Matrix Digital Rain is a more visually ambitious example. It
+    renders falling columns of Katakana characters in green, mimicking the
+    iconic effect from the film. This program exercises nearly every CL
+    feature: arrays, maps, heap memory, address passing, ANSI colors, and
+    cursor positioning.
+
+    \fculn{Architecture}
+
+    The program splits into two compiled lambdas:
+
+    \indented{\fancylist{
+        - \textbf{COMPUTE}: runs the physics simulation. For each column,
+          it calculates which cells should be lit and at what brightness,
+          writing packed values into a heap buffer.
+        - \textbf{RENDER}: reads the heap buffer and emits ANSI-colored
+          Katakana characters at the correct screen positions.
+    }}
+
+    This separation keeps computation pure and rendering straightforward.
+
+    \fculn{The Virtual Screen Buffer}
+
+    Rather than emitting characters during computation (which would mix
+    logic with output), the program allocates a heap buffer sized to the
+    terminal:
+
+    \fancylisting{\verb|
+\lambda<ALLOC_BUF>[size:int]#{
+    \return{\mem_alloc{${size}}}
+}
+
+\let<buf>{\invoke<ALLOC_BUF>[\mul{${COLS},${ROWS}}]}
+|}
+
+    Each cell in the buffer stores a packed integer:
+    \textit{char\_index × 4 + color\_tier}. The COMPUTE lambda
+    writes these packed values; the RENDER lambda unpacks them.
+
+    \fculn{The Compute Lambda}
+
+    COMPUTE takes eight parameters -- all by address so it can modify
+    the shared state:
+
+    \fancylisting{\verb|
+\lambda<COMPUTE>[cols:int, rows:int, frm:int,
+    buf_addr:int, pos_addr:int, spd_addr:int,
+    trail_addr:int, chr_addr:int]#{
+    ...
+}
+|}
+
+    For each column, it:
+
+    \indented{\fancylist{
+        - Reads the current drop position and trail length from maps
+        - Iterates the trail cells, calculating a color tier (bright white
+          head \textrightarrow{} bright green \textrightarrow{} dark green
+          \textrightarrow{} dim gray tail)
+        - Picks a pseudo-random Katakana character for each cell
+        - Packs the character index and color into a single integer
+        - Writes the packed value into the heap buffer
+        - Advances the drop position and resets when it scrolls off-screen
+    }}
+
+    The key technique is \textit{bit-packing}: a single integer encodes
+    two values. The RENDER side unpacks with division and modulo:
+
+    \fancylisting{\verb|
+\let<ch:int>{\div{${packed}, 4}}
+\let<clr:int>{\mod{${packed}, 4}}
+|}
+
+    \fculn{The Render Lambda}
+
+    RENDER reads the heap buffer and emits only non-zero cells. For each
+    lit cell, it positions the cursor, selects the ANSI color, and emits
+    the Katakana character by indexing into a string array:
+
+    \fancylisting{\verb|
+\if{\eq{${clr}, 0}}{\ansi{97;40}}       % bright white head
+\else{\if{\eq{${clr}, 1}}{\ansi{92;40}} % bright green
+\else{\if{\eq{${clr}, 2}}{\ansi{32;40}} % dark green
+\else{\ansi{90;40}}}}                    % dim gray
+\emit{\at<*k_addr>[${ch}]}
+|}
+
+    The \<*k\_addr\> dereference reads from the Katakana array that was
+    passed by address from the main loop.
+
+    \fculn{The Main Loop}
+
+    \fancylisting{\verb|
+\main{
+    \if{\haskey}{\let<k>{\getkey}
+        \if{\streq{${k},q}}{\exit}
+        \if{\streq{${k},Q}}{\exit}}
+    \invoke<COMPUTE>[${COLS},${ROWS},${frame},
+        ${buf},${pos_map},${spd_map},
+        ${trail_map},${chr_map}]
+    \invoke<RENDER>[${COLS},${ROWS},${buf},${K}]
+    \inc<frame>
+    \wait{60}
+}
+|}
+
+    Each frame: check for quit, run the physics, draw the result, sleep
+    60 milliseconds. Maps (positions, speeds, trail lengths, character
+    seeds) are passed by address to COMPUTE, which updates them in place.
+
+    \begin{didyouknow}
+    \center{BUFFER STRATEGY}
+    The heap buffer acts as a "virtual framebuffer" -- COMPUTE writes
+    packed cell data, RENDER reads it. This pattern avoids interleaving
+    computation with terminal I/O, which would be both slower and harder
+    to reason about. The buffer also enables selective rendering: only
+    non-zero cells emit characters, so empty space costs nothing.
+    \end{didyouknow}
+
+
+    {}\\
+    \section{\textbf{Naming Conventions}}
+
+    CL follows a consistent naming scheme:
+
+    \indented{
+        \table[width:55,pad:{l:1,r:1},frame:single]{
+            \row[frame:{b:double}]{
+                \col{Category}
+                \col{Convention}
+                \col{Example}
+            }
+            \row{
+                \col{Multi-word commands}
+                \col{snake\_case}
+                \col{\cmd{exit\_when}, \cmd{map\_has}}
+            }
+            \row{
+                \col{Single-word commands}
+                \col{lowercase}
+                \col{\cmd{let}, \cmd{at}, \cmd{set}}
+            }
+            \row{
+                \col{User lambda names}
+                \col{UPPER\_CASE}
+                \col{COMPUTE, GCD}
+            }
+            \row{
+                \col{User local variables}
+                \col{lower\_case}
+                \col{count, row, i}
+            }
+        }
+    }
+
+    Uppercase names are global -- they persist between lambda calls and
+    are visible everywhere. Lowercase names are local -- they exist only
+    within their lambda's scope and are freed when the call returns.
+
+    This is the same convention as the macro system, and for the same
+    reason: Hyades uses casing to determine scope without requiring
+    explicit scope annotations.
+
+
+    {}\\
+    \section{\textbf{Quick Reference}}
+
+    \indented{
+        \table[width:70,pad:{l:1,r:1},frame:single]{
+            \row[frame:{b:double}]{
+                \col[width:35]{Command}
+                \col{Description}
+            }
+            \row[frame:{b:single}]{
+                \col{\textit{Definitions \& Calls}}
+                \col{}
+            }
+            \row{
+                \col{\cmd{lambda}\<name\>[p:type]\#\{body\}}
+                \col{Define a compiled function}
+            }
+            \row{
+                \col{\cmd{invoke}\<name\>[args]}
+                \col{Call a lambda}
+            }
+            \row{
+                \col{\cmd{return}\{value\}}
+                \col{Return from a lambda}
+            }
+            \row[frame:{b:single}]{
+                \col{\textit{Variables}}
+                \col{}
+            }
+            \row{
+                \col{\cmd{let}\<name:type\>\{value\}}
+                \col{Declare a typed variable}
+            }
+            \row{
+                \col{\$\{name\}}
+                \col{Read a variable}
+            }
+            \row{
+                \col{\cmd{inc}\<x\> / \cmd{dec}\<x\>}
+                \col{Increment / decrement}
+            }
+            \row[frame:{b:single}]{
+                \col{\textit{Arithmetic}}
+                \col{}
+            }
+            \row{
+                \col{\cmd{add} \cmd{sub} \cmd{mul} \cmd{div} \cmd{mod}}
+                \col{Basic arithmetic}
+            }
+            \row{
+                \col{\cmd{neg}\{a\}}
+                \col{Negation}
+            }
+            \row{
+                \col{\cmd{max}\{a,b\} / \cmd{min}\{a,b\}}
+                \col{Maximum / minimum}
+            }
+            \row{
+                \col{\cmd{rand}\{n\}}
+                \col{Random integer in [0, n)}
+            }
+            \row[frame:{b:single}]{
+                \col{\textit{Comparisons \& Logic}}
+                \col{}
+            }
+            \row{
+                \col{\cmd{eq} \cmd{ne} \cmd{lt} \cmd{le} \cmd{gt} \cmd{ge}}
+                \col{Comparisons (return 0/1)}
+            }
+            \row{
+                \col{\cmd{and}\{a,b\} / \cmd{or}\{a,b\} / \cmd{not}\{a\}}
+                \col{Logic operators}
+            }
+            \row[frame:{b:single}]{
+                \col{\textit{Control Flow}}
+                \col{}
+            }
+            \row{
+                \col{\cmd{if}\{cond\}\{then\}\cmd{else}\{else\}}
+                \col{Conditional}
+            }
+            \row{
+                \col{\cmd{begin}\{loop\}...\cmd{end}\{loop\}}
+                \col{Loop}
+            }
+            \row{
+                \col{\cmd{exit\_when}\{condition\}}
+                \col{Break from loop}
+            }
+            \row[frame:{b:single}]{
+                \col{\textit{Collections}}
+                \col{}
+            }
+            \row{
+                \col{\cmd{at}\<arr\>[i] / \cmd{set}\<arr\>[i]\{v\}}
+                \col{Array/map read/write}
+            }
+            \row{
+                \col{\cmd{len}\<arr\>}
+                \col{Collection length}
+            }
+            \row{
+                \col{\cmd{map\_has}\<m\>[k]}
+                \col{Map membership test}
+            }
+            \row{
+                \col{\cmd{map\_del}\<m\>[k]}
+                \col{Delete map entry}
+            }
+            \row{
+                \col{\cmd{map\_keys}\<m\>}
+                \col{All keys (heap array)}
+            }
+            \row{
+                \col{\cmd{push}\<arr\>\{v\} / \cmd{pop}\<arr\>}
+                \col{Stack (LIFO) push/pop}
+            }
+            \row{
+                \col{\cmd{peek}\<arr\>}
+                \col{Read top without removing}
+            }
+            \row{
+                \col{\cmd{enqueue}\<arr\>\{v\} / \cmd{dequeue}\<arr\>}
+                \col{Queue (FIFO) add/remove}
+            }
+            \row[frame:{b:single}]{
+                \col{\textit{Address Passing}}
+                \col{}
+            }
+            \row{
+                \col{\cmd{addressof}\<name\>}
+                \col{Get collection address}
+            }
+            \row{
+                \col{\cmd{at}\<*a\>[i] / \cmd{set}\<*a\>[i]\{v\}}
+                \col{Dereference read/write}
+            }
+            \row[frame:{b:single}]{
+                \col{\textit{Heap Memory}}
+                \col{}
+            }
+            \row{
+                \col{\cmd{mem\_alloc}\{n\}}
+                \col{Allocate heap block}
+            }
+            \row{
+                \col{\cmd{mem\_load}\{addr, i\}}
+                \col{Read from heap}
+            }
+            \row{
+                \col{\cmd{mem\_store}\{addr, i, v\}}
+                \col{Write to heap}
+            }
+            \row{
+                \col{\cmd{mem\_len}\{addr\}}
+                \col{Heap block length}
+            }
+            \row[frame:{b:single}]{
+                \col{\textit{Terminal Output}}
+                \col{}
+            }
+            \row{
+                \col{\cmd{emit}\{text\}}
+                \col{Output a value}
+            }
+            \row{
+                \col{\cmd{cursor}\{row, col\}}
+                \col{Position cursor}
+            }
+            \row{
+                \col{\cmd{ansi}\{codes\}}
+                \col{ANSI escape sequence}
+            }
+            \row{
+                \col{\cmd{main}\{body\}}
+                \col{Interactive main loop}
+            }
+            \row[frame:{b:single}]{
+                \col{\textit{Dynamic Names}}
+                \col{}
+            }
+            \row{
+                \col{\verb|${prefix${i}suffix}|}
+                \col{Computed variable name}
+            }
+            \row{
+                \col{\cmd{inc}\<*name\>}
+                \col{String-based indirection}
+            }
+        }
+    }
+
+
+@end
+
+#target_prefix " "
+
+#before_each
+    \linebreaker{greedy}
+    \setwidth{80}
+    \setunicode{true}
+    \setmathitalic{true}
+
+    \macro<\indented{content}>{\indent[2]{${content}}}
+    \macro<\cmd{x}>{\textbackslash{}\textit{${x}}}
+
+    %%% Renders hy as source and rend as an example rendered output
+    \macro<\hylst{hy}{rend}>{%
+        \fancylisting{${hy}}
+
+        \begin{vbox}
+            \child{%
+                \begin{hbox}
+                    \child[3]{}
+                    \child{\hrule{╭}{─}{╮}}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child{
+                        ╭──┴────────────╮
+                    }
+                    \child[1]{│}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child[1]{│}
+                    \child[1]{}
+                    \child[15]{
+                        \hyades{} Output │
+                    }
+                    \child{\hrule{|}{·}{|}}
+                    \child[1]{│}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child{
+                        ╰──┬────────────╯
+                    }
+                    \child[1]{│}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{%
+                \begin{hbox}
+                    \child[3]{}
+                    \child[1]{\vrule[auto]{}{│}{}}
+                    \child[1]{}
+                    \child{${rend}}
+                    \child[2]{}
+                    \child[1]{\vrule[auto]{}{░}{}}
+                    \child[1]{\vrule[auto]{}{│}{}}
+                    \child[2]{}
+                \end{hbox}
+            }
+            \child{
+                \begin{hbox}
+                    \child[3]{}
+                    \child{\hrule{╰}{─}{╯}}
+                    \child[2]{}
+                \end{hbox}
+
+            }
+        \end{vbox}
+    }
+
+    \macro<\didyouknow{content}>{
+        \vskip{1}
+        \hcenter[60]{
+        \hrule{}{.}{}
+        ${content}
+        \hrule{}{.}{}
+        }
+    }
+#end

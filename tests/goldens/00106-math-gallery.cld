@@ -1,0 +1,1151 @@
+% @category: Math Typesetting
+% @name: Math Example Gallery (1)
+% @description: Example Definitions and Proofs
+
+@cassilda: ADSCFT
+│  𝐓𝐡𝐞 𝐂𝐞𝐧𝐭𝐫𝐚𝐥 𝐃𝐢𝐜𝐭𝐢𝐨𝐧𝐚𝐫𝐲
+│  
+│  The  fundamental statement of AdS/CFT is an equality between two partition fu-
+│  nctions:
+│  
+│                              𝑍      [φ ] = 𝑍   [φ ]                         (0)
+│                               string  0     CFT  0
+│  
+│  where φ  is a field  configuration defined  on  the boundary.  Everything else
+│         0
+│  flows from unpacking what each side means.
+│  
+│  𝐓𝐡𝐞 𝐆𝐫𝐚𝐯𝐢𝐭𝐲 𝐒𝐢𝐝𝐞
+│  
+│  The bulk spacetime is (𝑑 + 1)-dimensional  Anti-de Sitter space, AdS     . Its
+│                                                                      𝑑 + 1
+│  metric in Poincaré coordinates is:
+│  
+│                                  2
+│                            2    𝐿       2     2     2
+│                          𝑑𝑠  = ──── (-𝑑𝑡  + 𝑑𝑥⃗  + 𝑑𝑧 )                      (1)
+│                                  2
+│                                 𝑧
+│  
+│  where 𝐿 is  the AdS  radius and 𝑧 > 0 is the radial  coordinate. The  boundary
+│  sits at 𝑧 → 0; the deep interior at 𝑧 → ∞.
+│  
+│  The bulk action is Einstein gravity with a negative cosmological constant:
+│  
+│                                           ⎛                ⎞
+│                     1     ⌠   𝑑 + 1    ⎽⎽ ⎜      𝑑(𝑑 − 1)  ⎟
+│          𝑆     = ───────  ⎮  𝑑     𝑥  √-𝑔 ⎜ 𝑅 + ────────── ⎟ + 𝑆            (2)
+│           bulk    16π𝐺    ⌡               ⎜          2     ⎟    matter
+│                       𝑁                   ⎝         𝐿      ⎠
+│  
+│  A bulk field φ(𝑥, 𝑧) of mass 𝑚 satisfies the Klein-Gordon equation:
+│  
+│                               ⎛         2 ⎞
+│                               ⎜ □    − 𝑚  ⎟ φ = 0                           (3)
+│                               ⎝  AdS      ⎠
+│  
+│  Near 𝑧 → 0 this has two independent solutions:
+│  
+│                               𝑑 − Δ              Δ
+│                φ(𝑥, 𝑧)   ∼   𝑧      φ (𝑥)   +   𝑧  ⟨𝑂(𝑥)⟩   +   ⋯           (4)
+│                                      0
+│  
+│  where Δ is the conformal dimension, related to the bulk mass by:
+│  
+│                                         ⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽
+│                                        ╱  2
+│                                 𝑑     ╱  𝑑      2 2
+│                            Δ = ─── + √  ──── + 𝑚 𝐿                          (5)
+│                                 2        4
+│  
+│  The leading term φ (𝑥) is the boundary value freely specified as a source; the
+│                    0
+│  subleading  term ⟨𝑂(𝑥)⟩ is the response, determined  dynamically. The bulk pa-
+│  rtition function in the saddle-point approximation is:
+│  
+│                                        -𝑆        [φ ]
+│                                          on-shell  0
+│                           𝑍    [φ ] = 𝑒                                     (6)
+│                            grav  0
+│  
+│  𝐓𝐡𝐞 𝐂𝐅𝐓 𝐒𝐢𝐝𝐞
+│  
+│  On the boundary lives a Conformal  Field Theory invariant under 𝑆𝑂(𝑑, 2) — the
+│  same as the isometry group of AdS     : the first deep structural match.
+│                                   𝑑 + 1
+│  
+│  The CFT partition function with source φ  coupled to operator 𝑂 is:
+│                                          0
+│  
+│                             ╱      ⎛  ⌠   𝑑             ⎞ ╲
+│                 𝑍   [φ ] = ⟨  exp  ⎜  ⎮  𝑑 𝑥 φ (𝑥) 𝑂(𝑥) ⎟  ⟩                (7)
+│                  CFT  0     ╲      ⎝  ⌡       0         ⎠ ╱
+│                                                             CFT
+│  
+│  Differentiating with respect to φ  extracts 𝑛-point functions:
+│                                   0
+│  
+│                                      𝑛              │
+│                                     δ  log 𝑍        │
+│                                             CFT     │
+│                  ⟨𝑂(𝑥 )⋯𝑂(𝑥 )⟩ = ─────────────────  │                       (8)
+│                      1     𝑛      δφ (𝑥 )⋯δφ (𝑥 )   │
+│                                     0  1    0  𝑛    │
+│                                                     │
+│                                                      φ   =  0
+│                                                       0
+│  
+│  𝐓𝐡𝐞 𝐆𝐊𝐏𝐖 𝐃𝐢𝐜𝐭𝐢𝐨𝐧𝐚𝐫𝐲
+│  
+│  The precise  identification — written  down by Gubser,  Klebanov, Polyakov and
+│  independently by Witten in 1998 — equates the two partition functions when the
+│  bulk field is held to the boundary value φ :
+│                                            0
+│  
+│                                          ⎡              ⎤
+│                       𝑍   [φ ] = 𝑍       ⎢ φ|      = φ  ⎥                   (9)
+│                        CFT  0     string ⎣   𝑧 → 0    0 ⎦
+│  
+│  In the classical gravity limit (large 𝑁, large λ):
+│  
+│                                                 -𝑆        [φ ]
+│                    ╱      ⎛  ⌠       ⎞ ╲          on-shell  0
+│                   ⟨  exp  ⎜  ⎮  φ  𝑂 ⎟  ⟩    = 𝑒                           (10)
+│                    ╲      ⎝  ⌡   0   ⎠ ╱
+│                                          CFT
+│  
+│  The two-point function follows from the bulk-to-boundary propagator:
+│  
+│                                               𝐶
+│                                                Δ
+│                           ⟨𝑂(𝑥) 𝑂(𝑥′)⟩ = ────────────                      (11)
+│                                                   2Δ
+│                                           |𝑥 − 𝑥′|
+│  
+│  This is exactly the form required by conformal invariance.
+│  
+│  𝐓𝐡𝐞 𝐏𝐚𝐫𝐚𝐦𝐞𝐭𝐞𝐫 𝐃𝐢𝐜𝐭𝐢𝐨𝐧𝐚𝐫𝐲
+│  
+│                                                                              5
+│  The  mapping in the  canonical example — Type IIB  string theory on AdS  × 𝑆
+│                                                                         5
+│  dual to 𝒩 = 4 Super Yang-Mills with gauge group 𝑆𝑈(𝑁):
+│  
+│      ┌─────────────────────────────────────┬──────────────────────────────┐
+│      │            Gravity side             │           CFT side           │
+│      ╞═════════════════════════════════════╪══════════════════════════════╡
+│      │   AdS radius 𝐿 / string length ℓ    │                         2    │
+│      │                                 𝑠   │  ‘t Hooft coupling λ = 𝑔  𝑁  │
+│      │                                     │                         𝑌𝑀   │
+│      ├─────────────────────────────────────┼──────────────────────────────┤
+│      │        Newton’s constant 𝐺          │    Rank of gauge group 𝑁     │
+│      │                           𝑁         │                              │
+│      ├─────────────────────────────────────┼──────────────────────────────┤
+│      │         String coupling 𝑔           │              2               │
+│      │                          𝑠          │             𝑔                │
+│      │                                     │              𝑌𝑀              │
+│      ├─────────────────────────────────────┼──────────────────────────────┤
+│      │                      2 2            │ Conformal dimension Δ(Δ − 𝑑) │
+│      │           Bulk mass 𝑚 𝐿             │                              │
+│      ├─────────────────────────────────────┼──────────────────────────────┤
+│      │            Bulk field φ             │        CFT operator 𝑂        │
+│      ├─────────────────────────────────────┼──────────────────────────────┤
+│      │         Black hole in bulk          │     Thermal state in CFT     │
+│      └─────────────────────────────────────┴──────────────────────────────┘
+│  
+│                          4                       8
+│                         𝐿          2            𝐿      2
+│                        ──── = λ = 𝑔  𝑁         ──── ∼ 𝑁                    (12)
+│                          4         𝑌𝑀           𝐺
+│                         ℓ                        𝑁
+│                          𝑠
+│  
+│  This  reveals why direct  verification is hard:  the gravity  approximation is
+│  valid when λ ≫ 1, but  perturbative field theory  requires λ ≪ 1. The two tra-
+│  ctable regimes do not overlap.
+│  
+│  𝐑𝐲𝐮-𝐓𝐚𝐤𝐚𝐲𝐚𝐧𝐚𝐠𝐢: 𝐆𝐞𝐨𝐦𝐞𝐭𝐫𝐲 𝐟𝐫𝐨𝐦 𝐄𝐧𝐭𝐚𝐧𝐠𝐥𝐞𝐦𝐞𝐧𝐭
+│  
+│  For a region 𝐴 on  the  boundary, the  entanglement entropy of the CFT  vacuum
+│  state is:
+│  
+│                                       Area(γ )
+│                                             𝐴
+│                                 𝑆  = ──────────                            (𝑅𝑇)
+│                                  𝐴      4𝐺
+│                                           𝑁
+│  
+│  where γ  is the 𝐦𝐢𝐧𝐢𝐦𝐚𝐥 𝐚𝐫𝐞𝐚 𝐬𝐮𝐫𝐟𝐚𝐜𝐞 in the bulk  homologous to 𝐴 and anchored
+│         𝐴
+│  to ∂𝐴 on the  boundary. This directly  generalises the  Bekenstein-Hawking fo-
+│  rmula to arbitrary regions — not just black holes — suggesting  that the enta-
+│  nglement  structure of the CFT literally 𝑒𝑛𝑐𝑜𝑑𝑒𝑠 the geometry of the bulk spa-
+│  cetime.
+│  
+│  𝐖𝐡𝐚𝐭 𝐌𝐚𝐤𝐞𝐬 𝐈𝐭 𝐃𝐞𝐞𝐩
+│  
+│  The  bulk radial  coordinate 𝑧 maps to the  renormalization group scale on the
+│  boundary.  Physics  deep in the  bulk (𝑧 → ∞) encodes  infrared physics in the
+│  CFT; physics near the boundary (𝑧 → 0) encodes ultraviolet behaviour. Geometry
+│  of spacetime  is, in this  sense, a picture of the RG flow of a quantum  field
+│  theory.  An  extra  dimension of space  emerges from the  structure of quantum
+│  entanglement and renormalization.
+@label ADSCFT
+    \textbf{The Central Dictionary}
+
+    The fundamental statement of AdS/CFT is an equality between two partition
+    functions:
+
+    $$Z_\text{string}[\phi_0] = Z_\text{CFT}[\phi_0] \tag{0}$$
+
+    where $\phi_0$ is a field configuration defined on the boundary. Everything
+    else flows from unpacking what each side means.
+
+    \textbf{The Gravity Side}
+
+    The bulk spacetime is $(d+1)$-dimensional Anti-de Sitter space,
+    $\text{AdS}_{d+1}$. Its metric in Poincaré coordinates is:
+
+    $$ds^2 = \frac{L^2}{z^2}\left(-dt^2 + d\vec{x}^2 + dz^2\right) \tag{1}$$
+
+    where $L$ is the AdS radius and $z > 0$ is the radial coordinate. The
+    boundary sits at $z \to 0$; the deep interior at $z \to \infty$.
+
+    The bulk action is Einstein gravity with a negative cosmological constant:
+
+    $$S_\text{bulk} = \frac{1}{16\pi G_N} \int d^{d+1}x\,\sqrt{-g}
+    \left(R + \frac{d(d-1)}{L^2}\right) + S_\text{matter} \tag{2}$$
+
+    A bulk field $\phi(x, z)$ of mass $m$ satisfies the Klein-Gordon equation:
+
+    $$\left(\Box_\text{AdS} - m^2\right)\phi = 0 \tag{3}$$
+
+    Near $z \to 0$ this has two independent solutions:
+
+    $$\phi(x, z) \;\sim\; z^{d-\Delta}\,\phi_0(x) \;+\; z^{\Delta}\,
+    \langle O(x)\rangle \;+\; \cdots \tag{4}$$
+
+    where $\Delta$ is the conformal dimension, related to the bulk mass by:
+
+    $$\Delta = \frac{d}{2} + \sqrt{\frac{d^2}{4} + m^2 L^2} \tag{5}$$
+
+    The leading term $\phi_0(x)$ is the boundary value freely specified as a
+    source; the subleading term $\langle O(x)\rangle$ is the response, determined
+    dynamically. The bulk partition function in the saddle-point approximation is:
+
+    $$Z_\text{grav}[\phi_0] = e^{-S_\text{on-shell}[\phi_0]} \tag{6}$$
+
+    \textbf{The CFT Side}
+
+    On the boundary lives a Conformal Field Theory invariant under $SO(d,2)$ —
+    the same as the isometry group of $\text{AdS}_{d+1}$: the first deep
+    structural match.
+
+    The CFT partition function with source $\phi_0$ coupled to operator $O$ is:
+
+    $$Z_\text{CFT}[\phi_0] = \left\langle \exp\!\left(
+    \int d^d x\,\phi_0(x)\,O(x)\right)\right\rangle_{\!\text{CFT}} \tag{7}$$
+
+    Differentiating with respect to $\phi_0$ extracts $n$-point functions:
+
+    $$\langle O(x_1)\cdots O(x_n)\rangle =
+    \frac{\delta^n \log Z_\text{CFT}}{\delta\phi_0(x_1)\cdots\delta\phi_0(x_n)}
+    \Biggr|_{\phi_0\,=\,0} \tag{8}$$
+
+    \textbf{The GKPW Dictionary}
+
+    The precise identification — written down by Gubser, Klebanov, Polyakov and
+    independently by Witten in 1998 — equates the two partition functions when
+    the bulk field is held to the boundary value $\phi_0$:
+
+    $$Z_\text{CFT}[\phi_0] =
+    Z_\text{string}\!\left[\left.\phi\right|_{z\to 0} = \phi_0\right] \tag{9}$$
+
+    In the classical gravity limit (large $N$, large $\lambda$):
+
+    $$\left\langle\exp\!\left(\int\phi_0\,O\right)\right\rangle_{\!\text{CFT}}
+    = e^{-S_\text{on-shell}[\phi_0]} \tag{10}$$
+
+    The two-point function follows from the bulk-to-boundary propagator:
+
+    $$\langle O(x)\,O(x')\rangle = \frac{C_\Delta}{|x - x'|^{2\Delta}} \tag{11}$$
+
+    This is exactly the form required by conformal invariance.
+
+    \textbf{The Parameter Dictionary}
+
+    The mapping in the canonical example — Type IIB string theory on
+    $\text{AdS}_5 \times S^5$ dual to $\mathcal{N} = 4$ Super Yang-Mills with
+    gauge group $SU(N)$:
+
+    \center{\table[width:70, frame:single, pad:{l:1,r:1}]{
+        \row[frame:{b:double}]{
+            \col[width:37, align:c]{Gravity side}
+            \col[align:c]{CFT side}
+        }
+        \row[frame:{b:single}]{
+            \col{AdS radius $L$ / string length $\ell_s$}
+            \col{'t Hooft coupling $\lambda = g_{YM}^2 N$}
+        }
+        \row{
+            \col{Newton's constant $G_N$}
+            \col{Rank of gauge group $N$}
+        }
+        \row{
+            \col{String coupling $g_s$}
+            \col{$g_{YM}^2$}
+        }
+        \row{
+            \col{Bulk mass $m^2 L^2$}
+            \col{Conformal dimension $\Delta(\Delta - d)$}
+        }
+        \row{
+            \col{Bulk field $\phi$}
+            \col{CFT operator $O$}
+        }
+        \row{
+            \col{Black hole in bulk}
+            \col{Thermal state in CFT}
+        }
+    }}
+
+    $$\frac{L^4}{\ell_s^4} = \lambda = g_{YM}^2 N \qquad
+    \frac{L^8}{G_N} \sim N^2 \tag{12}$$
+
+    This reveals why direct verification is hard: the gravity approximation is
+    valid when $\lambda \gg 1$, but perturbative field theory requires $\lambda
+    \ll 1$. The two tractable regimes do not overlap.
+
+    \textbf{Ryu-Takayanagi: Geometry from Entanglement}
+
+    For a region $A$ on the boundary, the entanglement entropy of the CFT vacuum
+    state is:
+
+    $$S_A = \frac{\text{Area}(\gamma_A)}{4G_N} \tag{RT}$$
+
+    where $\gamma_A$ is the \textbf{minimal area surface} in the bulk homologous
+    to $A$ and anchored to $\partial A$ on the boundary. This directly
+    generalises the Bekenstein-Hawking formula to arbitrary regions — not just
+    black holes — suggesting that the entanglement structure of the CFT literally
+    \textit{encodes} the geometry of the bulk spacetime.
+
+    \textbf{What Makes It Deep}
+
+    The bulk radial coordinate $z$ maps to the renormalization group scale on the
+    boundary. Physics deep in the bulk ($z \to \infty$) encodes infrared physics
+    in the CFT; physics near the boundary ($z \to 0$) encodes ultraviolet
+    behaviour. Geometry of spacetime is, in this sense, a picture of the RG flow
+    of a quantum field theory. An extra dimension of space emerges from the
+    structure of quantum entanglement and renormalization.
+@end
+
+@cassilda: euler-lagrange
+│  𝐓𝐡𝐞𝐨𝐫𝐞𝐦  (Euler-Lagrange). 𝐿𝑒𝑡 𝐿(𝑞, 𝑞̇, 𝑡) 𝑏𝑒 𝑎 𝑠𝑚𝑜𝑜𝑡ℎ  𝐿𝑎𝑔𝑟𝑎𝑛𝑔𝑖𝑎𝑛, 𝑎𝑛𝑑 𝑙𝑒𝑡 𝑡ℎ𝑒
+│  𝑎𝑐𝑡𝑖𝑜𝑛 𝑓𝑢𝑛𝑐𝑡𝑖𝑜𝑛𝑎𝑙 𝑏𝑒
+│  
+│                                𝑡
+│                                 2
+│                                 ⌠
+│                         𝑆[𝑞] =  ⎮  𝐿(𝑞(𝑡),  𝑞̇(𝑡),  𝑡)𝑑𝑡                     (1)
+│                                 ⌡
+│                                𝑡
+│                                 1
+│  
+│                                         𝑛
+│  𝑑𝑒𝑓𝑖𝑛𝑒𝑑 𝑜𝑛 𝑠𝑚𝑜𝑜𝑡ℎ 𝑝𝑎𝑡ℎ𝑠 𝑞: [𝑡 , 𝑡 ] → ℝ  𝑤𝑖𝑡ℎ 𝑓𝑖𝑥𝑒𝑑  𝑒𝑛𝑑𝑝𝑜𝑖𝑛𝑡𝑠. 𝐼𝑓 𝑞 𝑖𝑠 𝑎 𝑠𝑡𝑎-
+│                               1   2
+│  𝑡𝑖𝑜𝑛𝑎𝑟𝑦 𝑝𝑜𝑖𝑛𝑡 𝑜𝑓 𝑆, 𝑡ℎ𝑒𝑛 𝑞 𝑠𝑎𝑡𝑖𝑠𝑓𝑖𝑒𝑠 𝑡ℎ𝑒 𝐄𝐮𝐥𝐞𝐫-𝐋𝐚𝐠𝐫𝐚𝐧𝐠𝐞 𝐞𝐪𝐮𝐚𝐭𝐢𝐨𝐧𝐬:
+│  
+│                    ∂𝐿      𝑑    ∂𝐿
+│                   ───── − ──── ───── = 0        (𝑖 = 1, …, 𝑛)              (𝐸𝐿)
+│                      𝑖     𝑑𝑡     𝑖
+│                    ∂𝑞           ∂𝑞̇
+│  
+│  𝐏𝐫𝐨𝐨𝐟.
+│  
+│  𝐒𝐭𝐞𝐩  𝟏:  𝐏𝐚𝐫𝐚𝐦𝐞𝐭𝐫𝐢𝐬𝐢𝐧𝐠  𝐭𝐡𝐞  𝐯𝐚𝐫𝐢𝐚𝐭𝐢𝐨𝐧.  Fix  an  arbitrary  smooth function
+│                 𝑛
+│  η: [𝑡 , 𝑡 ] → ℝ  with η(𝑡 ) = η(𝑡 ) = 0 and define the one-parameter family
+│       1   2               1       2
+│  
+│                       𝑞 (𝑡) = 𝑞(𝑡) + ε η(𝑡),         ε ∈ ℝ                  (2)
+│                        ε
+│  
+│  Each 𝑞  has the same endpoints as 𝑞. Define
+│        ε
+│  
+│                                 𝑡
+│                                  2
+│                                  ⌠
+│                  Φ(ε) ≔ 𝑆[𝑞 ] =  ⎮  𝐿(𝑞 + εη,   𝑞̇ + εη̇,   𝑡)𝑑𝑡              (3)
+│                            ε     ⌡
+│                                 𝑡
+│                                  1
+│  
+│  𝐒𝐭𝐞𝐩 𝟐: 𝐒𝐭𝐚𝐭𝐢𝐨𝐧𝐚𝐫𝐢𝐭𝐲  𝐜𝐨𝐧𝐝𝐢𝐭𝐢𝐨𝐧. The path 𝑞 is a stationary  point of 𝑆 if and
+│  only if
+│  
+│                 𝑑Φ  │
+│                ──── │      = 0        ∀ η with η(𝑡 ) = η(𝑡 ) = 0            (4)
+│                 𝑑ε  │                             1       2
+│                      ε = 0
+│  
+│  𝐒𝐭𝐞𝐩 𝟑: 𝐃𝐢𝐟𝐟𝐞𝐫𝐞𝐧𝐭𝐢𝐚𝐭𝐢𝐧𝐠  𝐮𝐧𝐝𝐞𝐫 𝐭𝐡𝐞 𝐢𝐧𝐭𝐞𝐠𝐫𝐚𝐥. Since 𝐿 is smooth we may pass the
+│  derivative through the integral. By the chain rule:
+│  
+│                              𝑡
+│                               2
+│                        𝑑Φ     ⌠  ⎛  ∂𝐿        ∂𝐿     ⎞
+│                       ──── =  ⎮  ⎜ ────  η + ────  η̇ ⎟ 𝑑𝑡                   (5)
+│                        𝑑ε     ⌡  ⎝  ∂𝑞        ∂𝑞̇     ⎠
+│                              𝑡
+│                               1
+│  
+│                                                                         ∂𝐿
+│  𝐒𝐭𝐞𝐩 𝟒: 𝐈𝐧𝐭𝐞𝐠𝐫𝐚𝐭𝐢𝐨𝐧 𝐛𝐲 𝐩𝐚𝐫𝐭𝐬. The second term involves η̇. Setting 𝑢 = ──── and
+│                                                                         ∂𝑞̇
+│   𝑑𝑣 = η̇ 𝑑𝑡:
+│  
+│          𝑡                           𝑡         𝑡
+│           2                           2         2
+│           ⌠   ∂𝐿          ⎡  ∂𝐿     ⎤           ⌠   𝑑    ⎛  ∂𝐿  ⎞
+│           ⎮  ────  η̇ 𝑑𝑡 = ⎢ ────  η ⎥     −     ⎮  ────  ⎜ ──── ⎟ η 𝑑𝑡      (6)
+│           ⌡   ∂𝑞̇          ⎣  ∂𝑞̇     ⎦           ⌡   𝑑𝑡   ⎝  ∂𝑞̇  ⎠
+│          𝑡                           𝑡         𝑡
+│           1                           1         1
+│                           ╰─────┬─────╯
+│                               =  0
+│  
+│  The boundary term vanishes since η(𝑡 ) = η(𝑡 ) = 0 by construction.
+│                                      1       2
+│  
+│  𝐒𝐭𝐞𝐩 𝟓: 𝐂𝐨𝐥𝐥𝐞𝐜𝐭𝐢𝐧𝐠 𝐭𝐞𝐫𝐦𝐬.  Substituting (6) into (5) and  evaluating at ε = 0
+│  yields the key identity:
+│  
+│                            𝑡                𝑡
+│                             2                2
+│              𝑑Φ  │          ⌠   ∂𝐿           ⌠   ∂𝐿
+│             ──── │      =   ⎮  ────  η 𝑑𝑡 +  ⎮  ────  η̇ 𝑑𝑡
+│              𝑑ε  │          ⌡   ∂𝑞           ⌡   ∂𝑞̇
+│                   ε = 0    𝑡                𝑡
+│                             1                1
+│  
+│  Applying the integration by parts result from (6):
+│  
+│                            𝑡                𝑡
+│                             2                2
+│                             ⌠   ∂𝐿           ⌠   𝑑    ⎛  ∂𝐿  ⎞
+│                         =   ⎮  ────  η 𝑑𝑡 −  ⎮  ────  ⎜ ──── ⎟ η 𝑑𝑡
+│                             ⌡   ∂𝑞           ⌡   𝑑𝑡   ⎝  ∂𝑞̇  ⎠
+│                            𝑡                𝑡
+│                             1                1
+│  
+│                            𝑡
+│                             2
+│                             ⌠  ⎛  ∂𝐿     𝑑    ∂𝐿  ⎞
+│                         =   ⎮  ⎜ ──── − ──── ──── ⎟η  𝑑𝑡 = 0
+│                             ⌡  ⎝  ∂𝑞     𝑑𝑡   ∂𝑞̇  ⎠
+│                            𝑡   ╰─────────┬────────╯
+│                             1        ≕  ℰ[𝑞]                                (7)
+│  
+│  where ℰ[𝑞] denotes the 𝐄𝐮𝐥𝐞𝐫-𝐋𝐚𝐠𝐫𝐚𝐧𝐠𝐞 𝐨𝐩𝐞𝐫𝐚𝐭𝐨𝐫 applied to 𝑞.
+│  
+│  𝐒𝐭𝐞𝐩 𝟔: 𝐅𝐮𝐧𝐝𝐚𝐦𝐞𝐧𝐭𝐚𝐥  𝐥𝐞𝐦𝐦𝐚. Since (7) holds for every admissible η, the funda-
+│  mental  lemma of the  calculus of variations  applies: a continuous  function
+│  𝑓: [𝑡 , 𝑡 ] → ℝ satisfying
+│       1   2
+│  
+│                   𝑡
+│                    2
+│                    ⌠                                 ∞
+│                    ⎮  𝑓(𝑡) η(𝑡) 𝑑𝑡 = 0        ∀ η ∈ 𝐶 (𝑡 , 𝑡 )              (8)
+│                    ⌡                                 0  1   2
+│                   𝑡
+│                    1
+│  
+│  must  satisfy 𝑓 ≡ 0 on [𝑡 , 𝑡 ]. With 𝑓 ≔ ℰ[𝑞], this  gives ℰ[𝑞] = 0, which is
+│                           1   2
+│  precisely (EL). □
+│  
+│                                                                   𝑖
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟏 (First  integral). 𝐼𝑓 𝐿 𝑑𝑜𝑒𝑠 𝑛𝑜𝑡 𝑑𝑒𝑝𝑒𝑛𝑑  𝑒𝑥𝑝𝑙𝑖𝑐𝑖𝑡𝑙𝑦 𝑜𝑛 𝑞  — 𝑡ℎ𝑎𝑡 𝑖𝑠,
+│   ∂𝐿                               𝑑    ∂𝐿
+│  ───── = 0 — 𝑡ℎ𝑒𝑛 (𝐸𝐿) 𝑟𝑒𝑑𝑢𝑐𝑒𝑠 𝑡𝑜 ──── ───── = 0, 𝑠𝑜 𝑡ℎ𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑙𝑖𝑠𝑒𝑑 𝑚𝑜𝑚𝑒𝑛𝑡𝑢𝑚
+│     𝑖                              𝑑𝑡     𝑖
+│   ∂𝑞                                    ∂𝑞̇
+│  
+│                                         ∂𝐿
+│                                   𝑝  ≔ ─────                                (9)
+│                                    𝑖      𝑖
+│                                         ∂𝑞̇
+│  
+│  𝑖𝑠 𝑐𝑜𝑛𝑠𝑒𝑟𝑣𝑒𝑑 𝑎𝑙𝑜𝑛𝑔 𝑠𝑜𝑙𝑢𝑡𝑖𝑜𝑛𝑠. 𝑇ℎ𝑖𝑠 𝑖𝑠 𝑁𝑜𝑒𝑡ℎ𝑒𝑟‘𝑠 𝑡ℎ𝑒𝑜𝑟𝑒𝑚 𝑖𝑛 𝑖𝑡𝑠 𝑠𝑖𝑚𝑝𝑙𝑒𝑠𝑡 𝑓𝑜𝑟𝑚.
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟐 (Energy conservation). Define the 𝐇𝐚𝐦𝐢𝐥𝐭𝐨𝐧𝐢𝐚𝐧
+│  
+│                                      𝑖  ∂𝐿
+│                                 𝐻 ≔ 𝑞̇  ───── − 𝐿                           (10)
+│                                           𝑖
+│                                         ∂𝑞̇
+│  
+│  (summing over 𝑖). Along any solution of (EL), one computes
+│  
+│       𝑑𝐻     𝑖  ∂𝐿      𝑖  𝑑    ∂𝐿      𝑑𝐿
+│      ──── = 𝑞̈  ───── + 𝑞̇  ──── ───── − ────
+│       𝑑𝑡          𝑖        𝑑𝑡     𝑖     𝑑𝑡
+│                 ∂𝑞̇              ∂𝑞̇
+│  
+│                  𝑑𝐿
+│  Expanding ──── by  the   chain  rule  and  using  (EL)  to  substitute
+│                  𝑑𝑡
+│       𝑑    ∂𝐿      ∂𝐿
+│      ──── ───── = ─────:
+│       𝑑𝑡     𝑖       𝑖
+│            ∂𝑞̇      ∂𝑞
+│  
+│              𝑖  ∂𝐿      𝑖  ∂𝐿      ∂𝐿    𝑖    ∂𝐿    𝑖    ∂𝐿
+│           = 𝑞̈  ───── + 𝑞̇  ───── − ───── 𝑞̇  − ───── 𝑞̈  − ────
+│                   𝑖          𝑖       𝑖          𝑖        ∂𝑡
+│                 ∂𝑞̇         ∂𝑞      ∂𝑞         ∂𝑞̇
+│  
+│                 ∂𝐿
+│           =  − ────
+│                 ∂𝑡                                                         (11)
+│  
+│                                                                    ∂𝐿
+│  Hence 𝐻 is conserved whenever 𝐿 has no explicit time dependence, ──── = 0.
+│                                                                    ∂𝑡
+@label euler-lagrange
+    \textbf{Theorem} (Euler-Lagrange).
+    \textit{Let $L(q, \dot{q}, t)$ be a smooth Lagrangian, and let the action
+    functional be}
+
+    $$S[q] = \int_{t_1}^{t_2} L\!\left(q(t),\, \dot{q}(t),\, t\right) dt \tag{1}$$
+
+    \textit{defined on smooth paths $q : [t_1, t_2] \to \mathbb{R}^n$ with fixed
+    endpoints. If $q$ is a stationary point of $S$, then $q$ satisfies the}
+    \textbf{Euler-Lagrange equations:}
+
+    $$\frac{\partial L}{\partial q^i} -
+    \frac{d}{dt}\frac{\partial L}{\partial \dot{q}^i} = 0
+    \qquad (i = 1, \ldots, n) \tag{EL}$$
+
+    \textbf{Proof.}
+
+    \textbf{Step 1: Parametrising the variation.} Fix an arbitrary smooth function
+    $\eta : [t_1, t_2] \to \mathbb{R}^n$ with $\eta(t_1) = \eta(t_2) = 0$ and
+    define the one-parameter family
+
+    $$q_\epsilon(t) = q(t) + \epsilon\,\eta(t), \qquad \epsilon \in \mathbb{R} \tag{2}$$
+
+    Each $q_\epsilon$ has the same endpoints as $q$. Define
+
+    $$\Phi(\epsilon) \coloneqq S[q_\epsilon] =
+    \int_{t_1}^{t_2} L\!\left(q + \epsilon\eta,\; \dot{q} +
+    \epsilon\dot{\eta},\; t\right) dt \tag{3}$$
+
+    \textbf{Step 2: Stationarity condition.} The path $q$ is a stationary point
+    of $S$ if and only if
+
+    $$\left.\frac{d\Phi}{d\epsilon}\right|_{\epsilon=0} = 0 \qquad
+    \forall\, \eta \text{ with } \eta(t_1) = \eta(t_2) = 0 \tag{4}$$
+
+    \textbf{Step 3: Differentiating under the integral.} Since $L$ is smooth we
+    may pass the derivative through the integral. By the chain rule:
+
+    $$\frac{d\Phi}{d\epsilon} = \int_{t_1}^{t_2} \left(
+    \frac{\partial L}{\partial q}\,\eta +
+    \frac{\partial L}{\partial \dot{q}}\,\dot{\eta}
+    \right) dt \tag{5}$$
+
+    \textbf{Step 4: Integration by parts.} The second term involves $\dot{\eta}$.
+    Setting $u = \frac{\partial L}{\partial \dot{q}}$ and $dv = \dot{\eta}\,dt$:
+
+    $$\int_{t_1}^{t_2} \frac{\partial L}{\partial \dot{q}}\,\dot{\eta}\, dt
+    = \underbrace{\left[\frac{\partial L}{\partial \dot{q}}\,\eta
+    \right]_{t_1}^{t_2}}_{\displaystyle =\;0}
+    \;-\; \int_{t_1}^{t_2}
+    \frac{d}{dt}\!\left(\frac{\partial L}{\partial \dot{q}}\right)\eta\, dt
+    \tag{6}$$
+
+    The boundary term vanishes since $\eta(t_1) = \eta(t_2) = 0$ by construction.
+
+    \textbf{Step 5: Collecting terms.} Substituting (6) into (5) and evaluating
+    at $\epsilon = 0$ yields the key identity:
+
+    $$\aligned{
+    \left.\frac{d\Phi}{d\epsilon}\right|_{\epsilon=0}
+    &= \int_{t_1}^{t_2} \frac{\partial L}{\partial q}\,\eta\, dt
+    +  \int_{t_1}^{t_2} \frac{\partial L}{\partial \dot{q}}\,\dot{\eta}\, dt \\
+    \intertext{Applying the integration by parts result from (6):}
+    &= \int_{t_1}^{t_2} \frac{\partial L}{\partial q}\,\eta\, dt
+    -  \int_{t_1}^{t_2}
+    \frac{d}{dt}\!\left(\frac{\partial L}{\partial \dot{q}}\right)\eta\, dt \\
+    &= \int_{t_1}^{t_2}
+    \underbrace{\left(
+        \frac{\partial L}{\partial q}
+        - \frac{d}{dt}\frac{\partial L}{\partial \dot{q}}
+    \right)}_{\displaystyle \eqqcolon\;\mathcal{E}[q]}
+    \!\eta\; dt = 0
+    } \tag{7}$$
+
+    where $\mathcal{E}[q]$ denotes the \textbf{Euler-Lagrange operator} applied to $q$.
+
+    \textbf{Step 6: Fundamental lemma.} Since (7) holds for every admissible
+    $\eta$, the fundamental lemma of the calculus of variations applies: a
+    continuous function $f : [t_1, t_2] \to \mathbb{R}$ satisfying
+
+    $$\int_{t_1}^{t_2} f(t)\,\eta(t)\,dt = 0
+    \qquad \forall\, \eta \in C^\infty_0(t_1, t_2) \tag{8}$$
+
+    must satisfy $f \equiv 0$ on $[t_1, t_2]$. With $f \coloneqq \mathcal{E}[q]$,
+    this gives $\mathcal{E}[q] = 0$, which is precisely (EL). $\square$
+
+    \vskip{1}
+
+    \textbf{Remark 1} (First integral). \textit{If $L$ does not depend explicitly
+    on $q^i$ — that is, $\frac{\partial L}{\partial q^i} = 0$ — then (EL) reduces
+    to $\frac{d}{dt}\frac{\partial L}{\partial \dot{q}^i} = 0$, so the generalised
+    momentum}
+
+    $$p_i \coloneqq \frac{\partial L}{\partial \dot{q}^i} \tag{9}$$
+
+    \textit{is conserved along solutions. This is Noether's theorem in its
+    simplest form.}
+
+    \textbf{Remark 2} (Energy conservation). Define the \textbf{Hamiltonian}
+
+    $$H \coloneqq \dot{q}^i \frac{\partial L}{\partial \dot{q}^i} - L \tag{10}$$
+
+    (summing over $i$). Along any solution of (EL), one computes
+
+    $$\aligned{
+    \frac{dH}{dt}
+    &= \ddot{q}^i \frac{\partial L}{\partial \dot{q}^i}
+    + \dot{q}^i \frac{d}{dt}\frac{\partial L}{\partial \dot{q}^i}
+    - \frac{dL}{dt} \\
+    \intertext{Expanding $\frac{dL}{dt}$ by the chain rule and using (EL) to
+    substitute $\frac{d}{dt}\frac{\partial L}{\partial \dot{q}^i} =
+    \frac{\partial L}{\partial q^i}$:}
+    &= \ddot{q}^i \frac{\partial L}{\partial \dot{q}^i}
+    + \dot{q}^i \frac{\partial L}{\partial q^i}
+    - \frac{\partial L}{\partial q^i}\dot{q}^i
+    - \frac{\partial L}{\partial \dot{q}^i}\ddot{q}^i
+    - \frac{\partial L}{\partial t} \\
+    &= -\frac{\partial L}{\partial t}
+    } \tag{11}$$
+
+    Hence $H$ is conserved whenever $L$ has no explicit time dependence,
+    $\frac{\partial L}{\partial t} = 0$.
+@end
+
+@cassilda: cayley-hamilton
+│  𝐓𝐡𝐞𝐨𝐫𝐞𝐦 (Cayley-Hamilton). 𝐿𝑒𝑡 𝐀 𝑏𝑒 𝑎𝑛 𝑛 × 𝑛 𝑚𝑎𝑡𝑟𝑖𝑥 𝑜𝑣𝑒𝑟 𝑎 𝑐𝑜𝑚𝑚𝑢𝑡𝑎𝑡𝑖𝑣𝑒 𝑟𝑖𝑛𝑔 𝔽,
+│  𝑎𝑛𝑑 𝑙𝑒𝑡
+│  
+│                                𝑝(λ) ≔ det(λ𝐈 − 𝐀)                           (1)
+│  
+│  𝑏𝑒  𝑖𝑡𝑠  𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟𝑖𝑠𝑡𝑖𝑐 𝑝𝑜𝑙𝑦𝑛𝑜𝑚𝑖𝑎𝑙.  𝑇ℎ𝑒𝑛 𝐀 𝑠𝑎𝑡𝑖𝑠𝑓𝑖𝑒𝑠  𝑖𝑡𝑠 𝑜𝑤𝑛  𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟𝑖𝑠𝑡𝑖𝑐
+│  𝑝𝑜𝑙𝑦𝑛𝑜𝑚𝑖𝑎𝑙:
+│  
+│                                     𝑝(𝐀) = 𝟎                               (𝐶𝐻)
+│  
+│  𝑤ℎ𝑒𝑟𝑒 𝑝(𝐀) 𝑖𝑠 𝑜𝑏𝑡𝑎𝑖𝑛𝑒𝑑 𝑏𝑦 𝑠𝑢𝑏𝑠𝑡𝑖𝑡𝑢𝑡𝑖𝑛𝑔 𝐀 𝑓𝑜𝑟 λ 𝑎𝑛𝑑  𝑖𝑛𝑡𝑒𝑟𝑝𝑟𝑒𝑡𝑖𝑛𝑔 𝑠𝑐𝑎𝑙𝑎𝑟 𝑠𝑢𝑚𝑚𝑎-
+│  𝑛𝑑𝑠 𝑐  𝑎𝑠 𝑐 𝐈.
+│       𝑘     𝑘
+│  
+│  𝐏𝐫𝐨𝐨𝐟. (Via the adjugate matrix.)
+│  
+│  𝐒𝐭𝐞𝐩 𝟏: 𝐄𝐱𝐩𝐚𝐧𝐝𝐢𝐧𝐠 𝐭𝐡𝐞  𝐜𝐡𝐚𝐫𝐚𝐜𝐭𝐞𝐫𝐢𝐬𝐭𝐢𝐜 𝐩𝐨𝐥𝐲𝐧𝐨𝐦𝐢𝐚𝐥. Expanding the  determinant,
+│  𝑝(λ) is a monic polynomial of degree 𝑛:
+│  
+│                             𝑛          𝑛 − 1
+│                     𝑝(λ) = λ  + 𝑐     λ      + ⋯ + 𝑐 λ + 𝑐                  (2)
+│                                  𝑛 − 1              1     0
+│  
+│                                     𝑛
+│  where 𝑐      = - tr 𝐀 and 𝑐  = (-1)  det 𝐀. Explicitly, 𝑝(λ) is the determina-
+│         𝑛 − 1               0
+│  nt:
+│  
+│                        │  λ − 𝑎       -𝑎        ⋯     -𝑎      │
+│                        │       11       12              1𝑛    │
+│                        │                                      │
+│                        │   -𝑎        λ − 𝑎      ⋯     -𝑎      │
+│                        │     21           22            2𝑛    │
+│                 𝑝(λ) = │                                      │             (3)
+│                        │     ⋮          ⋮       ⋱       ⋮     │
+│                        │                                      │
+│                        │   -𝑎         -𝑎        ⋯    λ − 𝑎    │
+│                        │     𝑛1         𝑛2                𝑛𝑛  │
+│                        │                                      │
+│  
+│  𝐒𝐭𝐞𝐩 𝟐: 𝐓𝐡𝐞 𝐚𝐝𝐣𝐮𝐠𝐚𝐭𝐞  𝐢𝐝𝐞𝐧𝐭𝐢𝐭𝐲. Recall  that for any  invertible matrix 𝐌, the
+│  adjugate  (classical adjoint)  satisfies 𝐌 adj(𝐌) = det(𝐌)𝐈. This  identity in
+│  fact  holds over any  commutative ring, for any matrix, whether  invertible or
+│  not. Applying it to 𝐌 = λ𝐈 − 𝐀:
+│  
+│                              (λ𝐈 − 𝐀) 𝐁(λ) = 𝑝(λ)𝐈                          (4)
+│  
+│  where we define 𝐁(λ) ≔ adj(λ𝐈 − 𝐀).
+│  
+│  𝐒𝐭𝐞𝐩 𝟑: 𝐏𝐨𝐥𝐲𝐧𝐨𝐦𝐢𝐚𝐥 𝐟𝐨𝐫𝐦 𝐨𝐟 𝐭𝐡𝐞 𝐚𝐝𝐣𝐮𝐠𝐚𝐭𝐞. The entries of λ𝐈 − 𝐀 are linear in λ
+│  , so each (𝑛 − 1) × (𝑛 − 1) minor — and  hence each entry of 𝐁(λ) — is a poly-
+│  nomial of degree at most 𝑛 − 1 in λ. We may therefore write
+│  
+│                              𝑛 − 1          𝑛 − 2
+│                𝐁(λ) = 𝐁     λ      + 𝐁     λ      + ⋯ + 𝐁 λ + 𝐁             (5)
+│                        𝑛 − 1          𝑛 − 2              1     0
+│  
+│  where each 𝐁  is an 𝑛 × 𝑛 matrix with entries in 𝔽.
+│              𝑘
+│  
+│  𝐒𝐭𝐞𝐩 𝟒: 𝐌𝐚𝐭𝐜𝐡𝐢𝐧𝐠 𝐜𝐨𝐞𝐟𝐟𝐢𝐜𝐢𝐞𝐧𝐭𝐬. Substituting (5) and (2) into (4) and expanding
+│  the left side:
+│  
+│                         𝑛 − 1                    𝑛
+│         (λ𝐈 − 𝐀)(𝐁     λ      + ⋯ + 𝐁 ) = 𝐁     λ
+│                   𝑛 − 1              0     𝑛 − 1
+│  
+│                                                                   𝑛 − 1
+│                                              + (𝐁      − 𝐀𝐁     )λ
+│                                                  𝑛 − 2     𝑛 − 1
+│                                                                             (6)
+│                                              + ⋯
+│  
+│                                              + (𝐁  − 𝐀𝐁 )λ
+│                                                  0     1
+│  
+│                                              + (-𝐀𝐁 )
+│                                                    0
+│  
+│                             𝑘
+│  Comparing coefficients of λ  on both sides of (4) gives the system:
+│  
+│                         𝐁      = 𝐈
+│                          𝑛 − 1
+│  
+│                   𝐁      − 𝐀𝐁  = 𝑐  𝐈        (𝑘 = 𝑛 − 1, …, 1)
+│                    𝑘 − 1     𝑘    𝑘                                         (7)
+│  
+│                           -𝐀𝐁  = 𝑐  𝐈
+│                              0    0
+│  
+│                                                                            𝑘
+│  𝐒𝐭𝐞𝐩 𝟓: 𝐓𝐡𝐞  𝐭𝐞𝐥𝐞𝐬𝐜𝐨𝐩𝐢𝐧𝐠 𝐚𝐫𝐠𝐮𝐦𝐞𝐧𝐭. Multiply the equation for coefficient λ  on
+│               𝑘
+│  the left by 𝐀 , for each 𝑘 = 0, 1, …, 𝑛:
+│  
+│                                        𝑛          𝑛
+│                                       𝐀 𝐁      = 𝐀
+│                                          𝑛 − 1
+│  
+│                         𝑛 − 1          𝑛                𝑛 − 1
+│                        𝐀     𝐁      − 𝐀 𝐁      = 𝑐     𝐀
+│                               𝑛 − 2      𝑛 − 1    𝑛 − 1
+│  
+│                     𝑛 − 2          𝑛 − 1                𝑛 − 2               (8)
+│                    𝐀     𝐁      − 𝐀     𝐁      = 𝑐     𝐀
+│                           𝑛 − 3          𝑛 − 2    𝑛 − 2
+│  
+│                                                  ⋮
+│  
+│                                           -𝐀𝐁  = 𝑐  𝐈
+│                                              0    0
+│  
+│  where  we  set 𝐁   ≔ 𝟎 for  notational  convenience. Summing all  rows of (8),
+│                  -1
+│              𝑘
+│  every term 𝐀 𝐁      appears once with a positive sign and once with a negative
+│                𝑘 − 1
+│  sign, so the entire left-hand side telescopes to zero:
+│  
+│                        𝑛          𝑛 − 1
+│                   𝟎 = 𝐀  + 𝑐     𝐀      + ⋯ + 𝑐 𝐀 + 𝑐 𝐈 = 𝑝(𝐀)              (9)
+│                             𝑛 − 1              1     0
+│  
+│  This is precisely 𝑝(𝐀) = 𝟎. □
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤  (Non-diagonalisable  case). The  proof above is purely  algebraic — it
+│  uses no eigenvalues, no diagonalisation,  and works over any commutative ring.
+│  In particular it applies when 𝐀 is not diagonalisable and when 𝔽 has characte-
+│  ristic 𝑝 > 0.  The  argument  via  density of diagonalisable  matrices over ℂ
+│  (which  also  works)  implicitly assumes the  field is infinite,  whereas this
+│  proof does not.
+│  
+│  𝐂𝐨𝐫𝐨𝐥𝐥𝐚𝐫𝐲 (Minimal  polynomial). 𝑇ℎ𝑒 𝑚𝑖𝑛𝑖𝑚𝑎𝑙 𝑝𝑜𝑙𝑦𝑛𝑜𝑚𝑖𝑎𝑙 𝑚 (λ) 𝑜𝑓 𝐀 — 𝑡ℎ𝑒 𝑚𝑜𝑛𝑖𝑐
+│                                                           𝐀
+│  𝑝𝑜𝑙𝑦𝑛𝑜𝑚𝑖𝑎𝑙 𝑜𝑓 𝑙𝑒𝑎𝑠𝑡 𝑑𝑒𝑔𝑟𝑒𝑒 𝑎𝑛𝑛𝑖ℎ𝑖𝑙𝑎𝑡𝑖𝑛𝑔 𝐀 — 𝑑𝑖𝑣𝑖𝑑𝑒𝑠 𝑝(λ). 𝐻𝑒𝑛𝑐𝑒 𝑒𝑣𝑒𝑟𝑦 𝑒𝑖𝑔𝑒𝑛𝑣𝑎-
+│  𝑙𝑢𝑒 𝑜𝑓 𝐀 𝑖𝑠 𝑎 𝑟𝑜𝑜𝑡 𝑜𝑓 𝑚 (λ), 𝑎𝑛𝑑
+│                         𝐀
+│  
+│                                   𝑚 (λ) | 𝑝(λ)                             (10)
+│                                    𝐀
+│  
+│  𝐼𝑛 𝑝𝑎𝑟𝑡𝑖𝑐𝑢𝑙𝑎𝑟, deg 𝑚  ≤ 𝑛.
+│                      𝐀
+@label cayley-hamilton
+    \textbf{Theorem} (Cayley-Hamilton).
+    \textit{Let $\mathbf{A}$ be an $n \times n$ matrix over a commutative ring
+    $\mathbb{F}$, and let}
+
+    $$p(\lambda) \coloneqq \det(\lambda \mathbf{I} - \mathbf{A}) \tag{1}$$
+
+    \textit{be its characteristic polynomial. Then $\mathbf{A}$ satisfies its own
+    characteristic polynomial:}
+
+    $$p(\mathbf{A}) = \mathbf{0} \tag{CH}$$
+
+    \textit{where $p(\mathbf{A})$ is obtained by substituting $\mathbf{A}$ for
+    $\lambda$ and interpreting scalar summands $c_k$ as $c_k \mathbf{I}$.}
+
+    \textbf{Proof.} (Via the adjugate matrix.)
+
+    \textbf{Step 1: Expanding the characteristic polynomial.} Expanding the
+    determinant, $p(\lambda)$ is a monic polynomial of degree $n$:
+
+    $$p(\lambda) = \lambda^n + c_{n-1}\lambda^{n-1} + \cdots + c_1\lambda + c_0
+    \tag{2}$$
+
+    where $c_{n-1} = -\operatorname{tr}\mathbf{A}$ and
+    $c_0 = (-1)^n \det \mathbf{A}$. Explicitly, $p(\lambda)$ is the determinant:
+
+    $$p(\lambda) = \vmatrix{
+    \lambda - a_{11} & -a_{12}         & \cdots & -a_{1n} \\
+    -a_{21}         & \lambda - a_{22} & \cdots & -a_{2n} \\
+    \vdots          & \vdots           & \ddots & \vdots  \\
+    -a_{n1}         & -a_{n2}          & \cdots & \lambda - a_{nn}
+    } \tag{3}$$
+
+    \textbf{Step 2: The adjugate identity.} Recall that for any invertible matrix
+    $\mathbf{M}$, the adjugate (classical adjoint) satisfies
+    $\mathbf{M} \operatorname{adj}(\mathbf{M}) = \det(\mathbf{M})\mathbf{I}$.
+    This identity in fact holds over any commutative ring, for any matrix, whether
+    invertible or not. Applying it to $\mathbf{M} = \lambda\mathbf{I} - \mathbf{A}$:
+
+    $$(\lambda\mathbf{I} - \mathbf{A})\,\mathbf{B}(\lambda) = p(\lambda)\mathbf{I}
+    \tag{4}$$
+
+    where we define $\mathbf{B}(\lambda) \coloneqq
+    \operatorname{adj}(\lambda\mathbf{I} - \mathbf{A})$.
+
+    \textbf{Step 3: Polynomial form of the adjugate.} The entries of
+    $\lambda\mathbf{I} - \mathbf{A}$ are linear in $\lambda$, so each
+    $(n-1) \times (n-1)$ minor — and hence each entry of $\mathbf{B}(\lambda)$ —
+    is a polynomial of degree at most $n-1$ in $\lambda$. We may therefore write
+
+    $$\mathbf{B}(\lambda) = \mathbf{B}_{n-1}\lambda^{n-1} + \mathbf{B}_{n-2}\lambda^{n-2}
+    + \cdots + \mathbf{B}_1\lambda + \mathbf{B}_0 \tag{5}$$
+
+    where each $\mathbf{B}_k$ is an $n \times n$ matrix with entries in
+    $\mathbb{F}$.
+
+    \textbf{Step 4: Matching coefficients.} Substituting (5) and (2) into (4)
+    and expanding the left side:
+
+    $$\aligned{
+    (\lambda\mathbf{I} - \mathbf{A})(\mathbf{B}_{n-1}\lambda^{n-1} + \cdots + \mathbf{B}_0)
+    &= \mathbf{B}_{n-1}\lambda^n \\
+    &\quad + (\mathbf{B}_{n-2} - \mathbf{A}\mathbf{B}_{n-1})\lambda^{n-1} \\
+    &\quad + \cdots \\
+    &\quad + (\mathbf{B}_0 - \mathbf{A}\mathbf{B}_1)\lambda \\
+    &\quad + (-\mathbf{A}\mathbf{B}_0)
+    } \tag{6}$$
+
+    Comparing coefficients of $\lambda^k$ on both sides of (4) gives the system:
+
+    $$\aligned{
+    \mathbf{B}_{n-1}                          &= \mathbf{I}           \\
+    \mathbf{B}_{k-1} - \mathbf{A}\mathbf{B}_k &= c_k\,\mathbf{I}
+    \qquad (k = n-1, \ldots, 1)               \\
+    -\mathbf{A}\mathbf{B}_0                   &= c_0\,\mathbf{I}
+    } \tag{7}$$
+
+    \textbf{Step 5: The telescoping argument.} Multiply the equation for
+    coefficient $\lambda^k$ on the left by $\mathbf{A}^k$, for each
+    $k = 0, 1, \ldots, n$:
+
+    $$\aligned{
+    \mathbf{A}^n \mathbf{B}_{n-1}                          &= \mathbf{A}^n              \\
+    \mathbf{A}^{n-1}\mathbf{B}_{n-2} - \mathbf{A}^n\mathbf{B}_{n-1} &= c_{n-1}\mathbf{A}^{n-1} \\
+    \mathbf{A}^{n-2}\mathbf{B}_{n-3} - \mathbf{A}^{n-1}\mathbf{B}_{n-2} &= c_{n-2}\mathbf{A}^{n-2} \\
+    &\;\vdots \\
+    -\mathbf{A}\mathbf{B}_0 &= c_0\,\mathbf{I}
+    } \tag{8}$$
+
+    where we set $\mathbf{B}_{-1} \coloneqq \mathbf{0}$ for notational
+    convenience. Summing all rows of (8), every term $\mathbf{A}^k \mathbf{B}_{k-1}$
+    appears once with a positive sign and once with a negative sign, so the entire
+    left-hand side telescopes to zero:
+
+    $$\mathbf{0} = \mathbf{A}^n + c_{n-1}\mathbf{A}^{n-1} + \cdots +
+    c_1\mathbf{A} + c_0\mathbf{I} = p(\mathbf{A}) \tag{9}$$
+
+    This is precisely $p(\mathbf{A}) = \mathbf{0}$. $\square$
+
+    \vskip{1}
+
+    \textbf{Remark} (Non-diagonalisable case). The proof above is purely
+    algebraic — it uses no eigenvalues, no diagonalisation, and works over any
+    commutative ring. In particular it applies when $\mathbf{A}$ is not
+    diagonalisable and when $\mathbb{F}$ has characteristic $p > 0$. The
+    argument via density of diagonalisable matrices over $\mathbb{C}$ (which also
+    works) implicitly assumes the field is infinite, whereas this proof does not.
+
+    \textbf{Corollary} (Minimal polynomial). \textit{The minimal polynomial
+    $m_{\mathbf{A}}(\lambda)$ of $\mathbf{A}$ — the monic polynomial of least
+    degree annihilating $\mathbf{A}$ — divides $p(\lambda)$. Hence every
+    eigenvalue of $\mathbf{A}$ is a root of $m_{\mathbf{A}}(\lambda)$, and}
+
+    $$m_{\mathbf{A}}(\lambda) \mid p(\lambda) \tag{10}$$
+
+    \textit{In particular, $\deg m_{\mathbf{A}} \leq n$.}
+@end
+
+@cassilda: riemann-lebesgue
+│                                       1
+│  𝐓𝐡𝐞𝐨𝐫𝐞𝐦 (Riemann-Lebesgue). 𝐿𝑒𝑡 𝑓 ∈ 𝐿 (ℝ), 𝑖.𝑒. 𝑓 𝑖𝑠 𝐿𝑒𝑏𝑒𝑠𝑔𝑢𝑒 𝑖𝑛𝑡𝑒𝑔𝑟𝑎𝑏𝑙𝑒 𝑤𝑖𝑡ℎ
+│  
+│                                     ∞
+│                                     ⌠
+│                            ║𝑓║   ≔  ⎮  |𝑓(𝑡)| 𝑑𝑡 < ∞                        (1)
+│                                1    ⌡
+│                               𝐿    -∞
+│  
+│  𝑇ℎ𝑒𝑛 𝑡ℎ𝑒 𝐹𝑜𝑢𝑟𝑖𝑒𝑟 𝑡𝑟𝑎𝑛𝑠𝑓𝑜𝑟𝑚
+│  
+│                                    ∞
+│                                    ⌠        -2π𝑖ξ𝑡
+│                            𝑓̂(ξ) ≔  ⎮  𝑓(𝑡) 𝑒       𝑑𝑡                       (2)
+│                                    ⌡
+│                                   -∞
+│  
+│  𝑠𝑎𝑡𝑖𝑠𝑓𝑖𝑒𝑠
+│  
+│                                   lim   𝑓̂(ξ) = 0                           (𝑅𝐿)
+│                                 |ξ| → ∞
+│  
+│                                            1
+│  𝐏𝐫𝐨𝐨𝐟. (Via density of step functions in 𝐿 (ℝ).)
+│  
+│  𝐒𝐭𝐞𝐩 𝟏: 𝐓𝐡𝐞 𝐫𝐞𝐬𝐮𝐥𝐭 𝐟𝐨𝐫 𝐢𝐧𝐝𝐢𝐜𝐚𝐭𝐨𝐫  𝐟𝐮𝐧𝐜𝐭𝐢𝐨𝐧𝐬. Let 𝑓 = 𝟏       be the  indicator
+│                                                        [𝑎, 𝑏]
+│  of an interval. Then
+│  
+│                   𝑏                 -2π𝑖ξ𝑏    -2π𝑖ξ𝑎
+│                   ⌠   -2π𝑖ξ𝑡       𝑒       − 𝑒
+│           𝑓̂(ξ) =  ⎮  𝑒       𝑑𝑡 = ───────────────────         (ξ ≠ 0)       (3)
+│                   ⌡                      -2π𝑖ξ
+│                   𝑎
+│  
+│  Taking absolute values and applying the triangle inequality:
+│  
+│                           -2π𝑖ξ𝑏      -2π𝑖ξ𝑎
+│                         |𝑒      | + |𝑒      |       2        1
+│               |𝑓̂(ξ)| ≤ ─────────────────────── = ─────── = ──────           (4)
+│                                 2π|ξ|             2π|ξ|     π|ξ|
+│  
+│          𝑖θ
+│  since |𝑒  | = 1 for all θ ∈ ℝ. Hence 𝑓̂(ξ) → 0 as |ξ| → ∞.
+│  
+│                                                               𝑁
+│                                                              ───
+│  𝐒𝐭𝐞𝐩 𝟐: 𝐄𝐱𝐭𝐞𝐧𝐬𝐢𝐨𝐧 𝐭𝐨 𝐬𝐭𝐞𝐩 𝐟𝐮𝐧𝐜𝐭𝐢𝐨𝐧𝐬. Any step function 𝑠 =  ╲     𝑐 𝟏
+│                                                              ╱⎽⎽    𝑘 [𝑎 , 𝑏 ]
+│                                                             𝑘 = 1       𝑘   𝑘
+│  satisfies
+│  
+│                                𝑁
+│                               ───            1    |ξ| → ∞
+│                     |𝑠̂(ξ)| ≤  ╲     |𝑐 | ⋅ ──────────────→0                 (5)
+│                               ╱⎽⎽     𝑘     π|ξ|
+│                              𝑘 = 1
+│  
+│  by linearity of the Fourier transform and Step 1 applied to each indicator.
+│  
+│                                                             1
+│  𝐒𝐭𝐞𝐩 𝟑: 𝐃𝐞𝐧𝐬𝐢𝐭𝐲 𝐚𝐫𝐠𝐮𝐦𝐞𝐧𝐭. The step functions are dense in 𝐿 (ℝ): for any ϵ > 0
+│                1
+│   and any 𝑓 ∈ 𝐿 (ℝ), there exists a step function 𝑠 such that
+│  
+│                                  ║𝑓 − 𝑠║   < ϵ                              (6)
+│                                          1
+│                                         𝐿
+│  
+│  Now decompose 𝑓̂(ξ) using the triangle inequality:
+│  
+│                         |𝑓̂(ξ)| = |𝑓̂(ξ) − 𝑠̂(ξ) + 𝑠̂(ξ)|
+│  
+│                                ≤ |𝑓̂(ξ) − 𝑠̂(ξ)| + |𝑠̂(ξ)|
+│                                                                             (7)
+│                                   ╱⎺⎺⎺╲
+│                                = |𝑓 − 𝑠(ξ)| + |𝑠̂(ξ)|
+│  
+│  For the first term, apply the trivial bound |𝑔̂(ξ)| ≤ ║𝑔║  :
+│                                                           1
+│                                                          𝐿
+│  
+│                             ╱⎺⎺⎺╲
+│                            |𝑓 − 𝑠(ξ)| ≤ ║𝑓 − 𝑠║   < ϵ                       (8)
+│                                                 1
+│                                                𝐿
+│  
+│  For the  second term, by Step 2, there exists 𝑀 > 0 such that |ξ| > 𝑀 implies
+│  |𝑠̂(ξ)| < ϵ. Therefore, for all |ξ| > 𝑀:
+│  
+│                               |𝑓̂(ξ)| < ϵ + ϵ = 2ϵ                           (9)
+│  
+│  Since ϵ > 0 was arbitrary, 𝑓̂(ξ) → 0 as |ξ| → ∞. □
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟏 (Sharpness).  The conclusion cannot be strengthened to uniform decay:
+│                                                             1
+│  for     any     sequence 𝑎  → 0,     there     exists 𝑓 ∈ 𝐿 (ℝ) such     that
+│                            𝑛
+│  lim sup║𝑓̂(ξ)║ / 𝑎    = ∞. In particular, one cannot bound the rate of decay in
+│  |ξ| → ∞          |ξ|
+│  terms of ║𝑓║   alone.
+│               1
+│              𝐿
+│  
+│  𝐑𝐞𝐦𝐚𝐫𝐤 𝟐 (Fourier series  version). 𝑇ℎ𝑒 𝑎𝑛𝑎𝑙𝑜𝑔𝑜𝑢𝑠  𝑠𝑡𝑎𝑡𝑒𝑚𝑒𝑛𝑡 ℎ𝑜𝑙𝑑𝑠 𝑓𝑜𝑟 𝐹𝑜𝑢𝑟𝑖𝑒𝑟
+│                  1
+│  𝑠𝑒𝑟𝑖𝑒𝑠: 𝑖𝑓 𝑓 ∈ 𝐿 (𝕋) 𝑤ℎ𝑒𝑟𝑒 𝕋 = ℝ / ℤ, 𝑡ℎ𝑒𝑛 𝑡ℎ𝑒 𝐹𝑜𝑢𝑟𝑖𝑒𝑟 𝑐𝑜𝑒𝑓𝑓𝑖𝑐𝑖𝑒𝑛𝑡𝑠
+│  
+│                                    1
+│                                    ⌠        -2π𝑖𝑛𝑡
+│                            𝑓̂(𝑛) ≔  ⎮  𝑓(𝑡) 𝑒       𝑑𝑡                      (10)
+│                                    ⌡
+│                                    0
+│  
+│  𝑠𝑎𝑡𝑖𝑠𝑓𝑦 𝑓̂(𝑛) → 0 𝑎𝑠 |𝑛| → ∞, 𝑛 ∈ ℤ. 𝑇ℎ𝑒 𝑠𝑎𝑚𝑒 𝑑𝑒𝑛𝑠𝑖𝑡𝑦 𝑝𝑟𝑜𝑜𝑓  𝑎𝑝𝑝𝑙𝑖𝑒𝑠, 𝑤𝑖𝑡ℎ 𝑠𝑡𝑒𝑝
+│  𝑓𝑢𝑛𝑐𝑡𝑖𝑜𝑛𝑠 𝑟𝑒𝑝𝑙𝑎𝑐𝑒𝑑 𝑏𝑦 𝑡𝑟𝑖𝑔𝑜𝑛𝑜𝑚𝑒𝑡𝑟𝑖𝑐 𝑝𝑜𝑙𝑦𝑛𝑜𝑚𝑖𝑎𝑙𝑠.
+│  
+│                                                  2                2
+│  𝐂𝐨𝐫𝐨𝐥𝐥𝐚𝐫𝐲  (Plancherel).  If  additionally 𝑓 ∈ 𝐿 (ℝ),  then 𝑓̂ ∈ 𝐿 (ℝ) and  the
+│                                                      2
+│  Fourier transform extends to a unitary operator on 𝐿 (ℝ) satisfying
+│  
+│                                  ║𝑓̂║   = ║𝑓║                               (11)
+│                                      2       2
+│                                     𝐿       𝐿
+│  
+│  In  this  setting the pointwise  Riemann-Lebesgue decay is complemented by the
+│          2
+│  global 𝐿  isometry: the transform neither concentrates nor disperses energy.
+@label riemann-lebesgue
+    \textbf{Theorem} (Riemann-Lebesgue).
+    \textit{Let $f \in L^1(\mathbb{R})$, i.e.\ $f$ is Lebesgue integrable with}
+
+    $$\lVert f \rVert_{L^1} \coloneqq \int_{-\infty}^{\infty} |f(t)|\, dt < \infty \tag{1}$$
+
+    \textit{Then the Fourier transform}
+
+    $$\hat{f}(\xi) \coloneqq \int_{-\infty}^{\infty} f(t)\, e^{-2\pi i \xi t}\, dt \tag{2}$$
+
+    \textit{satisfies}
+
+    $$\lim_{|\xi| \to \infty} \hat{f}(\xi) = 0 \tag{RL}$$
+
+    \textbf{Proof.} (Via density of step functions in $L^1(\mathbb{R})$.)
+
+    \textbf{Step 1: The result for indicator functions.}
+    Let $f = \mathbf{1}_{[a,b]}$ be the indicator of an interval. Then
+
+    $$\hat{f}(\xi) = \int_a^b e^{-2\pi i \xi t}\, dt
+    = \frac{e^{-2\pi i \xi b} - e^{-2\pi i \xi a}}{-2\pi i \xi}
+    \qquad (\xi \neq 0) \tag{3}$$
+
+    Taking absolute values and applying the triangle inequality:
+
+    $$\left|\hat{f}(\xi)\right| \leq \frac{\left|e^{-2\pi i \xi b}\right|
+    + \left|e^{-2\pi i \xi a}\right|}{2\pi|\xi|}
+    = \frac{2}{2\pi|\xi|} = \frac{1}{\pi|\xi|} \tag{4}$$
+
+    since $|e^{i\theta}| = 1$ for all $\theta \in \mathbb{R}$. Hence
+    $\hat{f}(\xi) \to 0$ as $|\xi| \to \infty$.
+
+    \textbf{Step 2: Extension to step functions.}
+    Any step function $s = \sum_{k=1}^{N} c_k \mathbf{1}_{[a_k, b_k]}$ satisfies
+
+    $$\left|\hat{s}(\xi)\right| \leq \sum_{k=1}^{N} |c_k|
+    \cdot \frac{1}{\pi|\xi|} \xrightarrow{|\xi| \to \infty} 0 \tag{5}$$
+
+    by linearity of the Fourier transform and Step 1 applied to each indicator.
+
+    \textbf{Step 3: Density argument.}
+    The step functions are dense in $L^1(\mathbb{R})$: for any $\varepsilon > 0$
+    and any $f \in L^1(\mathbb{R})$, there exists a step function $s$ such that
+
+    $$\lVert f - s \rVert_{L^1} < \varepsilon \tag{6}$$
+
+    Now decompose $\hat{f}(\xi)$ using the triangle inequality:
+
+    $$\aligned{
+    \left|\hat{f}(\xi)\right|
+    &= \left|\hat{f}(\xi) - \hat{s}(\xi) + \hat{s}(\xi)\right| \\
+    &\leq \left|\hat{f}(\xi) - \hat{s}(\xi)\right| + \left|\hat{s}(\xi)\right| \\
+    &= \left|\widehat{f - s}(\xi)\right| + \left|\hat{s}(\xi)\right|
+    } \tag{7}$$
+
+    For the first term, apply the trivial bound
+    $|\hat{g}(\xi)| \leq \lVert g \rVert_{L^1}$:
+
+    $$\left|\widehat{f - s}(\xi)\right|
+    \leq \lVert f - s \rVert_{L^1} < \varepsilon \tag{8}$$
+
+    For the second term, by Step 2, there exists $M > 0$ such that
+    $|\xi| > M$ implies $|\hat{s}(\xi)| < \varepsilon$. Therefore, for all
+    $|\xi| > M$:
+
+    $$\left|\hat{f}(\xi)\right| < \varepsilon + \varepsilon = 2\varepsilon \tag{9}$$
+
+    Since $\varepsilon > 0$ was arbitrary, $\hat{f}(\xi) \to 0$ as
+    $|\xi| \to \infty$. $\square$
+
+    \vskip{1}
+
+    \textbf{Remark 1} (Sharpness). The conclusion cannot be strengthened to
+    uniform decay: for any sequence $a_n \to 0$, there exists
+    $f \in L^1(\mathbb{R})$ such that $\limsup_{|\xi| \to \infty}
+    \lVert\hat{f}(\xi)\rVert / a_{|\xi|} = \infty$. In particular, one cannot
+    bound the rate of decay in terms of $\lVert f \rVert_{L^1}$ alone.
+
+    \textbf{Remark 2} (Fourier series version).
+    \textit{The analogous statement holds for Fourier series: if
+    $f \in L^1(\mathbb{T})$ where $\mathbb{T} = \mathbb{R}/\mathbb{Z}$, then the
+    Fourier coefficients}
+
+    $$\hat{f}(n) \coloneqq \int_0^1 f(t)\, e^{-2\pi i n t}\, dt \tag{10}$$
+
+    \textit{satisfy $\hat{f}(n) \to 0$ as $|n| \to \infty$, $n \in \mathbb{Z}$.
+    The same density proof applies, with step functions replaced by trigonometric
+    polynomials.}
+
+    \textbf{Corollary} (Plancherel). If additionally $f \in L^2(\mathbb{R})$,
+    then $\hat{f} \in L^2(\mathbb{R})$ and the Fourier transform extends to a
+    unitary operator on $L^2(\mathbb{R})$ satisfying
+
+    $$\lVert\hat{f}\rVert_{L^2} = \lVert f \rVert_{L^2} \tag{11}$$
+
+    In this setting the pointwise Riemann-Lebesgue decay is complemented by the
+    global $L^2$ isometry: the transform neither concentrates nor disperses
+    energy.
+@end
+
+
+% ─── SYSTEM SETUP
+
+#target_prefix "│ " % <- what gets prepended to each line of output
+
+#before_each
+    \setunicode{true}
+    \setmathitalic{true}
+    \setwidth{78}
+    \setparskip{1} % implicit spacing around paragraphs
+    \setmathabove{1} % implicit spacing around display math
+    \setmathbelow{1}
+    \linebreaker{greedy} % greedy for smart column alignment, raggedright for left aligned
+
+    \macro<\indented{content}>{\indent[2]{${content}}}
+    \macro<\cmd{x}>{\textbackslash{}\textit{${x}}}
+#end

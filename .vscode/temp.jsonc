@@ -1,0 +1,49 @@
+{
+    // Functional:
+    "cassilda.processOnSave": true,
+    "files.associations": {
+        "*.cld": "cassilda",
+        "*.hy": "cassilda"
+    },
+
+    // Visual:
+    "[cassilda]": {
+        "editor.bracketPairColorization.enabled": false,
+        "editor.fontFamily": "JuliaMono",
+        "editor.fontWeight": "300",
+        "editor.fontSize": 13,
+        "editor.lineHeight": 18
+    },
+
+    // Override if you don't want defaults:
+    // "cassilda.executablePath": "cassilda path",
+
+    // Exclusion patterns:
+    "cassilda.processOnSaveExclude": [
+        "**/wasm/**"
+    ],
+
+    // Cassilda renders in files with these extensions
+    // (if it can find @cassilda: references)
+    "cassilda.processExtensions": [
+        ".cld",
+        ".c",
+        ".cpp",
+        ".h",
+        ".hpp",
+        ".py",
+        ".js",
+        ".ts"
+    ]
+
+    // Override cassilda config path
+    // (by default it will look for it)
+    // "cassilda.configPath": "",
+
+    // Search parent directories for .cassilda.json (default: true)
+    // Safely stops at .git, home directory, or filesystem root
+    // "cassilda.findConfig": true,P
+
+    // Show verbose output in "Cassilda" Output channel (default: false)
+    //"cassilda.verbose": false
+}
