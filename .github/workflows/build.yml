@@ -5,6 +5,8 @@ on:
     branches: [ master, main, develop ]
   pull_request:
     branches: [ master, main, develop ]
+  release:
+    types: [ created ]
 
 jobs:
   # Native builds for Mac, Linux, Windows
@@ -269,7 +271,7 @@ jobs:
   package-release:
     name: Package Release
     needs: [build-native, build-wasm, build-vscode]
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event_name == 'release'
     runs-on: ubuntu-latest
 
     steps:
@@ -316,3 +318,29 @@ jobs:
           hyades-*.tar.gz
           hyades-*.zip
         retention-days: 90
+
+  # Upload packages to GitHub Release
+  upload-release-assets:
+    name: Upload Release Assets
+    needs: package-release
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download release packages
+      uses: actions/download-artifact@v4
+      with:
+        name: hyades-release-packages
+        path: packages
+
+    - name: Upload assets to release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+      run: |
+        for file in packages/hyades-*; do
+          echo "Uploading $(basename "$file")..."
+          gh release upload "${{ github.event.release.tag_name }}" "$file" --clobber
+        done
