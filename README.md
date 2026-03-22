@@ -48,7 +48,7 @@ or plain ASCII if you ask it to:
 It's a native CLI binary written in pure C. As such it is extremely fast and doesn't require any additional dependencies.
 Linux, MacOS, and Windows, and Web (WASM) are all supported out of the box.
 
-[**Try it in your browser →**](https://apology-is-policy.github.io/texascii/) -- interactive WASM playground with tutorials and a full syntax reference. No installation required.
+[**Try it in your browser →**](https://apology-is-policy.github.io/hyades/) -- interactive WASM playground with tutorials and a full syntax reference. No installation required.
 
 ## Features
 
@@ -104,10 +104,11 @@ Fractions, roots, integrals, summations, products, limits, matrices, piecewise f
 
 ### Pre-built binaries
 
-Download from [Releases](../../releases) (macOS, Linux, Windows), then run the install script:
+Download from [Releases](https://github.com/apology-is-policy/hyades/releases) (macOS, Linux, Windows), then run the install script:
 
 ```bash
 # Linux / macOS
+chmod a+x install.sh
 ./install.sh
 
 # Windows (PowerShell)
