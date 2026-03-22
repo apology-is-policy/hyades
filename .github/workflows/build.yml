@@ -167,8 +167,18 @@ jobs:
 
     - name: Prepare GitHub Pages deployment
       run: |
-        cp wasm/index.html wasm/build/ 2>/dev/null || echo "No index.html to copy"
-        cp wasm/dist/* wasm/build/ 2>/dev/null || echo "No dist files to copy"
+        # Copy app files (HTML, JS, CSS, assets) into the build directory
+        # alongside the Emscripten-built hyades.js/hyades.wasm.
+        # wasm/dist/ may not exist (it's gitignored), so copy from wasm/ root.
+        cp wasm/index.html wasm/build/
+        cp wasm/cassilda-app.js wasm/build/
+        cp wasm/cassilda-app.css wasm/build/
+        cp wasm/examples-library.js wasm/build/
+        cp wasm/hyades-api.js wasm/build/
+        cp wasm/hyades-worker.js wasm/build/
+        cp wasm/cld.gif wasm/build/
+        # If dist/ exists (local build), overlay it (but don't overwrite WASM)
+        cp wasm/dist/*.js wasm/dist/*.css wasm/dist/*.gif wasm/dist/*.txt wasm/dist/*.html wasm/build/ 2>/dev/null || true
         touch wasm/build/.nojekyll
 
     - name: List WASM outputs
