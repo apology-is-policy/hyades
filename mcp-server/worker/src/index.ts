@@ -74,7 +74,14 @@ interface JsonRpcResponse {
 // Tool definition
 const RENDER_TOOL = {
   name: "render",
+  title: "Render Hyades source",
   description: TOOL_DESCRIPTION,
+  annotations: {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
   inputSchema: {
     type: "object" as const,
     properties: {
