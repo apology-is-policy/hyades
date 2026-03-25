@@ -30,7 +30,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '20.19.0'
 
     - name: Install dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
@@ -131,7 +131,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '20.19.0'
 
     - name: Setup Emscripten
       uses: mymindstorm/setup-emsdk@v14
@@ -229,7 +229,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '20.19.0'
 
     - name: Download LSP server
       uses: actions/download-artifact@v4
