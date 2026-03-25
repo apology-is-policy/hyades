@@ -73,6 +73,9 @@ compile_commands.json
 /Testing/
 /docs/
 
+.mcpregistry_github_token
+.mcpregistry_registry_token
+
 # OS
 .DS_Store
 Thumbs.db
