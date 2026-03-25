@@ -297,11 +297,20 @@ export default {
       );
     }
 
-    // Favicon — redirect to repo logo so Google favicon service picks it up
+    // Favicon
     if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") {
-      return Response.redirect(
-        "https://raw.githubusercontent.com/apology-is-policy/hyades/master/logo.svg",
-        302
+      return new Response(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#2d2d2d"/>
+  <text x="32" y="48" font-family="serif" font-size="48" font-weight="bold" fill="#e8e8e8" text-anchor="middle">Σ</text>
+</svg>`,
+        {
+          headers: {
+            "Content-Type": "image/svg+xml",
+            "Cache-Control": "public, max-age=86400",
+            ...corsHeaders(),
+          },
+        }
       );
     }
 
