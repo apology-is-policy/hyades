@@ -297,6 +297,14 @@ export default {
       );
     }
 
+    // Favicon — redirect to repo logo so Google favicon service picks it up
+    if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") {
+      return Response.redirect(
+        "https://raw.githubusercontent.com/apology-is-policy/hyades/master/logo.svg",
+        302
+      );
+    }
+
     // Health check
     if (url.pathname === "/health" && request.method === "GET") {
       return new Response(JSON.stringify({ status: "ok", ...SERVER_INFO }), {
